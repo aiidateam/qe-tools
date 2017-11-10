@@ -1,16 +1,8 @@
 # -*- coding: utf-8 -*-
-import re
-import numpy as np
-from qeinputparser import (
-        QeInputFile,parse_namelists,parse_atomic_positions,
-        parse_atomic_species,parse_cell_parameters, RE_FLAGS )
-from aiida.orm.data.array.kpoints import KpointsData
-from aiida.common.exceptions import ParsingError
-
 
 from qeinputparser import (
         QeInputFile,parse_namelists,parse_atomic_positions,
-        parse_atomic_species,parse_cell_parameters, RE_FLAGS )
+        parse_atomic_species,parse_cell_parameters)
 
 class CpInputFile(QeInputFile):
     def __init__(self, pwinput):
