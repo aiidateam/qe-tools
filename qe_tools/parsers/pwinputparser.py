@@ -317,3 +317,10 @@ def parse_k_points(txt):
     return info_dict
 
 
+if __name__ == '__main__':
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument('filename')
+    parsed = parser.parse_args()
+    qe =PwInputFile(parsed.filename)
+    print qe.get_structuredata()

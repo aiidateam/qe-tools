@@ -259,7 +259,7 @@ Ac | Th | Pa | U  | Np | Pu | Am | Cm | Bk | Cf | Es | Fm | Md | No | Lr | # Act
 
         [
             structuredata.append_site(Site(kind_name=sym, position=pos,))
-            for sym, pos in zip(structure_dict['names'], structure_dict['positions'])]
+            for sym, pos in zip(structure_dict['atom_names'], structure_dict['positions'])]
         
         return structuredata
 
@@ -1179,9 +1179,4 @@ def get_structure_from_qeinput(
 
 
 
-if __name__ == '__main__':
-    from argparse import ArgumentParser
-    parser = ArgumentParser()
-    parser.add_argument('filename')
-    parsed = parser.parse_args()
-    print parsed
+
