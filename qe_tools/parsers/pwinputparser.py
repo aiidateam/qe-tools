@@ -12,7 +12,7 @@ import numpy as np
 from qeinputparser import (
         QeInputFile,parse_namelists,parse_atomic_positions,
         parse_atomic_species,parse_cell_parameters, RE_FLAGS )
-from aiida.orm.data.array.kpoints import KpointsData
+
 from aiida.common.exceptions import ParsingError
 
 
@@ -180,6 +180,7 @@ class PwInputFile(QeInputFile):
         :raises NotImplementedError: if the kpoints are
             in a format not yet supported.
         """
+        from aiida.orm.data.array.kpoints import KpointsData
         # Initialize the KpointsData node
         kpointsdata = KpointsData()
         # Get the structure using this class's method.

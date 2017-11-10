@@ -7,15 +7,13 @@ TODO: Parse CONSTRAINTS, OCCUPATIONS, ATOMIC_FORCES once they are implemented
       in AiiDA
 """
 import re
-import os
+import os, sys
 import numpy as np
-from aiida.common.exceptions import ParsingError
-from aiida.orm.data.structure import StructureData, _valid_symbols
-from aiida.common.constants import bohr_to_ang
-from aiida.common.exceptions import InputValidationError
-from aiida_quantumespresso.calculations import _uppercase_dict
-from aiida_quantumespresso.parsers.constants import bohr_to_ang
 
+
+
+from qe_tools.constants import bohr_to_ang
+from qe_tools.utils.exceptions import ParsingError, InputValidationError
 
 RE_FLAGS = re.M | re.X | re.I
 
@@ -208,13 +206,62 @@ class QeInputFile(object):
         :raises aiida.common.exceptions.ParsingError: if there are issues
             parsing the input.
         """
-        return get_structuredata_from_qeinput(
+        from aiida.orm.data.structure import StructureData, Kind, Site
+
+
+        valid_elements_regex = re.compile("""
+            (?P<ele>
+H  | He |
+Li | Be | B  | C  | N  | O  | F  | Ne |
+Na | Mg | Al | Si | P  | S  | Cl | Ar |
+K  | Ca | Sc | Ti | V  | Cr | Mn | Fe | Co | Ni | Cu | Zn | Ga | Ge | As | Se | Br | Kr |
+Rb | Sr | Y  | Zr | Nb | Mo | Tc | Ru | Rh | Pd | Ag | Cd | In | Sn | Sb | Te | I  | Xe |
+Cs | Ba | Hf | Ta | W  | Re | Os | Ir | Pt | Au | Hg | Tl | Pb | Bi | Po | At | Rn |
+Fr | Ra | Rf | Db | Sg | Bh | Hs | Mt |
+
+La | Ce | Pr | Nd | Pm | Sm | Eu | Gd | Tb | Dy | Ho | Er | Tm | Yb | Lu | # Lanthanides
+Ac | Th | Pa | U  | Np | Pu | Am | Cm | Bk | Cf | Es | Fm | Md | No | Lr | # Actinides
+        )
+        [^a-z]  # Any specification of an element is followed by some number
+                # or capital letter or special character.
+""", re.X | re.I)
+
+        structure_dict = get_structure_from_qeinput(
                 text=self.input_txt, namelists=self.namelists,
                 atomic_positions=self.atomic_positions,
                 atomic_species=self.atomic_species,
                 cell_parameters=self.cell_parameters
             )
+        # instance and set the cell
+        structuredata = StructureData()
+        structuredata._set_attr('cell', structure_dict['cell'].tolist())
 
+        #################  KINDS ##########################
+        for mass, name, pseudo in zip(
+                structure_dict['species']['masses'],
+                structure_dict['species']['names'],
+                structure_dict['species']['pseudo_file_names']
+            ):
+            try:
+                # IMPORTANT: The symbols is parsed from the Pseudo file name
+                # Is this the best way??
+                # Should we also try from the associated kind name?
+                symbols = valid_elements_regex.search(pseudo).group('ele').capitalize()
+            except Exception as e:
+                raise InputValidationError(
+                    'I could not read an element name in {}'.format(match.group(0))
+                )
+            structuredata.append_kind(Kind(
+                    name=name,
+                    symbols=symbols,
+                    mass=mass,
+                ))
+
+        [
+            structuredata.append_site(Site(kind_name=sym, position=pos,))
+            for sym, pos in zip(structure_dict['names'], structure_dict['positions'])]
+        
+        return structuredata
 
 def str2val(valstr):
     """
@@ -329,7 +376,8 @@ def parse_namelists(txt):
             'No data was found while parsing the namelist in the following '
             'text\n' + txt
         )
-    return _uppercase_dict(params_dict, "params_dict")
+    # TODO: uppercase correct
+    return params_dict
 
 
 def parse_atomic_positions(txt):
@@ -684,7 +732,7 @@ def parse_atomic_species(txt):
              'pseudo_file_names': ['Li.pbe-sl-rrkjus_psl.1.0.0.UPF',
                                    'O.pbe-nl-rrkjus_psl.1.0.0.UPF',
                                    'Al.pbe-nl-rrkjus_psl.1.0.0.UPF',
-                                   'Si3 28.0855 Si.pbe-nl-rrkjus_psl.1.0.0.UPF']
+                                   'Si.pbe-nl-rrkjus_psl.1.0.0.UPF']
 
     :raises aiida.common.exceptions.ParsingError: if there are issues
         parsing the input.
@@ -1026,39 +1074,33 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):
 
     return cell
 
-def get_structuredata_from_qeinput(
+def get_structure_from_qeinput(
         filepath=None, text=None, namelists=None,
         atomic_species=None, atomic_positions=None, cell_parameters=None
         
     ):
     """
     Function that receives either
-    :param filepath: the filepath storing **or**
-    :param text: the string of a standard QE-input file.
+    :param str filepath: the filepath storing **or**
+    :param str text: the string of the standard QE-input file.
+    :param dict namelists: The dictionary of the namelist (optional)
+    :param dict atomic_species: The dictionary of the atomic_species (optional)
+    :param atomic_positions: The atomic positions as specified in the file (optional)
+    :param list cell_parameters: The cell parameters (optional)
+
+    :returns: A dictionary of all the parsed information:
+        {
+            "positions":A numpy array of absolute positions in angstrom with shape (nat, 3)
+            "species": A dictionary of the species, as returned by parse_atomic_species
+            "cell": A 3,3 array of the cell vectors in angstrom
+            "atom_names": A list of the kind names as used in the input,
+        }
+
     An instance of :py:class:`~aiida.orm.data.structure.StructureData` is initialized with kinds, positions and cell
     as defined in the input file.
     This function can deal with ibrav being set different from 0 and the cell being defined
     with celldm(n) or A,B,C, cosAB etc.
     """
-    from aiida.orm.data.structure import StructureData, Kind, Site
-    #~ from aiida.common.utils import get_fortfloat
-
-    valid_elements_regex = re.compile("""
-        (?P<ele>
-H  | He |
-Li | Be | B  | C  | N  | O  | F  | Ne |
-Na | Mg | Al | Si | P  | S  | Cl | Ar |
-K  | Ca | Sc | Ti | V  | Cr | Mn | Fe | Co | Ni | Cu | Zn | Ga | Ge | As | Se | Br | Kr |
-Rb | Sr | Y  | Zr | Nb | Mo | Tc | Ru | Rh | Pd | Ag | Cd | In | Sn | Sb | Te | I  | Xe |
-Cs | Ba | Hf | Ta | W  | Re | Os | Ir | Pt | Au | Hg | Tl | Pb | Bi | Po | At | Rn |
-Fr | Ra | Rf | Db | Sg | Bh | Hs | Mt |
-
-La | Ce | Pr | Nd | Pm | Sm | Eu | Gd | Tb | Dy | Ho | Er | Tm | Yb | Lu | # Lanthanides
-Ac | Th | Pa | U  | Np | Pu | Am | Cm | Bk | Cf | Es | Fm | Md | No | Lr | # Actinides
-        )
-        [^a-z]  # Any specification of an element is followed by some number
-                # or capital letter or special character.
-    """, re.X | re.I)
     # I need either a valid filepath or the text of the qeinput file:
     if filepath:
         with open(filepath) as f:
@@ -1100,30 +1142,7 @@ Ac | Th | Pa | U  | Np | Pu | Am | Cm | Bk | Cf | Es | Fm | Md | No | Lr | # Act
 
     cell = get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm)   
 
-    # instance and set the cell
-    structuredata = StructureData()
-    structuredata._set_attr('cell', cell.tolist())
 
-    #################  KINDS ##########################
-
-
-    
-    for mass, name, pseudo in zip(
-            atomic_species['masses'],
-            atomic_species['names'],
-            atomic_species['pseudo_file_names']
-        ):
-        try:
-            symbols = valid_elements_regex.search(pseudo).group('ele').capitalize()
-        except Exception as e:
-            raise InputValidationError(
-                'I could not read an element name in {}'.format(match.group(0))
-            )
-        structuredata.append_kind(Kind(
-                name=name,
-                symbols=symbols,
-                mass=mass,
-            ))
 
     ################## POSITIONS #######################
     positions_units = atomic_positions['units']
@@ -1153,9 +1172,16 @@ Ac | Th | Pa | U  | Np | Pu | Am | Cm | Bk | Cf | Es | Fm | Md | No | Lr | # Act
             )
         )
     ######### DEFINE SITES ######################
+    return dict(positions=positions.tolist(),
+            species=atomic_species,
+            cell=cell,
+            atom_names=atomic_positions['names'])
 
-    positions = positions.tolist()
-    [
-        structuredata.append_site(Site(kind_name=sym, position=pos,))
-        for sym, pos in zip(atomic_positions['names'], positions)]
-    return structuredata
+
+
+if __name__ == '__main__':
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument('filename')
+    parsed = parser.parse_args()
+    print parsed
