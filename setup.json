@@ -1,0 +1,27 @@
+{
+    "author": "The AiiDA team", 
+    "author_email": "developers@aiida.net", 
+    "classifiers": [
+        "License :: OSI Approved :: MIT License", 
+        "Programming Language :: Python :: 2.7", 
+        "Development Status :: 4 - Beta"
+    ], 
+    "description": "A set of useful tools to manage Quantum ESPRESSO files and related stuff",
+    "extras_require": {
+        "dev_precommit": [
+            "pre-commit"
+        ], 
+        "docs": [
+            "Sphinx", 
+            "docutils", 
+            "sphinx_rtd_theme"
+        ]
+    }, 
+    "install_requires": [
+        "",
+    ], 
+    "license": "MIT License", 
+    "name": "qe-tools", 
+    "url": "https://github.com/aiidateam/qe-tools", 
+    "version": "1.0.0"
+}
