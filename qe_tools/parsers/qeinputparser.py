@@ -848,11 +848,11 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):
                     cosa = system_dict['celldm(4)']
                 else:
                     cosa = system_dict['cosbc']
-            if ibrav in (14,):
                 if using_celldm:
                     cosg = system_dict['celldm(6)']
                 else:
                     cosg = system_dict['cosab']
+                sing = np.sqrt(1. - cosg ** 2)
         except Exception as e:
             raise InputValidationError(
                 '\nException {} raised when searching for\n'
@@ -1113,7 +1113,7 @@ def get_structure_from_qeinput(
         )
 
     if namelists is None:
-        namelists = parse_namelists(text)
+        namelists = parse_namelists(txt)
     if atomic_species is None:
         atomic_species = parse_atomic_species(txt)
     if cell_parameters is None:

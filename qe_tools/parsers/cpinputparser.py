@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from qeinputparser import (
+from .qeinputparser import (
         QeInputFile,parse_namelists,parse_atomic_positions,
         parse_atomic_species,parse_cell_parameters)
 

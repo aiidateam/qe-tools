@@ -9,7 +9,7 @@ TODO: Parse CONSTRAINTS, OCCUPATIONS, ATOMIC_FORCES once they are implemented
 
 import re
 import numpy as np
-from qeinputparser import (
+from .qeinputparser import (
         QeInputFile,parse_namelists,parse_atomic_positions,
         parse_atomic_species,parse_cell_parameters, RE_FLAGS )
 from qe_tools.utils.exceptions import ParsingError
