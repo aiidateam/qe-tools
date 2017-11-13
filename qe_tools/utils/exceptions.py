@@ -1,4 +1,3 @@
-
 class ParsingError(Exception):
     """
     Generic error raised when there is a parsing error

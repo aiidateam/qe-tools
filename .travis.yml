@@ -1,0 +1,29 @@
+sudo: required
+
+language: python
+
+matrix: 
+    include:
+    - python: "2.7"
+    - python: "3.5"
+
+cache: pip
+
+#addons:
+#    apt:
+#        packages:
+#            - curl
+#            - gfortran
+#            - libblas-dev
+#            - liblapack-dev 
+
+before_install:
+    - pip install --upgrade pip setuptools
+
+install:
+    - pip install -e . 
+
+script:
+    - python test/test_parsers.py
+
+
