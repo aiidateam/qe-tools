@@ -205,7 +205,14 @@ class QeInputFile(object):
         if len(self.input_txt.strip()) == 0:
             raise ParsingError('The pwinput provided was empty!')
 
-
+    def get_structure_from_qeinput(self):
+        structure_dict = get_structure_from_qeinput(
+            text=self.input_txt, namelists=self.namelists,
+            atomic_positions=self.atomic_positions,
+            atomic_species=self.atomic_species,
+            cell_parameters=self.cell_parameters
+            )
+        return structure_dict
 
     def get_structuredata(self):
         """
@@ -245,12 +252,7 @@ Ac | Th | Pa | U  | Np | Pu | Am | Cm | Bk | Cf | Es | Fm | Md | No | Lr | # Act
                 # or capital letter or special character.
 """, re.X | re.I)
 
-        structure_dict = get_structure_from_qeinput(
-                text=self.input_txt, namelists=self.namelists,
-                atomic_positions=self.atomic_positions,
-                atomic_species=self.atomic_species,
-                cell_parameters=self.cell_parameters
-            )
+        structure_dict = self.get_structure_from_qeinput()
         # instance and set the cell
         structuredata = StructureData()
         structuredata._set_attr('cell', structure_dict['cell'].tolist())
@@ -810,7 +812,7 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):
     """
     ibrav = system_dict['ibrav']
 
-    valid_ibravs = range(15) + [-5, -9, -12]
+    valid_ibravs = list(range(15)) + [-3, -5, -9, -12]
     if ibrav not in valid_ibravs:
         raise InputValidationError(
             'I found ibrav = {} in input, \n'
@@ -846,13 +848,13 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):
                     c = alat * system_dict['celldm(3)']
                 else:
                     c = system_dict['c']
-            if ibrav in (5, 12, 13):
+            if ibrav in (5, -5, 12, 13):
                 if using_celldm:
                     cosg = system_dict['celldm(4)']
                 else:
                     cosg = system_dict['cosab']
                 sing = np.sqrt(1. - cosg ** 2)
-            if ibrav in (5,):
+            if ibrav in (5,-5,):
                 # They are the same in trigonal R
                 cosa = cosg
                 sina = sing
@@ -930,6 +932,14 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):
             [-1., 1., 1.],
             [-1., -1., 0.],
         ])
+    elif ibrav == -3:
+        # cubic I (bcc), more symmetric axis:
+        # v1 = (a/2)(-1,1,1), v2 = (a/2)(1,-1,1),  v3 = (a/2)(1,1,-1)
+        cell = 0.5 * alat * np.array([
+            [-1., 1., 1.],
+            [1., -1., 1.],
+            [1., 1., -1.],
+        ])
     elif ibrav == 4:
         # 4          Hexagonal and Trigonal P        celldm(3)=c/a
         # v1 = a(1,0,0),  v2 = a(-1/2,sqrt(3)/2,0),  v3 = a(0,0,c/a)
@@ -965,12 +975,12 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):
         # Note: if you prefer x,y,z as axis in the cubic limit,
         # set  u = tz + 2*sqrt(2)*ty,  v = tz - sqrt(2)*ty
         # See also the note in flib/latgen.f90
-        tx = np.sqrt((1. - c) / 2.)
-        ty = np.sqrt((1. - c) / 6.)
-        tz = np.sqrt((1. + 2. * c) / 3.)
+        tx = np.sqrt((1. - cosa) / 2.)
+        ty = np.sqrt((1. - cosa) / 6.)
+        tz = np.sqrt((1. + 2. * cosa) / 3.)
         u = tz - 2. * np.sqrt(2.) * ty
         v = tz + np.sqrt(2.) * ty
-        cell = a / np.sqrt(3.) * np.array([
+        cell = alat / np.sqrt(3.) * np.array([
             [u, v, v],
             [v, u, v],
             [v, v, u]
@@ -1064,7 +1074,7 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):
         cell = np.array([
             [0.5 * alat, 0., -0.5 * c],
             [b * cosg, b * sing, 0.],
-            [0.5 * a, 0., 0.5 * c]
+            [0.5 * alat, 0., 0.5 * c]
         ])
     elif ibrav == 14:
         #  14       Triclinic                     celldm(2)= b/a,
@@ -1193,7 +1203,7 @@ def get_structure_from_qeinput(
     ######### DEFINE SITES ######################
     return dict(positions=positions.tolist(),
             species=atomic_species,
-            cell=cell,
+            cell=cell.tolist(),
             atom_names=atomic_positions['names'])
 
 
