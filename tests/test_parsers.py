@@ -117,6 +117,7 @@ class PwTest(CustomTestCase):
             raise ValueError("Invalid valude for 'parser': '{}'".format(parser))
 
         in_fname = ParserClass(fname)
+        structure = in_fname.get_structure_from_qeinput()
 
         # Check opening as file-object
         with open(fname) as f:
@@ -126,6 +127,8 @@ class PwTest(CustomTestCase):
         self.assertNestedAlmostEqual(in_fname.cell_parameters, in_fobj.cell_parameters)
         self.assertNestedAlmostEqual(in_fname.k_points, in_fobj.k_points)
         self.assertNestedAlmostEqual(in_fname.namelists, in_fobj.namelists)
+        self.assertNestedAlmostEqual(structure, 
+            in_fobj.get_structure_from_qeinput())
 
         # Check opening from string with file content
         with open(fname) as f:
@@ -136,12 +139,21 @@ class PwTest(CustomTestCase):
         self.assertNestedAlmostEqual(in_string.cell_parameters, in_fobj.cell_parameters)
         self.assertNestedAlmostEqual(in_string.k_points, in_fobj.k_points)
         self.assertNestedAlmostEqual(in_string.namelists, in_fobj.namelists)
+        self.assertNestedAlmostEqual(in_string.get_structure_from_qeinput(), 
+            in_fobj.get_structure_from_qeinput())
 
         result = {
+            # Raw, from input
             "atomic_positions": in_fname.atomic_positions,
+            # Raw, from input
             "atomic_species": in_fname.atomic_species,
+            # Raw, from input can be None
             "cell_parameters": in_fname.cell_parameters,
             "namelists": in_fname.namelists,
+            # Parsed, always angstrom and Cartesian
+            "positions_angstrom": structure['positions'],
+            # Parsed, always a 3x3 matrix
+            "cell": structure['cell'],
         }
         if parser != 'cp':
             result["k_points"] = in_fname.k_points
@@ -160,127 +172,86 @@ class PwTest(CustomTestCase):
         # if I don't want to test them.
         self.assertNestedAlmostEqualOnlyKeysInFirst(ref, result)
 
+    ############################################################################
     ## Here start the tests
+    ############################################################################
     def test_example_ibrav0(self):
         self.singletest(label='example_ibrav0')
 
-    # def test_lattice_ibrav0_cell_parameters(self):
-    #     self.singletest(label='lattice_ibrav0_cell_parameters')
+    def test_example_ibrav0_ifpos(self):
+        self.singletest(label='example_ibrav0_ifpos')
 
-    # def test_lattice_ibrav0_cell_parameters_a(self):
-    #     self.singletest(label='lattice_ibrav0_cell_parameters_a')
+    def test_lattice_ibrav0_cell_parameters(self):
+        self.singletest(label='lattice_ibrav0_cell_parameters')
 
-    # def test_lattice_ibrav0_cell_parameters_ang(self):
-    #     self.singletest(label='lattice_ibrav0_cell_parameters_ang')
+    def test_lattice_ibrav0_cell_parameters_a(self):
+        self.singletest(label='lattice_ibrav0_cell_parameters_a')
 
-    # def test_lattice_ibrav0_cell_parameters_celldm(self):
-    #     self.singletest(label='lattice_ibrav0_cell_parameters_celldm')
+    def test_lattice_ibrav0_cell_parameters_ang(self):
+        self.singletest(label='lattice_ibrav0_cell_parameters_ang')
 
-    # def test_lattice_ibrav1(self):
-    #     self.singletest(label='lattice_ibrav1')
+    def test_lattice_ibrav0_cell_parameters_celldm(self):
+        self.singletest(label='lattice_ibrav0_cell_parameters_celldm')
 
-    # def test_lattice_ibrav10(self):
-    #     self.singletest(label='lattice_ibrav10')
+    def test_lattice_ibrav1(self):
+        self.singletest(label='lattice_ibrav1')
 
-    # def test_lattice_ibrav10_kauto(self):
-    #     self.singletest(label='lattice_ibrav10_kauto')
+    def test_lattice_ibrav1_kauto(self):
+        self.singletest(label='lattice_ibrav1_kauto')
 
-    # def test_lattice_ibrav11(self):
-    #     self.singletest(label='lattice_ibrav11')
+    def test_lattice_ibrav10(self):
+        self.singletest(label='lattice_ibrav10')
 
-    # def test_lattice_ibrav11_kauto(self):
-    #     self.singletest(label='lattice_ibrav11_kauto')
+    def test_lattice_ibrav11(self):
+        self.singletest(label='lattice_ibrav11')
 
-    # def test_lattice_ibrav12(self):
-    #     self.singletest(label='lattice_ibrav12')
+    def test_lattice_ibrav12(self):
+        self.singletest(label='lattice_ibrav12')
 
-    # def test_lattice_ibrav12_kauto(self):
-    #     self.singletest(label='lattice_ibrav12_kauto')
+    def test_lattice_ibrav13(self):
+        self.singletest(label='lattice_ibrav13')
 
-    # def test_lattice_ibrav13(self):
-    #     self.singletest(label='lattice_ibrav13')
+    def test_lattice_ibrav14(self):
+        self.singletest(label='lattice_ibrav14')
 
-    # def test_lattice_ibrav13_kauto(self):
-    #     self.singletest(label='lattice_ibrav13_kauto')
+    def test_lattice_ibrav2(self):
+        self.singletest(label='lattice_ibrav2')
 
-    # def test_lattice_ibrav14(self):
-    #     self.singletest(label='lattice_ibrav14')
+    def test_lattice_ibrav3(self):
+        self.singletest(label='lattice_ibrav3')
 
-    # def test_lattice_ibrav14_kauto(self):
-    #     self.singletest(label='lattice_ibrav14_kauto')
+    def test_lattice_ibrav4(self):
+        self.singletest(label='lattice_ibrav4')
 
-    # def test_lattice_ibrav1_kauto(self):
-    #     self.singletest(label='lattice_ibrav1_kauto')
+    def test_lattice_ibrav5(self):
+        self.singletest(label='lattice_ibrav5')
 
-    # def test_lattice_ibrav2(self):
-    #     self.singletest(label='lattice_ibrav2')
+    def test_lattice_ibrav6(self):
+        self.singletest(label='lattice_ibrav6')
 
-    # def test_lattice_ibrav2_kauto(self):
-    #     self.singletest(label='lattice_ibrav2_kauto')
+    def test_lattice_ibrav7(self):
+        self.singletest(label='lattice_ibrav7')
 
-    # def test_lattice_ibrav3(self):
-    #     self.singletest(label='lattice_ibrav3')
+    def test_lattice_ibrav8(self):
+        self.singletest(label='lattice_ibrav8')
 
-    # def test_lattice_ibrav3_kauto(self):
-    #     self.singletest(label='lattice_ibrav3_kauto')
+    def test_lattice_ibrav9(self):
+        self.singletest(label='lattice_ibrav9')
 
-    # def test_lattice_ibrav4(self):
-    #     self.singletest(label='lattice_ibrav4')
+    # The following is for negative ibravs
 
-    # def test_lattice_ibrav4_kauto(self):
-    #     self.singletest(label='lattice_ibrav4_kauto')
+    def test_lattice_ibrav_12(self):
+        self.singletest(label='lattice_ibrav_12')
 
-    # def test_lattice_ibrav5(self):
-    #     self.singletest(label='lattice_ibrav5')
+    def test_lattice_ibrav_3(self):
+        self.singletest(label='lattice_ibrav_3')
 
-    # def test_lattice_ibrav5_kauto(self):
-    #     self.singletest(label='lattice_ibrav5_kauto')
+    def test_lattice_ibrav_5(self):
+        self.singletest(label='lattice_ibrav_5')
 
-    # def test_lattice_ibrav6(self):
-    #     self.singletest(label='lattice_ibrav6')
-
-    # def test_lattice_ibrav6_kauto(self):
-    #     self.singletest(label='lattice_ibrav6_kauto')
-
-    # def test_lattice_ibrav7(self):
-    #     self.singletest(label='lattice_ibrav7')
-
-    # def test_lattice_ibrav7_kauto(self):
-    #     self.singletest(label='lattice_ibrav7_kauto')
-
-    # def test_lattice_ibrav8(self):
-    #     self.singletest(label='lattice_ibrav8')
-
-    # def test_lattice_ibrav8_kauto(self):
-    #     self.singletest(label='lattice_ibrav8_kauto')
-
-    # def test_lattice_ibrav9(self):
-    #     self.singletest(label='lattice_ibrav9')
-
-    # def test_lattice_ibrav9_kauto(self):
-    #     self.singletest(label='lattice_ibrav9_kauto')
-
-    # def test_lattice_ibrav_12(self):
-    #     self.singletest(label='lattice_ibrav_12')
-
-    # def test_lattice_ibrav_12_kauto(self):
-    #     self.singletest(label='lattice_ibrav_12_kauto')
-
-    # def test_lattice_ibrav_3(self):
-    #     self.singletest(label='lattice_ibrav_3')
-
-    # def test_lattice_ibrav_3_kauto(self):
-    #     self.singletest(label='lattice_ibrav_3_kauto')
-
-    # def test_lattice_ibrav_5(self):
-    #     self.singletest(label='lattice_ibrav_5')
-
-    # def test_lattice_ibrav_5_kauto(self):
-    #     self.singletest(label='lattice_ibrav_5_kauto')
-
-    # Wyckoff position input (crystal_sg) not supported by this parser
+    ##Wyckoff position input (crystal_sg) not supported by this parser
     #def test_lattice_wyckoff_sio2(self):
-    #    self.singletest(label='lattice_wyckoff_sio2')
+    #   self.singletest(label='lattice_wyckoff_sio2')
 
 
 def print_test_comparison(label, parser='pw', write=False):
@@ -302,13 +273,22 @@ def print_test_comparison(label, parser='pw', write=False):
         raise ValueError("Invalid valude for 'parser': '{}'".format(parser))
 
     parsed = ParserClass(fname)
+    structure = parsed.get_structure_from_qeinput()
 
     result = {
+        # Raw, from input
         "atomic_positions": parsed.atomic_positions,
+        # Raw, from input
         "atomic_species": parsed.atomic_species,
+        # Raw, from input can be None
         "cell_parameters": parsed.cell_parameters,
         "namelists": parsed.namelists,
+        # Parsed, always angstrom and Cartesian
+        "positions_angstrom": structure['positions'],
+        # Parsed, always a 3x3 matrix
+        "cell": structure['cell'],
     }
+
     if parser != 'cp':
         result["k_points"] = parsed.k_points
 
