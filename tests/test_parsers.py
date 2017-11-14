@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from builtins import (
+         bytes, dict, int, list, object, range, str,
+         ascii, chr, hex, input, next, oct, open,
+         pow, round, super,
+         filter, map, zip)
+
+
 import os
 import unittest
 import json
@@ -30,7 +37,7 @@ class CustomTestCase(unittest.TestCase):
         is_root = not '__trace' in kwargs
         trace = kwargs.pop('__trace', 'ROOT')
         try:
-            if isinstance(expected, (int, float, long, complex)):
+            if isinstance(expected, (int, float, complex)):
                 self.assertAlmostEqual(expected, actual, *args, **kwargs)
             elif isinstance(expected, (list, tuple, numpy.ndarray)):
                 self.assertEqual(len(expected), len(actual))
@@ -67,7 +74,7 @@ class CustomTestCase(unittest.TestCase):
         is_root = not '__trace' in kwargs
         trace = kwargs.pop('__trace', 'ROOT')
         try:
-            if isinstance(expected, (int, float, long, complex)):
+            if isinstance(expected, (int, float, complex)):
                 self.assertAlmostEqual(expected, actual, *args, **kwargs)
             elif isinstance(expected, (list, tuple, numpy.ndarray)):
                 self.assertEqual(len(expected), len(actual))
