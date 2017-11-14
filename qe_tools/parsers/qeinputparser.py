@@ -6,12 +6,26 @@ them.
 TODO: Parse CONSTRAINTS, OCCUPATIONS, ATOMIC_FORCES once they are implemented
       in AiiDA
 """
-from __future__ import print_function
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+from builtins import (
+         bytes, dict, int, list, object, range, str,
+         ascii, chr, hex, input, next, oct, open,
+         pow, round, super,
+         filter, map, zip)
+
 import re
 import os, sys
 import numpy as np
 from io import IOBase
 from past.builtins import basestring
+
+import io
+try:
+    file_types = (file, io.IOBase)
+except NameError:
+    # This happens in python 3.x, where 'file' does not exist anympre
+    file_types = (io.IOBase,)
 
 from qe_tools.constants import bohr_to_ang
 from qe_tools.utils.exceptions import ParsingError, InputValidationError
@@ -153,7 +167,7 @@ class QeInputFile(object):
         """
         # Get the text of the pwinput file as a single string.
         # File.
-        if isinstance(pwinput, IOBase):
+        if isinstance(pwinput, file_types):
             try:
                 self.input_txt = pwinput.read()
             except IOError:
@@ -173,8 +187,9 @@ class QeInputFile(object):
         # Path or string of the text.
         elif issubclass(type(pwinput), basestring):
             if os.path.isfile(pwinput):
-                if os.path.exists(pwinput) and os.path.isabs(pwinput):
-                    self.input_txt = open(pwinput).read()
+                if os.path.isabs(pwinput):
+                    with open(pwinput) as f:
+                        self.input_txt = f.read()
                 else:
                     raise IOError(
                         'Please provide the absolute path to an existing '
@@ -182,6 +197,9 @@ class QeInputFile(object):
                     )
             else:
                 self.input_txt = pwinput
+        else: 
+            raise TypeError("Unknown type for input 'pwinput': {}".format(
+                type(pwinput)))
 
         # Check that pwinput is not empty.
         if len(self.input_txt.strip()) == 0:
