@@ -930,7 +930,7 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):
         cell = 0.5 * alat * np.array([
             [1., 1., 1.],
             [-1., 1., 1.],
-            [-1., -1., 0.],
+            [-1., -1., 1.],
         ])
     elif ibrav == -3:
         # cubic I (bcc), more symmetric axis:
