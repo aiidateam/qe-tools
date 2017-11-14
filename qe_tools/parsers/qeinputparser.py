@@ -6,6 +6,7 @@ them.
 TODO: Parse CONSTRAINTS, OCCUPATIONS, ATOMIC_FORCES once they are implemented
       in AiiDA
 """
+from __future__ import print_function
 import re
 import os, sys
 import numpy as np
@@ -303,7 +304,7 @@ def str2val(valstr):
             try:
                 val = conversion_fn(valstr)
             except ValueError as error:
-                print 'Error converting {} to a value'.format(repr(valstr))
+                print('Error converting {} to a value'.format(repr(valstr)))
                 raise error
     if val is None:
         raise ValueError('Unable to convert {} to a python variable.\n'
