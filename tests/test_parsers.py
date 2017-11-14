@@ -27,20 +27,26 @@ class PwTest(unittest.TestCase):
             raise ValueError("Invalid valude for 'parser': '{}'".format(parser))
 
         in_fname = ParserClass(fname)
+
+        # Check opening as file-object
         with open(fname) as f:
             in_fobj = ParserClass(f)
+        self.assertAlmostEqual(in_fname.atomic_positions, in_fobj.atomic_positions)
+        self.assertAlmostEqual(in_fname.atomic_species, in_fobj.atomic_species)
+        self.assertAlmostEqual(in_fname.cell_parameters, in_fobj.cell_parameters)
+        self.assertAlmostEqual(in_fname.k_points, in_fobj.k_points)
+        self.assertAlmostEqual(in_fname.namelists, in_fobj.namelists)
+
+        # Check opening from string with file content
         with open(fname) as f:
             content = f.read()
             in_string = ParserClass(content)
+        self.assertAlmostEqual(in_string.atomic_positions, in_fobj.atomic_positions)
+        self.assertAlmostEqual(in_string.atomic_species, in_fobj.atomic_species)
+        self.assertAlmostEqual(in_string.cell_parameters, in_fobj.cell_parameters)
+        self.assertAlmostEqual(in_string.k_points, in_fobj.k_points)
+        self.assertAlmostEqual(in_string.namelists, in_fobj.namelists)
 
-        # TODO: check they are the same
-        # TODO: check the following
-
-        #print(pwin.atomic_positions)
-        #print(pwin.atomic_species)
-        #print(pwin.cell_parameters)
-        #print(pwin.k_points)
-        #print(pwin.namelists)
 
 
     def test_example_ibrav0(self):

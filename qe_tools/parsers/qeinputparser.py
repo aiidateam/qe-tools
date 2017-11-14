@@ -177,7 +177,7 @@ class QeInputFile(object):
                 )
         # List.
         elif isinstance(pwinput, list):
-            if all((issubclass(type(s), basestring) for s in pwinput)):
+            if all(isinstance(s, basestring) for s in pwinput):
                 self.input_txt = ''.join(pwinput)
             else:
                 raise TypeError(
@@ -185,7 +185,7 @@ class QeInputFile(object):
                     'strings. Each element should be a string containing a line'
                     'of the pwinput file.')
         # Path or string of the text.
-        elif issubclass(type(pwinput), basestring):
+        elif isinstance(pwinput, basestring):
             if os.path.isfile(pwinput):
                 if os.path.isabs(pwinput):
                     with open(pwinput) as f:
@@ -571,9 +571,9 @@ def parse_atomic_positions(txt):
         #~ fixed_coords.append(3 * [False])  # False <--> not fixed (the default)
     # Next, try using the re for lines with force modifications.
     for match in atomic_positions_w_constraints_re.finditer(blockstr):
-        positions.append(map(fortfloat, match.group('x', 'y', 'z')))
+        positions.append(list(map(fortfloat, match.group('x', 'y', 'z'))))
         fixed_coords_this_pos = [f or '1' for f in match.group('fx', 'fy', 'fz')] # False <--> not fixed (the default)
-        fixed_coords.append(map(str01_to_bool, fixed_coords_this_pos)) 
+        fixed_coords.append(list(map(str01_to_bool, fixed_coords_this_pos)) )
         names.append(match.group('name'))
 
     # Check that the number of atomic positions parsed is equal to the number of
@@ -722,7 +722,7 @@ def parse_cell_parameters(txt):
     # Now, extract the lattice vectors.
     lattice_vectors = []
     for match in cell_vector_regex.finditer(blockstr):
-        lattice_vectors.append(map(fortfloat, (match.group('x'),match.group('y'),match.group('z'))))
+        lattice_vectors.append(list(map(fortfloat, (match.group('x'),match.group('y'),match.group('z')))))
     info_dict = dict(units=units, cell=lattice_vectors)
     return info_dict
 
