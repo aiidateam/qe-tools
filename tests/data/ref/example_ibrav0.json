@@ -1,0 +1,139 @@
+{
+  "atomic_positions": {
+    "fixed_coords": [
+      [
+        false, 
+        false, 
+        false
+      ], 
+      [
+        false, 
+        false, 
+        false
+      ], 
+      [
+        false, 
+        false, 
+        false
+      ], 
+      [
+        false, 
+        false, 
+        false
+      ], 
+      [
+        false, 
+        false, 
+        false
+      ]
+    ], 
+    "names": [
+      "Ba", 
+      "Ti", 
+      "O", 
+      "O", 
+      "O"
+    ], 
+    "positions": [
+      [
+        0.0, 
+        0.0, 
+        0.0
+      ], 
+      [
+        2.0, 
+        2.0, 
+        2.0
+      ], 
+      [
+        2.0, 
+        2.0, 
+        0.0
+      ], 
+      [
+        2.0, 
+        0.0, 
+        2.0
+      ], 
+      [
+        0.0, 
+        2.0, 
+        2.0
+      ]
+    ], 
+    "units": "angstrom"
+  }, 
+  "atomic_species": {
+    "masses": [
+      137.327, 
+      15.9994, 
+      47.867
+    ], 
+    "names": [
+      "Ba", 
+      "O", 
+      "Ti"
+    ], 
+    "pseudo_file_names": [
+      "Ba.pbesol-spn-rrkjus_psl.0.2.3-tot-pslib030.UPF", 
+      "O.pbesol-n-rrkjus_psl.0.1-tested-pslib030.UPF", 
+      "Ti.pbesol-spn-rrkjus_psl.0.2.3-tot-pslib030.UPF"
+    ]
+  }, 
+  "cell_parameters": {
+    "cell": [
+      [
+        4.0, 
+        0.0, 
+        0.0
+      ], 
+      [
+        0.0, 
+        4.0, 
+        0.0
+      ], 
+      [
+        0.0, 
+        0.0, 
+        4.0
+      ]
+    ], 
+    "units": "angstrom"
+  }, 
+  "k_points": {
+    "offset": [
+      0.0, 
+      0.0, 
+      0.0
+    ], 
+    "points": [
+      2, 
+      2, 
+      2
+    ], 
+    "type": "automatic"
+  }, 
+  "namelists": {
+    "CONTROL": {
+      "calculation": "scf", 
+      "outdir": "./out/", 
+      "prefix": "aiida", 
+      "pseudo_dir": "./pseudo/", 
+      "restart_mode": "from_scratch", 
+      "tprnfor": true, 
+      "tstress": true, 
+      "verbosity": "high", 
+      "wf_collect": true
+    }, 
+    "ELECTRONS": {
+      "conv_thr": 1e-10
+    }, 
+    "SYSTEM": {
+      "ecutrho": 320.0, 
+      "ecutwfc": 40.0, 
+      "ibrav": 0, 
+      "nat": 5, 
+      "ntyp": 3
+    }
+  }
+}
