@@ -41,7 +41,7 @@ class CustomTestCase(unittest.TestCase):
                 self.assertAlmostEqual(expected, actual, *args, **kwargs)
             elif isinstance(expected, (list, tuple, numpy.ndarray)):
                 self.assertEqual(len(expected), len(actual))
-                for index in xrange(len(expected)):
+                for index in range(len(expected)):
                     v1, v2 = expected[index], actual[index]
                     self.assertNestedAlmostEqual(v1, v2,
                                           __trace=repr(index), *args, **kwargs)
@@ -78,7 +78,7 @@ class CustomTestCase(unittest.TestCase):
                 self.assertAlmostEqual(expected, actual, *args, **kwargs)
             elif isinstance(expected, (list, tuple, numpy.ndarray)):
                 self.assertEqual(len(expected), len(actual))
-                for index in xrange(len(expected)):
+                for index in range(len(expected)):
                     v1, v2 = expected[index], actual[index]
                     self.assertNestedAlmostEqual(v1, v2,
                                           __trace=repr(index), *args, **kwargs)
