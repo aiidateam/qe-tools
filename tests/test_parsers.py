@@ -39,9 +39,7 @@ class CustomTestCase(unittest.TestCase):
         try:
             if isinstance(expected, (int, float, complex)):
                 self.assertAlmostEqual(expected, actual, *args, **kwargs)
-            elif isinstance(expected, (list, tuple, map, numpy.ndarray)):
-                expected = list(expected)
-                actual = list(actual)                
+            elif isinstance(expected, (list, tuple, numpy.ndarray)):
                 self.assertEqual(len(expected), len(actual))
                 for index in range(len(expected)):
                     v1, v2 = expected[index], actual[index]
@@ -58,7 +56,7 @@ class CustomTestCase(unittest.TestCase):
             exc.__dict__.setdefault('traces', []).append(trace)
             if is_root:
                 trace = ' -> '.join(reversed(exc.traces))
-                exc = AssertionError("%s\nTRACE: %s" % (unicode(exc), trace))
+                exc = AssertionError("%s\nTRACE: %s" % (str(exc), trace))
             raise exc
 
     def assertNestedAlmostEqualOnlyKeysInFirst(self, expected, actual, *args, **kwargs):
@@ -78,9 +76,7 @@ class CustomTestCase(unittest.TestCase):
         try:
             if isinstance(expected, (int, float, complex)):
                 self.assertAlmostEqual(expected, actual, *args, **kwargs)
-            elif isinstance(expected, (list, tuple, map, numpy.ndarray)):
-                expected = list(expected)
-                actual = list(actual)
+            elif isinstance(expected, (list, tuple, numpy.ndarray)):
                 self.assertEqual(len(expected), len(actual))
                 for index in range(len(expected)):
                     v1, v2 = expected[index], actual[index]
@@ -97,7 +93,7 @@ class CustomTestCase(unittest.TestCase):
             exc.__dict__.setdefault('traces', []).append(trace)
             if is_root:
                 trace = ' -> '.join(reversed(exc.traces))
-                exc = AssertionError("%s\nTRACE: %s" % (unicode(exc), trace))
+                exc = AssertionError("%s\nTRACE: %s" % (str(exc), trace))
             raise exc
 
 
@@ -319,7 +315,7 @@ def print_test_comparison(label, parser='pw', write=False):
     if write:
         ref_fname = os.path.join(reference_folder, '{}.json'.format(label))
         with io.open(ref_fname, 'w', encoding="utf-8") as f:
-            f.write(unicode(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False)))
+            f.write(str(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False)))
             print("File '{}' written.".format(ref_fname))
     else:
         print(json.dumps(result, indent=2, sort_keys=True))
