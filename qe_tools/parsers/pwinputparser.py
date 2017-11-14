@@ -6,6 +6,13 @@ them.
 TODO: Parse CONSTRAINTS, OCCUPATIONS, ATOMIC_FORCES once they are implemented
       in AiiDA
 """
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+from builtins import (
+         bytes, dict, int, list, object, range, str,
+         ascii, chr, hex, input, next, oct, open,
+         pow, round, super,
+         filter, map, zip)
 
 import re
 import numpy as np
@@ -295,7 +302,7 @@ def parse_k_points(txt):
         points = []
         weights = []
         for match in k_points_special_re.finditer(blockstr):
-            points.append(map(float, match.group(1, 2, 3)))
+            points.append(list(map(float, match.group(1, 2, 3))))
             weights.append(float(match.group(4)))
         info_dict['points'] = points
         info_dict['weights'] = weights
@@ -303,7 +310,7 @@ def parse_k_points(txt):
         match = k_points_automatic_block_re.search(txt)
         if match:
             info_dict['type'] = 'automatic'
-            info_dict['points'] = map(int, match.group(1, 2, 3))
+            info_dict['points'] = list(map(int, match.group(1, 2, 3)))
             info_dict['offset'] = [0. if x == 0 else 0.5
                                    for x in map(int, match.group(4, 5, 6))]
         else:
