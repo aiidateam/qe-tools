@@ -18,7 +18,8 @@
         ]
     }, 
     "install_requires": [
-        "numpy"
+        "numpy",
+	"future"
     ], 
     "license": "MIT License", 
     "name": "qe-tools", 

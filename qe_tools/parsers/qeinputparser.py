@@ -10,8 +10,8 @@ from __future__ import print_function
 import re
 import os, sys
 import numpy as np
-
-
+from io import IOBase
+from past.builtins import basestring
 
 from qe_tools.constants import bohr_to_ang
 from qe_tools.utils.exceptions import ParsingError, InputValidationError
@@ -153,7 +153,7 @@ class QeInputFile(object):
         """
         # Get the text of the pwinput file as a single string.
         # File.
-        if isinstance(pwinput, file):
+        if isinstance(pwinput, IOBase):
             try:
                 self.input_txt = pwinput.read()
             except IOError:

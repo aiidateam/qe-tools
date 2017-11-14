@@ -8,9 +8,7 @@ data_folder = os.path.join(os.path.split(os.path.abspath(__file__))[0], 'data')
 
 class PwTest(unittest.TestCase):
     def test_example_ibrav0(self):
-
-        folder = os.path.join(data_folder)
-        pwin = PwInputFile(os.path.join(folder, 'example-ibrav0.in'))
+        pwin = PwInputFile(os.path.join(data_folder, 'example-ibrav0.in'))
         #print(pwin.atomic_positions)
         #print(pwin.atomic_species)
         #print(pwin.cell_parameters)
