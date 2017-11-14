@@ -12,6 +12,7 @@ import unittest
 import json
 
 from qe_tools import PwInputFile, CpInputFile
+from qe_tools.utils.exceptions import InputValidationError
 
 # Folder with input file examples
 data_folder = os.path.join(os.path.split(os.path.abspath(__file__))[0], 'data')
@@ -177,6 +178,25 @@ class PwTest(CustomTestCase):
     ############################################################################
     def test_example_ibrav0(self):
         self.singletest(label='example_ibrav0')
+
+    def test_example_ibrav0_alat(self):
+        self.singletest(label='example_ibrav0_alat')
+
+    def test_example_ibrav0_crystal(self):
+        self.singletest(label='example_ibrav0_crystal')
+
+    def test_example_ibrav0_bohr(self):
+        self.singletest(label='example_ibrav0_bohr')
+
+    def test_example_ibrav0_nounits_cp(self):
+        # Deprecated behavior
+        with self.assertRaises(InputValidationError):
+            self.singletest(label='example_ibrav0_nounits_cp', parser='cp')
+
+    def test_example_ibrav0_nounits_pw(self):
+        # Deprecated behavior
+        with self.assertRaises(InputValidationError):
+            self.singletest(label='example_ibrav0_nounits_pw', parser='pw')
 
     def test_example_ibrav0_ifpos(self):
         self.singletest(label='example_ibrav0_ifpos')
