@@ -21,9 +21,10 @@ before_install:
     - pip install --upgrade pip setuptools
 
 install:
-    - pip install -e . 
+    - pip install -e .[dev_precommit]
 
 script:
+    - pre-commit run
     - python tests/test_parsers.py
 
 
