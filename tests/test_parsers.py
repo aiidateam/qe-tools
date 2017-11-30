@@ -179,6 +179,12 @@ class PwTest(CustomTestCase):
     def test_example_ibrav0(self):
         self.singletest(label='example_ibrav0')
 
+    def test_example_ibrav0_uppercaseunits(self):
+        self.singletest(label='example_ibrav0_uppercaseunits')
+
+    def test_example_ibrav0_multiplespecies(self):
+        self.singletest(label='example_ibrav0_multiplespecies')
+
     def test_example_ibrav0_alat(self):
         self.singletest(label='example_ibrav0_alat')
 
