@@ -91,6 +91,9 @@
       "ibrav": 0, 
       "nat": 2, 
       "ntyp": 1
+    },
+    "ELECTRONS": {
+      "conv_thr": 1e-6
     }
   }, 
   "positions_angstrom": [
