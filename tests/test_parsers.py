@@ -132,7 +132,9 @@ class PwTest(CustomTestCase):
             in_fobj.get_structure_from_qeinput())
 
         # Check opening from string with file content
-        with open(fname) as f:
+        # Open in binary mode so I get also '\r\n' from Windows and I check 
+        # that the parser properly copes with them
+        with open(fname, 'rb') as f:
             content = f.read()
             in_string = ParserClass(content)
         self.assertNestedAlmostEqual(in_string.atomic_positions, in_fobj.atomic_positions)
@@ -206,6 +208,9 @@ class PwTest(CustomTestCase):
 
     def test_example_ibrav0_ifpos(self):
         self.singletest(label='example_ibrav0_ifpos')
+
+    def test_example_mixture_windows_linux_newlines(self): 
+        self.singletest(label='example_mixture_windows_linux_newlines')
 
     def test_lattice_ibrav0_cell_parameters(self):
         self.singletest(label='lattice_ibrav0_cell_parameters')
