@@ -135,7 +135,9 @@ class PwTest(CustomTestCase):
         # Open in binary mode so I get also '\r\n' from Windows and I check 
         # that the parser properly copes with them
         with open(fname, 'rb') as f:
-            content = f.read()
+            # I decode for python3, internally I want a string not bytes
+            # I assume it's UTF-8
+            content = f.read().decode('utf-8')
             in_string = ParserClass(content)
         self.assertNestedAlmostEqual(in_string.atomic_positions, in_fobj.atomic_positions)
         self.assertNestedAlmostEqual(in_string.atomic_species, in_fobj.atomic_species)
