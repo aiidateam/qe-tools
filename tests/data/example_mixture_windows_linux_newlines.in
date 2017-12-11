@@ -1,0 +1,27 @@
+&CONTROL
+  calculation='scf',
+  outdir='./tmp',
+/
+
+&SYSTEM
+  ibrav=1,
+  celldm(1)=6.d0,
+  nat=1,
+  ntyp=1,
+  ecutwfc=30.0d0,
+  ecutrho=120.0d0,
+/
+&ELECTRONS
+  diagonalization='david',
+  conv_thr=1d-06,
+  mixing_mode='plain',
+  mixing_beta=0.700d0,
+/
+ATOMIC_SPECIES
+  P 30.973800d0 p_pbesol_v1.5.uspp.F.UPF
+ATOMIC_POSITIONS alat
+  P    0.   0. 0.
+K_POINTS automatic
+  4 4 4 0 0 0
+
+

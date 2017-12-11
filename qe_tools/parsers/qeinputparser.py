@@ -205,6 +205,14 @@ class QeInputFile(object):
         if len(self.input_txt.strip()) == 0:
             raise ParsingError('The pwinput provided was empty!')
 
+        # Take care explicitly of Windows newlines: \r\n
+        # (open would do it automatically, but if the uses passes a string
+        # this would not be done properly)
+        self.input_txt = self.input_txt.replace('\r\n', '\n')
+        # This is instead for Mac <=9 (hopefully nobody still uses it, but 
+        # who knows) that just used \r
+        self.input_txt = self.input_txt.replace('\r', '\n')
+
     def get_structure_from_qeinput(self):
         structure_dict = get_structure_from_qeinput(
             text=self.input_txt, namelists=self.namelists,
