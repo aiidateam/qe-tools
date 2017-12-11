@@ -255,7 +255,7 @@ Ac | Th | Pa | U  | Np | Pu | Am | Cm | Bk | Cf | Es | Fm | Md | No | Lr | # Act
         structure_dict = self.get_structure_from_qeinput()
         # instance and set the cell
         structuredata = StructureData()
-        #~ structuredata._set_attr('cell', structure_dict['cell'])
+
         structuredata.set_cell(structure_dict['cell'])
 
         #################  KINDS ##########################
