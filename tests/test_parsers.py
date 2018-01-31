@@ -22,7 +22,7 @@ reference_folder = os.path.join(data_folder, 'ref')
 class CustomTestCase(unittest.TestCase):
     """
     Extension of the unittest TestCase to support also deep almost-equal
-    comparisons of dicts 
+    comparisons of dicts
     )
     """
 
@@ -65,7 +65,7 @@ class CustomTestCase(unittest.TestCase):
         Check that dict have almost equal content, for float content.
 
         Check only keys in first dictionary (i.e. if it contains less keys,
-        only those are checked). 
+        only those are checked).
         Works recursively for dicts, tuples, lists, ... Use
         :py:meth:`unittest.TestCase.assertEqual` except for numbers, where
         :py:meth:`unittest.TestCase.assertAlmostEqual` is used.
@@ -104,9 +104,9 @@ class PwTest(CustomTestCase):
         Run a single test.
 
         :param label: used to generate the filename (<label>.in)
-        :param parser: used to define the parser to use. Possible values: 
+        :param parser: used to define the parser to use. Possible values:
             ``pw``, ``cp``.
-        """        
+        """
         fname = os.path.join(data_folder, '{}.in'.format(label))
         if not os.path.isfile(fname):
             raise ValueError("File {} not found".format(fname))
@@ -128,19 +128,23 @@ class PwTest(CustomTestCase):
         self.assertNestedAlmostEqual(in_fname.cell_parameters, in_fobj.cell_parameters)
         self.assertNestedAlmostEqual(in_fname.k_points, in_fobj.k_points)
         self.assertNestedAlmostEqual(in_fname.namelists, in_fobj.namelists)
-        self.assertNestedAlmostEqual(structure, 
+        self.assertNestedAlmostEqual(structure,
             in_fobj.get_structure_from_qeinput())
 
         # Check opening from string with file content
-        with open(fname) as f:
-            content = f.read()
+        # Open in binary mode so I get also '\r\n' from Windows and I check
+        # that the parser properly copes with them
+        with open(fname, 'rb') as f:
+            # I decode for python3, internally I want a string not bytes
+            # I assume it's UTF-8
+            content = f.read().decode('utf-8')
             in_string = ParserClass(content)
         self.assertNestedAlmostEqual(in_string.atomic_positions, in_fobj.atomic_positions)
         self.assertNestedAlmostEqual(in_string.atomic_species, in_fobj.atomic_species)
         self.assertNestedAlmostEqual(in_string.cell_parameters, in_fobj.cell_parameters)
         self.assertNestedAlmostEqual(in_string.k_points, in_fobj.k_points)
         self.assertNestedAlmostEqual(in_string.namelists, in_fobj.namelists)
-        self.assertNestedAlmostEqual(in_string.get_structure_from_qeinput(), 
+        self.assertNestedAlmostEqual(in_string.get_structure_from_qeinput(),
             in_fobj.get_structure_from_qeinput())
 
         result = {
@@ -179,6 +183,12 @@ class PwTest(CustomTestCase):
     def test_example_ibrav0(self):
         self.singletest(label='example_ibrav0')
 
+    def test_example_ibrav0_uppercaseunits(self):
+        self.singletest(label='example_ibrav0_uppercaseunits')
+
+    def test_example_ibrav0_multiplespecies(self):
+        self.singletest(label='example_ibrav0_multiplespecies')
+
     def test_example_ibrav0_alat(self):
         self.singletest(label='example_ibrav0_alat')
 
@@ -200,6 +210,9 @@ class PwTest(CustomTestCase):
 
     def test_example_ibrav0_ifpos(self):
         self.singletest(label='example_ibrav0_ifpos')
+
+    def test_example_mixture_windows_linux_newlines(self):
+        self.singletest(label='example_mixture_windows_linux_newlines')
 
     def test_lattice_ibrav0_cell_parameters(self):
         self.singletest(label='lattice_ibrav0_cell_parameters')
@@ -279,7 +292,7 @@ def print_test_comparison(label, parser='pw', write=False):
     Prepare the json to compare the parsing results.
 
     :param label: used to generate the filename (<label>.in)
-    :param parser: used to define the parser to use. Possible values: 
+    :param parser: used to define the parser to use. Possible values:
         ``pw``, ``cp``.
     """
     fname = os.path.join(data_folder, '{}.in'.format(label))
