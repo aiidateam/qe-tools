@@ -2,89 +2,89 @@
   "atomic_positions": {
     "fixed_coords": [
       [
-        false, 
-        false, 
+        false,
+        false,
         false
       ]
-    ], 
+    ],
     "names": [
       "P"
-    ], 
+    ],
     "positions": [
       [
-        0.0, 
-        0.0, 
+        0.0,
+        0.0,
         0.0
       ]
-    ], 
+    ],
     "units": "alat"
-  }, 
+  },
   "atomic_species": {
     "masses": [
       30.9738
-    ], 
+    ],
     "names": [
       "P"
-    ], 
+    ],
     "pseudo_file_names": [
       "p_pbesol_v1.5.uspp.F.UPF"
     ]
-  }, 
+  },
   "cell": [
     [
-      3.1750632515399997, 
-      0.0, 
+      3.1750632515399997,
+      0.0,
       0.0
-    ], 
+    ],
     [
-      0.0, 
-      3.1750632515399997, 
+      0.0,
+      3.1750632515399997,
       0.0
-    ], 
+    ],
     [
-      0.0, 
-      0.0, 
+      0.0,
+      0.0,
       3.1750632515399997
     ]
-  ], 
-  "cell_parameters": null, 
+  ],
+  "cell_parameters": null,
   "k_points": {
     "offset": [
-      0.0, 
-      0.0, 
+      0.0,
+      0.0,
       0.0
-    ], 
+    ],
     "points": [
-      4, 
-      4, 
+      4,
+      4,
       4
-    ], 
+    ],
     "type": "automatic"
-  }, 
+  },
   "namelists": {
     "CONTROL": {
-      "calculation": "scf", 
+      "calculation": "scf",
       "outdir": "./tmp"
-    }, 
+    },
     "ELECTRONS": {
-      "conv_thr": 1e-06, 
-      "diagonalization": "david", 
-      "mixing_beta": 0.7, 
+      "conv_thr": 1e-06,
+      "diagonalization": "david",
+      "mixing_beta": 0.7,
       "mixing_mode": "plain"
-    }, 
+    },
     "SYSTEM": {
-      "celldm(1)": 6.0, 
-      "ecutrho": 120.0, 
-      "ecutwfc": 30.0, 
-      "ibrav": 1, 
-      "nat": 1, 
+      "celldm(1)": 6.0,
+      "ecutrho": 120.0,
+      "ecutwfc": 30.0,
+      "ibrav": 1,
+      "nat": 1,
       "ntyp": 1
     }
-  }, 
+  },
   "positions_angstrom": [
     [
-      0.0, 
-      0.0, 
+      0.0,
+      0.0,
       0.0
     ]
   ]
