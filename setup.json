@@ -16,7 +16,8 @@
     "extras_require": {
         "dev": [
             "pre-commit", 
-            "timeout-decorator"
+            "timeout-decorator", 
+            "yapf"
         ], 
         "docs": [
             "Sphinx", 

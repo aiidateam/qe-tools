@@ -6,3 +6,11 @@
     language: system
     pass_filenames: false
 
+- repo: local
+  hooks:
+  - id: yapf
+    name: yapf
+    entry: yapf
+    language: system
+    types: [python]
+    args: ["-i"]
