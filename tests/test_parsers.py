@@ -282,6 +282,21 @@ class PwTest(CustomTestCase):
     def test_lattice_ibrav_5(self):
         self.singletest(label='lattice_ibrav_5')
 
+    def test_no_newline_exponential_time(self):
+        """
+        This tries to avoid a regression of #15 
+        (too slow parsing of specific output)
+        """
+        import timeout_decorator
+        # Should not run in more than 2 seconds 
+        # (it should be actually much faster!)
+        @timeout_decorator.timeout(2)
+        def mytest():
+            self.singletest(label='no_newline_exponential_time')
+        
+        # Run the test
+        mytest()
+
     ##Wyckoff position input (crystal_sg) not supported by this parser
     #def test_lattice_wyckoff_sio2(self):
     #   self.singletest(label='lattice_wyckoff_sio2')

@@ -21,7 +21,7 @@ before_install:
     - pip install --upgrade pip setuptools
 
 install:
-    - pip install -e .[dev_precommit]
+    - pip install -e .[dev]
 
 script:
     - pre-commit run
