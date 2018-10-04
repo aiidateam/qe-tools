@@ -1,0 +1,22 @@
+&CONTROL
+calculation = 'relax'
+/
+&SYSTEM
+  ibrav = 0
+  nat = 1
+  ntyp = 1
+/
+&ELECTRONS
+/
+&IONS
+/
+ATOMIC_SPECIES
+H 1. H.UPF
+ATOMIC_POSITIONS angstrom
+H         0.0000000000      0.0000000000      0.0000000000
+K_POINTS automatic
+8 8 6 0 0 0
+CELL_PARAMETERS angstrom
+      3.0385000000      -5.2620000000       0.0000000000
+      3.0385000000       5.2620000000       0.0000000000
+     -2.0266212059       0.0000000000       6.4867883030

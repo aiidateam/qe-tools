@@ -14,8 +14,10 @@
     ], 
     "description": "A set of useful tools to manage Quantum ESPRESSO files", 
     "extras_require": {
-        "dev_precommit": [
-            "pre-commit"
+        "dev": [
+            "pre-commit", 
+            "timeout-decorator", 
+            "yapf"
         ], 
         "docs": [
             "Sphinx", 
@@ -30,5 +32,5 @@
     "license": "MIT License", 
     "name": "qe-tools", 
     "url": "https://github.com/aiidateam/qe-tools", 
-    "version": "1.1.0"
+    "version": "1.1.1"
 }

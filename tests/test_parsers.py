@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 from __future__ import print_function
-from builtins import (
-         bytes, dict, int, list, object, range, str,
-         ascii, chr, hex, input, next, oct, open,
-         pow, round, super,
-         filter, map, zip)
+from builtins import (bytes, dict, int, list, object, range, str, ascii, chr,
+                      hex, input, next, oct, open, pow, round, super, filter,
+                      map, zip)
 
 import io
 import os
@@ -18,6 +16,7 @@ from qe_tools.utils.exceptions import InputValidationError
 data_folder = os.path.join(os.path.split(os.path.abspath(__file__))[0], 'data')
 # Folder with parsing comparison
 reference_folder = os.path.join(data_folder, 'ref')
+
 
 class CustomTestCase(unittest.TestCase):
     """
@@ -44,13 +43,17 @@ class CustomTestCase(unittest.TestCase):
                 self.assertEqual(len(expected), len(actual))
                 for index in range(len(expected)):
                     v1, v2 = expected[index], actual[index]
-                    self.assertNestedAlmostEqual(v1, v2,
-                                          __trace=repr(index), *args, **kwargs)
+                    self.assertNestedAlmostEqual(
+                        v1, v2, __trace=repr(index), *args, **kwargs)
             elif isinstance(expected, dict):
                 self.assertEqual(set(expected), set(actual))
                 for key in expected:
-                    self.assertNestedAlmostEqual(expected[key], actual[key],
-                                        __trace=repr(key), *args, **kwargs)
+                    self.assertNestedAlmostEqual(
+                        expected[key],
+                        actual[key],
+                        __trace=repr(key),
+                        *args,
+                        **kwargs)
             else:
                 self.assertEqual(expected, actual)
         except AssertionError as exc:
@@ -60,7 +63,8 @@ class CustomTestCase(unittest.TestCase):
                 exc = AssertionError("%s\nTRACE: %s" % (str(exc), trace))
             raise exc
 
-    def assertNestedAlmostEqualOnlyKeysInFirst(self, expected, actual, *args, **kwargs):
+    def assertNestedAlmostEqualOnlyKeysInFirst(self, expected, actual, *args,
+                                               **kwargs):
         """
         Check that dict have almost equal content, for float content.
 
@@ -81,13 +85,19 @@ class CustomTestCase(unittest.TestCase):
                 self.assertEqual(len(expected), len(actual))
                 for index in range(len(expected)):
                     v1, v2 = expected[index], actual[index]
-                    self.assertNestedAlmostEqual(v1, v2,
-                                          __trace=repr(index), *args, **kwargs)
+                    self.assertNestedAlmostEqual(
+                        v1, v2, __trace=repr(index), *args, **kwargs)
             elif isinstance(expected, dict):
-                self.assertEqual(set(expected), set(actual).intersection(set(expected)))
+                self.assertEqual(
+                    set(expected),
+                    set(actual).intersection(set(expected)))
                 for key in expected:
-                    self.assertNestedAlmostEqualOnlyKeysInFirst(expected[key], actual[key],
-                                        __trace=repr(key), *args, **kwargs)
+                    self.assertNestedAlmostEqualOnlyKeysInFirst(
+                        expected[key],
+                        actual[key],
+                        __trace=repr(key),
+                        *args,
+                        **kwargs)
             else:
                 self.assertEqual(expected, actual)
         except AssertionError as exc:
@@ -115,7 +125,8 @@ class PwTest(CustomTestCase):
         elif parser == 'cp':
             ParserClass = CpInputFile
         else:
-            raise ValueError("Invalid valude for 'parser': '{}'".format(parser))
+            raise ValueError(
+                "Invalid valude for 'parser': '{}'".format(parser))
 
         in_fname = ParserClass(fname)
         structure = in_fname.get_structure_from_qeinput()
@@ -123,13 +134,16 @@ class PwTest(CustomTestCase):
         # Check opening as file-object
         with open(fname) as f:
             in_fobj = ParserClass(f)
-        self.assertNestedAlmostEqual(in_fname.atomic_positions, in_fobj.atomic_positions)
-        self.assertNestedAlmostEqual(in_fname.atomic_species, in_fobj.atomic_species)
-        self.assertNestedAlmostEqual(in_fname.cell_parameters, in_fobj.cell_parameters)
+        self.assertNestedAlmostEqual(in_fname.atomic_positions,
+                                     in_fobj.atomic_positions)
+        self.assertNestedAlmostEqual(in_fname.atomic_species,
+                                     in_fobj.atomic_species)
+        self.assertNestedAlmostEqual(in_fname.cell_parameters,
+                                     in_fobj.cell_parameters)
         self.assertNestedAlmostEqual(in_fname.k_points, in_fobj.k_points)
         self.assertNestedAlmostEqual(in_fname.namelists, in_fobj.namelists)
         self.assertNestedAlmostEqual(structure,
-            in_fobj.get_structure_from_qeinput())
+                                     in_fobj.get_structure_from_qeinput())
 
         # Check opening from string with file content
         # Open in binary mode so I get also '\r\n' from Windows and I check
@@ -139,13 +153,16 @@ class PwTest(CustomTestCase):
             # I assume it's UTF-8
             content = f.read().decode('utf-8')
             in_string = ParserClass(content)
-        self.assertNestedAlmostEqual(in_string.atomic_positions, in_fobj.atomic_positions)
-        self.assertNestedAlmostEqual(in_string.atomic_species, in_fobj.atomic_species)
-        self.assertNestedAlmostEqual(in_string.cell_parameters, in_fobj.cell_parameters)
+        self.assertNestedAlmostEqual(in_string.atomic_positions,
+                                     in_fobj.atomic_positions)
+        self.assertNestedAlmostEqual(in_string.atomic_species,
+                                     in_fobj.atomic_species)
+        self.assertNestedAlmostEqual(in_string.cell_parameters,
+                                     in_fobj.cell_parameters)
         self.assertNestedAlmostEqual(in_string.k_points, in_fobj.k_points)
         self.assertNestedAlmostEqual(in_string.namelists, in_fobj.namelists)
         self.assertNestedAlmostEqual(in_string.get_structure_from_qeinput(),
-            in_fobj.get_structure_from_qeinput())
+                                     in_fobj.get_structure_from_qeinput())
 
         result = {
             # Raw, from input
@@ -282,6 +299,21 @@ class PwTest(CustomTestCase):
     def test_lattice_ibrav_5(self):
         self.singletest(label='lattice_ibrav_5')
 
+    def test_no_newline_exponential_time(self):
+        """
+        This tries to avoid a regression of #15 
+        (too slow parsing of specific output)
+        """
+        import timeout_decorator
+        # Should not run in more than 2 seconds
+        # (it should be actually much faster!)
+        @timeout_decorator.timeout(2)
+        def mytest():
+            self.singletest(label='no_newline_exponential_time')
+
+        # Run the test
+        mytest()
+
     ##Wyckoff position input (crystal_sg) not supported by this parser
     #def test_lattice_wyckoff_sio2(self):
     #   self.singletest(label='lattice_wyckoff_sio2')
@@ -328,12 +360,13 @@ def print_test_comparison(label, parser='pw', write=False):
     if write:
         ref_fname = os.path.join(reference_folder, '{}.json'.format(label))
         with io.open(ref_fname, 'w', encoding="utf-8") as f:
-            f.write(str(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False)))
+            f.write(
+                str(
+                    json.dumps(
+                        result, indent=2, sort_keys=True, ensure_ascii=False)))
             print("File '{}' written.".format(ref_fname))
     else:
         print(json.dumps(result, indent=2, sort_keys=True))
-
-
 
 
 if __name__ == "__main__":
@@ -344,7 +377,9 @@ if __name__ == "__main__":
             try:
                 label = sys.argv[2]
             except IndexError:
-                print("Pass as filename (and optionally pw or cp to specify a parser, default: pw)", file=sys.stderr)
+                print(
+                    "Pass as filename (and optionally pw or cp to specify a parser, default: pw)",
+                    file=sys.stderr)
                 sys.exit(1)
             try:
                 parser = sys.argv[3]
@@ -352,9 +387,9 @@ if __name__ == "__main__":
                 parser = 'pw'
             print_test_comparison(label, parser=parser, write=True)
         else:
-            print("If you pass additional parameters, they must be --write-ref <label> [pw/cp]", file=sys.stderr)
+            print(
+                "If you pass additional parameters, they must be --write-ref <label> [pw/cp]",
+                file=sys.stderr)
 
     else:
         unittest.main()
-
-
