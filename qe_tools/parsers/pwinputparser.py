@@ -6,20 +6,19 @@ them.
 TODO: Parse CONSTRAINTS, OCCUPATIONS, ATOMIC_FORCES once they are implemented
       in AiiDA
 """
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
-from builtins import (
-         bytes, dict, int, list, object, range, str,
-         ascii, chr, hex, input, next, oct, open,
-         pow, round, super,
-         filter, map, zip)
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+from builtins import (bytes, dict, int, list, object, range, str, ascii, chr,
+                      hex, input, next, oct, open, pow, round, super, filter,
+                      map, zip)
 
 import re
 import numpy as np
-from .qeinputparser import (
-        QeInputFile,parse_namelists,parse_atomic_positions,
-        parse_atomic_species,parse_cell_parameters, RE_FLAGS )
+from .qeinputparser import (QeInputFile, parse_namelists,
+                            parse_atomic_positions, parse_atomic_species,
+                            parse_cell_parameters, RE_FLAGS)
 from qe_tools.utils.exceptions import ParsingError
+
 
 class PwInputFile(QeInputFile):
     """
@@ -154,7 +153,7 @@ class PwInputFile(QeInputFile):
         :raises qe_tools.utils.exceptions.ParsingError: if there are issues
             parsing the pwinput.
         """
-        
+
         super(PwInputFile, self).__init__(pwinput)
 
         # Parse the namelists.
@@ -195,25 +194,23 @@ class PwInputFile(QeInputFile):
 
         # Set the kpoints and weights, doing any necessary units conversion.
         if self.k_points['type'] == 'crystal':  # relative to recip latt vecs
-            kpointsdata.set_kpoints(self.k_points['points'],
-                                    weights=self.k_points['weights'])
+            kpointsdata.set_kpoints(
+                self.k_points['points'], weights=self.k_points['weights'])
         elif self.k_points['type'] == 'tpiba':  # cartesian; units of 2*pi/alat
             alat = np.linalg.norm(structuredata.cell[0])  # alat in Angstrom
             kpointsdata.set_kpoints(
                 np.array(self.k_points['points']) * (2. * np.pi / alat),
                 weights=self.k_points['weights'],
-                cartesian=True
-            )
+                cartesian=True)
         elif self.k_points['type'] == 'automatic':
-            kpointsdata.set_kpoints_mesh(self.k_points['points'],
-                                         offset=self.k_points['offset'])
+            kpointsdata.set_kpoints_mesh(
+                self.k_points['points'], offset=self.k_points['offset'])
         elif self.k_points['type'] == 'gamma':
             kpointsdata.set_kpoints_mesh([1, 1, 1])
         else:
             raise NotImplementedError(
                 'Support for creating KpointsData from input units of {} is'
-                'not yet implemented'.format(self.k_points['type'])
-            )
+                'not yet implemented'.format(self.k_points['type']))
 
         return kpointsdata
 
@@ -266,7 +263,8 @@ def parse_k_points(txt):
         parsing the input.
     """
     # Define re for the special-type card block.
-    k_points_special_block_re = re.compile(r"""
+    k_points_special_block_re = re.compile(
+        r"""
         ^ [ \t]* K_POINTS [ \t]*
             [{(]? [ \t]* (?P<type>\S+?)? [ \t]* [)}]? [ \t]* $\n
         ^ [ \t]* \S+ [ \t]* $\n  # nks
@@ -277,17 +275,20 @@ def parse_k_points(txt):
         )
         """, RE_FLAGS)
     # Define re for the info contained in the special-type block.
-    k_points_special_re = re.compile(r"""
+    k_points_special_re = re.compile(
+        r"""
     ^ [ \t]* (\S+) [ \t]+ (\S+) [ \t]+ (\S+) [ \t]+ (\S+) [ \t]* $\n?
     """, RE_FLAGS)
     # Define re for the automatic-type card block and its line of info.
-    k_points_automatic_block_re = re.compile(r"""
+    k_points_automatic_block_re = re.compile(
+        r"""
         ^ [ \t]* K_POINTS [ \t]* [{(]? [ \t]* automatic [ \t]* [)}]? [ \t]* $\n
         ^ [ \t]* (\S+) [ \t]+ (\S+) [ \t]+ (\S+) [ \t]+ (\S+) [ \t]+ (\S+)
             [ \t]+ (\S+) [ \t]* $\n?
         """, RE_FLAGS)
     # Define re for the gamma-type card block. (There is no block info.)
-    k_points_gamma_block_re = re.compile(r"""
+    k_points_gamma_block_re = re.compile(
+        r"""
         ^ [ \t]* K_POINTS [ \t]* [{(]? [ \t]* gamma [ \t]* [)}]? [ \t]* $\n
         """, RE_FLAGS)
     # Try finding the card block using all three types.
@@ -311,8 +312,9 @@ def parse_k_points(txt):
         if match:
             info_dict['type'] = 'automatic'
             info_dict['points'] = list(map(int, match.group(1, 2, 3)))
-            info_dict['offset'] = [0. if x == 0 else 0.5
-                                   for x in map(int, match.group(4, 5, 6))]
+            info_dict['offset'] = [
+                0. if x == 0 else 0.5 for x in map(int, match.group(4, 5, 6))
+            ]
         else:
             match = k_points_gamma_block_re.search(txt)
             if match:
