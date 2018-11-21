@@ -339,8 +339,8 @@ def str2val(valstr):
             try:
                 val = conversion_fn(valstr)
             except ValueError as error:
-                print('Error converting {} to a value'.format(repr(valstr)))
-                raise error
+                raise ValueError('Error converting {} to a value'.format(
+                    repr(valstr)))
     if val is None:
         raise ValueError('Unable to convert {} to a python variable.\n'
                          'NOTE: Support for algebraic expressions is not yet '
@@ -403,8 +403,22 @@ def parse_namelists(txt):
     for nmlst, blockstr in namelist_re.findall(txt):
         # ...extract the key value pairs, storing them each in nmlst_dict,...
         nmlst_dict = {}
-        for key, valstr in key_value_re.findall(blockstr):
-            nmlst_dict[key.lower()] = str2val(valstr)
+        # I split the lines, putting back a \n at the end (I want
+        # to have it otherwise lines not ending with a comma are ignored)
+        blocklines = blockstr.splitlines()
+        # Remove comments on each line, and then put back the \n
+        # Note that strip_comment does not want \n in the string!
+        blocklines = [
+            "{}\n".format(strip_comment(line)) for line in blocklines
+        ]
+
+        for blockline in blocklines:
+            for key, valstr in key_value_re.findall(blockline):
+                if key.lower() in nmlst_dict:
+                    raise ValueError(
+                        "Key {} found more than once in namelist {}".format(
+                            key.lower(), nmlst))
+                nmlst_dict[key.lower()] = str2val(valstr)
         # ...and, store nmlst_dict as a value in params_dict with the namelist
         # as the key.
         if len(nmlst_dict.keys()) > 0:
@@ -1185,3 +1199,55 @@ def get_structure_from_qeinput(filepath=None,
         species=atomic_species,
         cell=cell.tolist(),
         atom_names=atomic_positions['names'])
+
+
+def strip_comment(string,
+                  comment_characters=('!', ),
+                  quote_characters=('"', "'")):
+    """
+    Return the string only until the first comment (if any), but makes
+    sure to ignore comments if inside a string
+
+    Note: it expects to get a SINGLE line, without newline characters
+
+    Note: it does not cope with escaping of quotes
+
+    :param string: the string to check
+    :param comment_characters: a list or tuple of accepted comment characters
+    :param quote_characters: a list or tuple of accepted valid string characters
+    """
+    new_string = []  # Will contain individual charachters of the new string
+
+    in_string = False
+    string_quote = None  # Will contain the specific character used to enter
+    # this string: this avoids that 'aaa" is considered as
+    # the string containing the three characters aaa
+
+    for char in string:
+        if char == '\n':
+            raise ValueError(
+                "I still cannot cope with newlines in the string...")
+        # Check if we are entering/existing a string
+        if in_string and char == string_quote:
+            #print("EXIT")
+            in_string = False
+            string_quote = None
+        elif not in_string and char in quote_characters:
+            #print("ENTER")
+            in_string = True
+            string_quote = char
+        #print(char, in_string, string_quote)
+
+        # We found a comment, return until here (without the comment)
+        if not in_string and char in comment_characters:
+            return "".join(new_string)
+
+        new_string.append(char)
+
+    # If we are here, no comments where found
+    if in_string:
+        raise ValueError(
+            "String >>{}<< is not closed, it was open with the {} char".format(
+                string, string_quote))
+    # I just return the same string, even if this would be equivalent to "".join(new_string)
+    return string
