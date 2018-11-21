@@ -197,8 +197,20 @@ class PwTest(CustomTestCase):
     ############################################################################
     ## Here start the tests
     ############################################################################
+    def test_example_comment_in_namelist(self):
+        self.singletest(label='example_comment_in_namelist')
+
     def test_example_ibrav0(self):
         self.singletest(label='example_ibrav0')
+
+    def test_example_ibrav0_error_multiplekeys(self):
+        # It should raise because there is twice the same key in a namelist
+        with self.assertRaises(ValueError) as exception_obj:
+            self.singletest(label='example_ibrav0_error_multiplekeys')
+
+        # It should complain about 'tstress' being found multiple times
+        the_exception = exception_obj.exception
+        self.assertIn("tstress", str(the_exception))
 
     def test_example_ibrav0_uppercaseunits(self):
         self.singletest(label='example_ibrav0_uppercaseunits')

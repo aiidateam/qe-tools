@@ -1,0 +1,29 @@
+&control
+    pseudo_dir  = 'pseudo/'
+    calculation = 'scf',
+    prefix = 'Si_exc1',
+ /
+ &system
+    ibrav = 0
+    ! ibrav =  -3, 
+    celldm(1) = 20.385647759,	
+    nat =  1,
+    ntyp = 1,
+    ecutwfc = 30
+ /
+ &electrons
+ /
+
+ATOMIC_SPECIES
+ Si 28.086  Si.pbe-n-rrkjus_psl.1.0.0.UPF
+
+ATOMIC_POSITIONS {bohr}
+Si    0. 0. 0.
+
+CELL_PARAMETERS {alat}
+-1.0 1.0 1.0
+ 1.0 -1.0 1.0
+ 1.0 1.0 -1.0
+
+K_POINTS {automatic}
+  6 6 6 1 1 1
