@@ -22,7 +22,7 @@ class CpInputFile(QeInputFile):
             the file.
         :raises TypeError: if ``pwinput`` is a list containing any non-string
             element(s).
-        :raises aiida.common.exceptions.ParsingError: if there are issues
+        :raises qe_tools.utils.exceptions.ParsingError: if there are issues
             parsing the pwinput.
         """
 

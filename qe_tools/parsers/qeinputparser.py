@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tools for parsing QE PW input files and creating AiiDa Node objects based on
-them.
-
-TODO: Parse CONSTRAINTS, OCCUPATIONS, ATOMIC_FORCES once they are implemented
-      in AiiDA
+Tools for parsing QE PW input files.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -109,7 +105,7 @@ class QeInputFile(object):
               ``0.0`` [no offset] *or* ``0.5`` [offset by half a grid step].
               This differs from the Quantum Espresso convention, where an offset
               value of ``1`` corresponds to a half-grid-step offset, but adheres
-              to the current AiiDa convention.
+              to the current AiiDA convention.
             
 
         Examples::
@@ -162,7 +158,7 @@ class QeInputFile(object):
             the file.
         :raises TypeError: if ``pwinput`` is a list containing any non-string
             element(s).
-        :raises aiida.common.exceptions.ParsingError: if there are issues
+        :raises qe_tools.utils.exceptions.ParsingError: if there are issues
             parsing the pwinput.
         """
         # Get the text of the pwinput file as a single string.
@@ -220,82 +216,6 @@ class QeInputFile(object):
             atomic_species=self.atomic_species,
             cell_parameters=self.cell_parameters)
         return structure_dict
-
-    def get_structuredata(self):
-        """
-        Return a StructureData object based on the data in the input file.
-        
-        This uses all of the data in the input file to do the necessary unit 
-        conversion, ect. and then creates an AiiDA StructureData object.
-    
-        All of the names corresponding of the Kind objects composing the 
-        StructureData object will match those found in the ATOMIC_SPECIES 
-        block, so the pseudopotentials can be linked to the calculation using 
-        the kind.name for each specific type of atom (in the event that you 
-        wish to use different pseudo's for two or more of the same atom).
-    
-        :return: StructureData object of the structure in the input file
-        :rtype: aiida.orm.data.structure.StructureData
-        :raises aiida.common.exceptions.ParsingError: if there are issues
-            parsing the input.
-        """
-        from aiida.orm.data.structure import StructureData, Kind, Site
-
-        valid_elements_regex = re.compile(
-            """
-            (?P<ele>
-H  | He |
-Li | Be | B  | C  | N  | O  | F  | Ne |
-Na | Mg | Al | Si | P  | S  | Cl | Ar |
-K  | Ca | Sc | Ti | V  | Cr | Mn | Fe | Co | Ni | Cu | Zn | Ga | Ge | As | Se | Br | Kr |
-Rb | Sr | Y  | Zr | Nb | Mo | Tc | Ru | Rh | Pd | Ag | Cd | In | Sn | Sb | Te | I  | Xe |
-Cs | Ba | Hf | Ta | W  | Re | Os | Ir | Pt | Au | Hg | Tl | Pb | Bi | Po | At | Rn |
-Fr | Ra | Rf | Db | Sg | Bh | Hs | Mt |
-
-La | Ce | Pr | Nd | Pm | Sm | Eu | Gd | Tb | Dy | Ho | Er | Tm | Yb | Lu | # Lanthanides
-Ac | Th | Pa | U  | Np | Pu | Am | Cm | Bk | Cf | Es | Fm | Md | No | Lr | # Actinides
-        )
-        [^a-z]  # Any specification of an element is followed by some number
-                # or capital letter or special character.
-""", re.X | re.I)
-
-        structure_dict = self.get_structure_from_qeinput()
-        # instance and set the cell
-        structuredata = StructureData()
-
-        structuredata.set_cell(structure_dict['cell'])
-
-        #################  KINDS ##########################
-        for mass, name, pseudo in zip(
-                structure_dict['species']['masses'],
-                structure_dict['species']['names'],
-                structure_dict['species']['pseudo_file_names']):
-            try:
-                # IMPORTANT: The symbols is parsed from the Pseudo file name
-                # Is this the best way??
-                # Should we also try from the associated kind name?
-                symbols = valid_elements_regex.search(pseudo).group(
-                    'ele').capitalize()
-            except Exception as e:
-                raise InputValidationError(
-                    'I could not read an element name in {}'.format(
-                        symbols.group(0)))
-            structuredata.append_kind(
-                Kind(
-                    name=name,
-                    symbols=symbols,
-                    mass=mass,
-                ))
-
-        [
-            structuredata.append_site(Site(
-                kind_name=sym,
-                position=pos,
-            )) for sym, pos in zip(structure_dict['atom_names'],
-                                   structure_dict['positions'])
-        ]
-
-        return structuredata
 
 
 def str2val(valstr):
@@ -377,7 +297,7 @@ def parse_namelists(txt):
                         "ntyp": 1}
             }
 
-    :raises aiida.common.exceptions.ParsingError: if there are issues
+    :raises qe_tools.utils.exceptions.ParsingError: if there are issues
         parsing the input.
     """
     # TODO: Incorporate support for algebraic expressions?
@@ -463,7 +383,7 @@ def parse_atomic_positions(txt):
                               [True, True, True]]}
 
 
-    :raises aiida.common.exceptions.ParsingError: if there are issues
+    :raises qe_tools.utils.exceptions.ParsingError: if there are issues
         parsing the input.
     """
 
@@ -471,8 +391,8 @@ def parse_atomic_positions(txt):
         """
         Map strings '0', '1' strings to bools: '0' --> True; '1' --> False.
 
-        While this is opposite to the QE standard, this mapping is what needs to
-        be passed to aiida in a 'settings' ParameterData object.
+        ..note:: While this is opposite to the QE standard, this mapping is what needs to
+        be passed to AiiDA in a 'settings' ParameterData object.
         (See the _if_pos method of BasePwCpInputGenerator)
         """
         if s == '0':
@@ -655,7 +575,7 @@ def parse_cell_parameters(txt):
                       [-2.6, 8.0, 0.0],
                       [-2.6, -3.5, 7.2]]}
 
-    :raises aiida.common.exceptions.ParsingError: if there are issues
+    :raises qe_tools.utils.exceptions.ParsingError: if there are issues
         parsing the input.
     """
     # Define re for the card block.
@@ -793,7 +713,7 @@ def parse_atomic_species(txt):
                                    'Al.pbe-nl-rrkjus_psl.1.0.0.UPF',
                                    'Si.pbe-nl-rrkjus_psl.1.0.0.UPF']
 
-    :raises aiida.common.exceptions.ParsingError: if there are issues
+    :raises qe_tools.utils.exceptions.ParsingError: if there are issues
         parsing the input.
     """
     # Define re for atomic species card block.
@@ -1108,7 +1028,12 @@ def get_structure_from_qeinput(filepath=None,
                                atomic_positions=None,
                                cell_parameters=None):
     """
-    Function that receives either
+    This function parses a Quantum ESPRESSO input file and returns a dictionary
+    of parsed information.
+
+    This function can deal with ibrav being set different from 0 and the cell being defined
+    with celldm(n) or A,B,C, cosAB etc.
+
     :param str filepath: the filepath storing **or**
     :param str text: the string of the standard QE-input file.
     :param dict namelists: The dictionary of the namelist (optional)
@@ -1123,11 +1048,6 @@ def get_structure_from_qeinput(filepath=None,
             "cell": A 3,3 array of the cell vectors in angstrom
             "atom_names": A list of the kind names as used in the input,
         }
-
-    An instance of :py:class:`~aiida.orm.data.structure.StructureData` is initialized with kinds, positions and cell
-    as defined in the input file.
-    This function can deal with ibrav being set different from 0 and the cell being defined
-    with celldm(n) or A,B,C, cosAB etc.
     """
     # I need either a valid filepath or the text of the qeinput file:
     if filepath:
