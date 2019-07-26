@@ -91,13 +91,14 @@ class QeInputFile(object):
         A dictionary containing
 
             * type: the type of kpoints (always lower-case)
-            * points: an Nx3 list of the kpoints (will not be present if type =
-              'gamma' or type = 'automatic')
+            * points:
+              - if type != 'automatic': an Nx3 list of the kpoints
+                (will not be present if type = 'gamma')
+              - if type == 'automatic': a 1x3 list of the number of
+                equally-spaced points in each direction of the Brillouin zone,
+                as in Monkhorst-Pack grids
             * weights: a 1xN list of the kpoint weights (will not be present if
               type = 'gamma' or type = 'automatic')
-            * mesh: a 1x3 list of the number of equally-spaced points in each 
-              direction of the Brillouin zone, as in Monkhorst-Pack grids (only
-              present if type = 'automatic')
             * offset: a 1x3 list of the grid offsets in each direction of the
               Brillouin zone (only present if type = 'automatic')
               (**Note:** The offset value for each direction will be *one of*
