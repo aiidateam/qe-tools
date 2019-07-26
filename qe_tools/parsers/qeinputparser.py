@@ -95,13 +95,14 @@ class QeInputFile(object):
         A dictionary containing
 
             * type: the type of kpoints (always lower-case)
-            * points: an Nx3 list of the kpoints (will not be present if type =
-              'gamma' or type = 'automatic')
+            * points:
+              - if type != 'automatic': an Nx3 list of the kpoints
+                (will not be present if type = 'gamma')
+              - if type == 'automatic': a 1x3 list of the number of
+                equally-spaced points in each direction of the Brillouin zone,
+                as in Monkhorst-Pack grids
             * weights: a 1xN list of the kpoint weights (will not be present if
               type = 'gamma' or type = 'automatic')
-            * mesh: a 1x3 list of the number of equally-spaced points in each 
-              direction of the Brillouin zone, as in Monkhorst-Pack grids (only
-              present if type = 'automatic')
             * offset: a 1x3 list of the grid offsets in each direction of the
               Brillouin zone (only present if type = 'automatic')
               (**Note:** The offset value for each direction will be *one of*
@@ -322,9 +323,9 @@ def str2val(valstr):
     valstr = valstr.strip()
     # Define a tuple of regular expressions to match and their corresponding
     # conversion functions.
-    re_fn_tuple = ((re.compile(r"[.](true|t)[.]",
-                               re.I), lambda s: True), (re.compile(
-                                   r"[.](false|f)[.]", re.I), lambda s: False),
+    re_fn_tuple = ((re.compile(r"[.](true|t)[.]", re.I),
+                    lambda s: True), (re.compile(r"[.](false|f)[.]",
+                                                 re.I), lambda s: False),
                    (float_re,
                     lambda s: float(s.replace('d', 'e').replace('D', 'E'))),
                    (re.compile(r"[-+]?\d+$"),
@@ -620,11 +621,10 @@ def parse_atomic_positions(txt):
     #~ 'ATOMIC_POSITIONS card block:\n{}'.format(len(names), n_lines,
     #~ blockstr)
     #~ )
-    info_dict = dict(
-        units=units,
-        names=names,
-        positions=positions,
-        fixed_coords=fixed_coords)
+    info_dict = dict(units=units,
+                     names=names,
+                     positions=positions,
+                     fixed_coords=fixed_coords)
     return info_dict
 
 
@@ -1048,8 +1048,8 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):
         # 11          Orthorhombic body-centered      celldm(2)=b/a
         #                                        celldm(3)=c/a
         #  v1=(a/2,b/2,c/2),  v2=(-a/2,b/2,c/2),  v3=(-a/2,-b/2,c/2)
-        cell = np.array([[0.5 * alat, 0.5 * b,
-                          0.5 * c], [-0.5 * alat, 0.5 * b, 0.5 * c],
+        cell = np.array([[0.5 * alat, 0.5 * b, 0.5 * c],
+                         [-0.5 * alat, 0.5 * b, 0.5 * c],
                          [-0.5 * alat, -0.5 * b, 0.5 * c]])
     elif ibrav == 12:
         # 12      Monoclinic P, unique axis c     celldm(2)=b/a
@@ -1091,11 +1091,12 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):
         # where alpha is the angle between axis b and c
         #     beta is the angle between axis a and c
         #    gamma is the angle between axis a and b
-        cell = np.array([[alat, 0., 0.], [b * cosg, b * sing, 0.], [
-            c * cosb, c * (cosa - cosb * cosg) / sing,
-            c * np.sqrt(1. + 2. * cosa * cosb * cosg - cosa**2 - cosb**2 -
-                        cosg**2) / sing
-        ]])
+        cell = np.array([[alat, 0., 0.], [b * cosg, b * sing, 0.],
+                         [
+                             c * cosb, c * (cosa - cosb * cosg) / sing,
+                             c * np.sqrt(1. + 2. * cosa * cosb * cosg -
+                                         cosa**2 - cosb**2 - cosg**2) / sing
+                         ]])
 
     return cell
 
@@ -1194,11 +1195,10 @@ def get_structure_from_qeinput(filepath=None,
                                        positions_units,
                                        ', '.join(valid_positions_units)))
     ######### DEFINE SITES ######################
-    return dict(
-        positions=positions.tolist(),
-        species=atomic_species,
-        cell=cell.tolist(),
-        atom_names=atomic_positions['names'])
+    return dict(positions=positions.tolist(),
+                species=atomic_species,
+                cell=cell.tolist(),
+                atom_names=atomic_positions['names'])
 
 
 def strip_comment(string,

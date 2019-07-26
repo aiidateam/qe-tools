@@ -84,13 +84,14 @@ class PwInputFile(QeInputFile):
         A dictionary containing
 
             * type: the type of kpoints (always lower-case)
-            * points: an Nx3 list of the kpoints (will not be present if type =
-              'gamma' or type = 'automatic')
+            * points:
+              - if type != 'automatic': an Nx3 list of the kpoints
+                (will not be present if type = 'gamma')
+              - if type == 'automatic': a 1x3 list of the number of
+                equally-spaced points in each direction of the Brillouin zone,
+                as in Monkhorst-Pack grids
             * weights: a 1xN list of the kpoint weights (will not be present if
               type = 'gamma' or type = 'automatic')
-            * mesh: a 1x3 list of the number of equally-spaced points in each 
-              direction of the Brillouin zone, as in Monkhorst-Pack grids (only
-              present if type = 'automatic')
             * offset: a 1x3 list of the grid offsets in each direction of the
               Brillouin zone (only present if type = 'automatic')
               (**Note:** The offset value for each direction will be *one of*
@@ -194,17 +195,17 @@ class PwInputFile(QeInputFile):
 
         # Set the kpoints and weights, doing any necessary units conversion.
         if self.k_points['type'] == 'crystal':  # relative to recip latt vecs
-            kpointsdata.set_kpoints(
-                self.k_points['points'], weights=self.k_points['weights'])
+            kpointsdata.set_kpoints(self.k_points['points'],
+                                    weights=self.k_points['weights'])
         elif self.k_points['type'] == 'tpiba':  # cartesian; units of 2*pi/alat
             alat = np.linalg.norm(structuredata.cell[0])  # alat in Angstrom
-            kpointsdata.set_kpoints(
-                np.array(self.k_points['points']) * (2. * np.pi / alat),
-                weights=self.k_points['weights'],
-                cartesian=True)
+            kpointsdata.set_kpoints(np.array(self.k_points['points']) *
+                                    (2. * np.pi / alat),
+                                    weights=self.k_points['weights'],
+                                    cartesian=True)
         elif self.k_points['type'] == 'automatic':
-            kpointsdata.set_kpoints_mesh(
-                self.k_points['points'], offset=self.k_points['offset'])
+            kpointsdata.set_kpoints_mesh(self.k_points['points'],
+                                         offset=self.k_points['offset'])
         elif self.k_points['type'] == 'gamma':
             kpointsdata.set_kpoints_mesh([1, 1, 1])
         else:
@@ -229,13 +230,14 @@ def parse_k_points(txt):
         A dictionary containing
 
             * type: the type of kpoints (always lower-case)
-            * points: an Nx3 list of the kpoints (will not be present if type =
-              'gamma' or type = 'automatic')
+            * points:
+              - if type != 'automatic': an Nx3 list of the kpoints
+                (will not be present if type = 'gamma')
+              - if type == 'automatic': a 1x3 list of the number of
+                equally-spaced points in each direction of the Brillouin zone,
+                as in Monkhorst-Pack grids
             * weights: a 1xN list of the kpoint weights (will not be present if
               type = 'gamma' or type = 'automatic')
-            * mesh: a 1x3 list of the number of equally-spaced points in each
-              direction of the Brillouin zone, as in Monkhorst-Pack grids (only
-              present if type = 'automatic')
             * offset: a 1x3 list of the grid offsets in each direction of the
               Brillouin zone (only present if type = 'automatic')
               (**Note:** The offset value for each direction will be *one of*
