@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Tools for parsing QE PW input files and creating AiiDa Node objects based on
-them.
-
-TODO: Parse CONSTRAINTS, OCCUPATIONS, ATOMIC_FORCES once they are implemented
-      in AiiDA
+Tools for parsing QE PW input files
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -84,20 +80,21 @@ class PwInputFile(QeInputFile):
         A dictionary containing
 
             * type: the type of kpoints (always lower-case)
-            * points: an Nx3 list of the kpoints (will not be present if type =
-              'gamma' or type = 'automatic')
+            * points:
+              - if type != 'automatic': an Nx3 list of the kpoints
+                (will not be present if type = 'gamma')
+              - if type == 'automatic': a 1x3 list of the number of
+                equally-spaced points in each direction of the Brillouin zone,
+                as in Monkhorst-Pack grids
             * weights: a 1xN list of the kpoint weights (will not be present if
               type = 'gamma' or type = 'automatic')
-            * mesh: a 1x3 list of the number of equally-spaced points in each 
-              direction of the Brillouin zone, as in Monkhorst-Pack grids (only
-              present if type = 'automatic')
             * offset: a 1x3 list of the grid offsets in each direction of the
               Brillouin zone (only present if type = 'automatic')
               (**Note:** The offset value for each direction will be *one of*
               ``0.0`` [no offset] *or* ``0.5`` [offset by half a grid step].
               This differs from the Quantum Espresso convention, where an offset
               value of ``1`` corresponds to a half-grid-step offset, but adheres
-              to the current AiiDa convention.
+              to the current AiiDA convention.
             
 
         Examples::
@@ -167,53 +164,6 @@ class PwInputFile(QeInputFile):
         # Parse the ATOMIC_SPECIES card.
         self.atomic_species = parse_atomic_species(self.input_txt)
 
-    def get_kpointsdata(self):
-        """
-        Return a KpointsData object based on the data in the input file.
-
-        This uses all of the data in the input file to do the necessary unit
-        conversion, ect. and then creates an AiiDa KpointsData object.
-
-
-        **Note:** If the calculation uses only the gamma k-point (`if
-        self.k_points['type'] == 'gamma'`), it is necessary to also attach a
-        settings node to the calculation with `gamma_only = True`.
-
-        :return: KpointsData object of the kpoints in the input file
-        :rtype: aiida.orm.data.array.kpoints.KpointsData
-        :raises NotImplementedError: if the kpoints are
-            in a format not yet supported.
-        """
-        from aiida.orm.data.array.kpoints import KpointsData
-        # Initialize the KpointsData node
-        kpointsdata = KpointsData()
-        # Get the structure using this class's method.
-        structuredata = self.get_structuredata()
-        # Set the structure information of the kpoints node.
-        kpointsdata.set_cell_from_structure(structuredata)
-
-        # Set the kpoints and weights, doing any necessary units conversion.
-        if self.k_points['type'] == 'crystal':  # relative to recip latt vecs
-            kpointsdata.set_kpoints(
-                self.k_points['points'], weights=self.k_points['weights'])
-        elif self.k_points['type'] == 'tpiba':  # cartesian; units of 2*pi/alat
-            alat = np.linalg.norm(structuredata.cell[0])  # alat in Angstrom
-            kpointsdata.set_kpoints(
-                np.array(self.k_points['points']) * (2. * np.pi / alat),
-                weights=self.k_points['weights'],
-                cartesian=True)
-        elif self.k_points['type'] == 'automatic':
-            kpointsdata.set_kpoints_mesh(
-                self.k_points['points'], offset=self.k_points['offset'])
-        elif self.k_points['type'] == 'gamma':
-            kpointsdata.set_kpoints_mesh([1, 1, 1])
-        else:
-            raise NotImplementedError(
-                'Support for creating KpointsData from input units of {} is'
-                'not yet implemented'.format(self.k_points['type']))
-
-        return kpointsdata
-
 
 def parse_k_points(txt):
     """
@@ -229,20 +179,21 @@ def parse_k_points(txt):
         A dictionary containing
 
             * type: the type of kpoints (always lower-case)
-            * points: an Nx3 list of the kpoints (will not be present if type =
-              'gamma' or type = 'automatic')
+            * points:
+              - if type != 'automatic': an Nx3 list of the kpoints
+                (will not be present if type = 'gamma')
+              - if type == 'automatic': a 1x3 list of the number of
+                equally-spaced points in each direction of the Brillouin zone,
+                as in Monkhorst-Pack grids
             * weights: a 1xN list of the kpoint weights (will not be present if
               type = 'gamma' or type = 'automatic')
-            * mesh: a 1x3 list of the number of equally-spaced points in each
-              direction of the Brillouin zone, as in Monkhorst-Pack grids (only
-              present if type = 'automatic')
             * offset: a 1x3 list of the grid offsets in each direction of the
               Brillouin zone (only present if type = 'automatic')
               (**Note:** The offset value for each direction will be *one of*
               ``0.0`` [no offset] *or* ``0.5`` [offset by half a grid step].
               This differs from the Quantum Espresso convention, where an offset
               value of ``1`` corresponds to a half-grid-step offset, but adheres
-              to the current AiiDa convention.
+              to the current AiiDA convention.
 
 
         Examples::
@@ -259,7 +210,7 @@ def parse_k_points(txt):
 
             {'type': 'gamma'}
 
-    :raises aiida.common.exceptions.ParsingError: if there are issues
+    :raises qe_tools.utils.exceptions.ParsingError: if there are issues
         parsing the input.
     """
     # Define re for the special-type card block.
