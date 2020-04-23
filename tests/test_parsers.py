@@ -43,17 +43,19 @@ class CustomTestCase(unittest.TestCase):
                 self.assertEqual(len(expected), len(actual))
                 for index in range(len(expected)):
                     v1, v2 = expected[index], actual[index]
-                    self.assertNestedAlmostEqual(
-                        v1, v2, __trace=repr(index), *args, **kwargs)
+                    self.assertNestedAlmostEqual(v1,
+                                                 v2,
+                                                 __trace=repr(index),
+                                                 *args,
+                                                 **kwargs)
             elif isinstance(expected, dict):
                 self.assertEqual(set(expected), set(actual))
                 for key in expected:
-                    self.assertNestedAlmostEqual(
-                        expected[key],
-                        actual[key],
-                        __trace=repr(key),
-                        *args,
-                        **kwargs)
+                    self.assertNestedAlmostEqual(expected[key],
+                                                 actual[key],
+                                                 __trace=repr(key),
+                                                 *args,
+                                                 **kwargs)
             else:
                 self.assertEqual(expected, actual)
         except AssertionError as exc:
@@ -85,12 +87,14 @@ class CustomTestCase(unittest.TestCase):
                 self.assertEqual(len(expected), len(actual))
                 for index in range(len(expected)):
                     v1, v2 = expected[index], actual[index]
-                    self.assertNestedAlmostEqual(
-                        v1, v2, __trace=repr(index), *args, **kwargs)
+                    self.assertNestedAlmostEqual(v1,
+                                                 v2,
+                                                 __trace=repr(index),
+                                                 *args,
+                                                 **kwargs)
             elif isinstance(expected, dict):
-                self.assertEqual(
-                    set(expected),
-                    set(actual).intersection(set(expected)))
+                self.assertEqual(set(expected),
+                                 set(actual).intersection(set(expected)))
                 for key in expected:
                     self.assertNestedAlmostEqualOnlyKeysInFirst(
                         expected[key],
@@ -311,6 +315,9 @@ class PwTest(CustomTestCase):
     def test_lattice_ibrav_5(self):
         self.singletest(label='lattice_ibrav_5')
 
+    def test_alat_coords_with_ibrav_non0(self):
+        self.singletest(label='alat_coords_with_ibrav_non0')
+
     def test_no_newline_exponential_time(self):
         """
         This tries to avoid a regression of #15 
@@ -374,8 +381,10 @@ def print_test_comparison(label, parser='pw', write=False):
         with io.open(ref_fname, 'w', encoding="utf-8") as f:
             f.write(
                 str(
-                    json.dumps(
-                        result, indent=2, sort_keys=True, ensure_ascii=False)))
+                    json.dumps(result,
+                               indent=2,
+                               sort_keys=True,
+                               ensure_ascii=False)))
             print("File '{}' written.".format(ref_fname))
     else:
         print(json.dumps(result, indent=2, sort_keys=True))
