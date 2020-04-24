@@ -1081,6 +1081,8 @@ def get_structure_from_qeinput(filepath=None,
         alat = bohr_to_ang * system_dict['celldm(1)']
         using_celldm = True
     else:
+        assert system_dict[
+            'ibrav'] == 0, "Neither a nor celldm(1) are specified, and you are not using ibrav=0!"
         alat = None
         using_celldm = None
 
@@ -1104,7 +1106,10 @@ def get_structure_from_qeinput(filepath=None,
     elif positions_units == 'crystal':
         positions = np.dot(positions, cell)
     elif positions_units == 'alat':
-        positions = np.linalg.norm(cell[0]) * positions
+        if alat is None:  # ibrav = 0
+            positions = np.linalg.norm(cell[0]) * positions
+        else:
+            positions = alat * positions
     elif positions_units == 'crystal_sg':
         raise NotImplementedError('crystal_sg is not implemented')
     else:
