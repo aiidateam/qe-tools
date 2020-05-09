@@ -21,8 +21,9 @@
             "yapf==0.30.0",
             "prospector==1.2.0",
             "pylint==2.4.4",
-            "mypy==0.770",
-            "pytest"
+            "pytest",
+            "pytest-cases",
+            "mypy==0.770"
         ],
         "docs": [
             "Sphinx",
@@ -32,6 +33,7 @@
     },
     "install_requires": [
         "numpy",
+        "scipy",
         "packaging"
     ],
     "license": "MIT License",
