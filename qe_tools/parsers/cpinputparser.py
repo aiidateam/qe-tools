@@ -26,7 +26,7 @@ class CpInputFile(QeInputFile):
             parsing the pwinput.
         """
 
-        super(CpInputFile, self).__init__(pwinput)
+        super().__init__(pwinput)
 
         # Parse the namelists.
         self.namelists = parse_namelists(self.input_txt)

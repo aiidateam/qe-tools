@@ -1,8 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-from builtins import (bytes, dict, int, list, object, range, str, ascii, chr,
-                      hex, input, next, oct, open, pow, round, super, filter,
-                      map, zip)
 
 import io
 import os
@@ -320,7 +316,7 @@ class PwTest(CustomTestCase):
 
     def test_no_newline_exponential_time(self):
         """
-        This tries to avoid a regression of #15 
+        This tries to avoid a regression of #15
         (too slow parsing of specific output)
         """
         import timeout_decorator
