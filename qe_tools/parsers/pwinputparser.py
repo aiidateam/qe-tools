@@ -125,7 +125,6 @@ class PwInputFile(QeInputFile):
                                    'Si3 28.0855 Si.pbe-nl-rrkjus_psl.1.0.0.UPF']
 
     """
-
     def __init__(self, pwinput):
         """
         Parse inputs's namelist and cards to create attributes of the info.

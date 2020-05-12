@@ -130,70 +130,30 @@ class QeInputFile:
                                    'Si3 28.0855 Si.pbe-nl-rrkjus_psl.1.0.0.UPF']
 
     """
-
     def __init__(self, pwinput):
         """
         Parse inputs's namelist and cards to create attributes of the info.
 
-        :param pwinput:
-            Any one of the following
+        :param pwinput:  A single string containing the pwinput file's text.
+        :type pwinput: str
 
-                * A string of the (existing) absolute path to the pwinput file.
-                * A single string containing the pwinput file's text.
-                * A list of strings, with the lines of the file as the elements.
-                * A file object. (It will be opened, if it isn't already.)
+        :raises TypeError: if ``pwinput`` is not a string.
 
-        :raises IOError: if ``pwinput`` is a file and there is a problem reading
-            the file.
-        :raises TypeError: if ``pwinput`` is a list containing any non-string
-            element(s).
         :raises qe_tools.utils.exceptions.ParsingError: if there are issues
             parsing the pwinput.
         """
-        # Get the text of the pwinput file as a single string.
-        # File.
-        if isinstance(pwinput, io.IOBase):
-            try:
-                self.input_txt = pwinput.read()
-            except IOError:
-                raise IOError('Unable to open the provided pwinput, {}'
-                              ''.format(file.name))
-        # List.
-        elif isinstance(pwinput, list):
-            if all(isinstance(s, str) for s in pwinput):
-                self.input_txt = ''.join(pwinput)
-            else:
-                raise TypeError(
-                    'You provided a list to parse, but some elements were not '
-                    'strings. Each element should be a string containing a line'
-                    'of the pwinput file.')
-        # Path or string of the text.
-        elif isinstance(pwinput, str):
-            if os.path.isfile(pwinput):
-                if os.path.isabs(pwinput):
-                    with open(pwinput) as f:
-                        self.input_txt = f.read()
-                else:
-                    raise IOError(
-                        'Please provide the absolute path to an existing '
-                        'pwinput file.')
-            else:
-                self.input_txt = pwinput
-        else:
+        if not isinstance(pwinput, str):
             raise TypeError("Unknown type for input 'pwinput': {}".format(
                 type(pwinput)))
+
+        self.input_txt = pwinput
 
         # Check that pwinput is not empty.
         if len(self.input_txt.strip()) == 0:
             raise ParsingError('The pwinput provided was empty!')
 
-        # Take care explicitly of Windows newlines: \r\n
-        # (open would do it automatically, but if the uses passes a string
-        # this would not be done properly)
-        self.input_txt = self.input_txt.replace('\r\n', '\n')
-        # This is instead for Mac <=9 (hopefully nobody still uses it, but
-        # who knows) that just used \r
-        self.input_txt = self.input_txt.replace('\r', '\n')
+        # Convert all types of newlines to '\n'
+        self.input_txt = '\n'.join(self.input_txt.splitlines())
         # Add a newline, as a partial fix to #15
         self.input_txt += "\n"
 
@@ -375,7 +335,6 @@ def parse_atomic_positions(txt):
     :raises qe_tools.utils.exceptions.ParsingError: if there are issues
         parsing the input.
     """
-
     def str01_to_bool(s):
         """
         Map strings '0', '1' strings to bools: '0' --> True; '1' --> False.
