@@ -1,16 +1,23 @@
 - repo: local
-  hooks: 
+  hooks:
   - id: version-number
     name: Check consistency in version number
     entry: python ./.travis/precommit/fix_setup_version.py
     language: system
     pass_filenames: false
 
-- repo: local
-  hooks:
   - id: yapf
     name: yapf
     entry: yapf
     language: system
     types: [python]
     args: ["-i"]
+
+  # prospector: collection of linters
+  - id: prospector
+    language: system
+    types: [file, python]
+    exclude: .travis
+    name: prospector
+    description: "This hook runs Prospector: https://github.com/landscapeio/prospector"
+    entry: prospector

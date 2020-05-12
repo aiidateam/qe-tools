@@ -18,7 +18,9 @@
         "dev": [
             "pre-commit",
             "timeout-decorator",
-            "yapf"
+            "yapf==0.30.0",
+            "prospector==1.2.0",
+            "pylint==2.4.4"
         ],
         "docs": [
             "Sphinx",

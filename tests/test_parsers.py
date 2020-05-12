@@ -5,6 +5,8 @@ import os
 import unittest
 import json
 
+import numpy
+
 from qe_tools import PwInputFile, CpInputFile
 from qe_tools.utils.exceptions import InputValidationError
 
@@ -28,15 +30,14 @@ class CustomTestCase(unittest.TestCase):
         :py:meth:`unittest.TestCase.assertAlmostEqual` is used.
         Additional parameters are passed only to AlmostEqual
         """
-        import numpy
-        is_root = not '__trace' in kwargs
+        is_root = '__trace' not in kwargs
         trace = kwargs.pop('__trace', 'ROOT')
         try:
             if isinstance(expected, (int, float, complex)):
                 self.assertAlmostEqual(expected, actual, *args, **kwargs)
             elif isinstance(expected, (list, tuple, numpy.ndarray)):
                 self.assertEqual(len(expected), len(actual))
-                for index in range(len(expected)):
+                for index, _ in enumerate(expected):
                     v1, v2 = expected[index], actual[index]
                     self.assertNestedAlmostEqual(v1,
                                                  v2,
@@ -72,15 +73,14 @@ class CustomTestCase(unittest.TestCase):
         :py:meth:`unittest.TestCase.assertAlmostEqual` is used.
         Additional parameters are passed only to AlmostEqual
         """
-        import numpy
-        is_root = not '__trace' in kwargs
+        is_root = '__trace' not in kwargs
         trace = kwargs.pop('__trace', 'ROOT')
         try:
             if isinstance(expected, (int, float, complex)):
                 self.assertAlmostEqual(expected, actual, *args, **kwargs)
             elif isinstance(expected, (list, tuple, numpy.ndarray)):
                 self.assertEqual(len(expected), len(actual))
-                for index in range(len(expected)):
+                for index, _ in enumerate(expected):
                     v1, v2 = expected[index], actual[index]
                     self.assertNestedAlmostEqual(v1,
                                                  v2,
@@ -288,7 +288,7 @@ class PwTest(CustomTestCase):
         This tries to avoid a regression of #15
         (too slow parsing of specific output)
         """
-        import timeout_decorator
+        import timeout_decorator  # pylint: disable=import-outside-toplevel
         # Should not run in more than 2 seconds
         # (it should be actually much faster!)
         @timeout_decorator.timeout(2)
