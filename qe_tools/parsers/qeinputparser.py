@@ -2,37 +2,26 @@
 """
 Tools for parsing QE PW input files.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from builtins import (bytes, dict, int, list, object, range, str, ascii, chr,
-                      hex, input, next, oct, open, pow, round, super, filter,
-                      map, zip)
-
-import re
-import os, sys
-import numpy as np
-from io import IOBase
-from past.builtins import basestring
 
 import io
-try:
-    file_types = (file, io.IOBase)
-except NameError:
-    # This happens in python 3.x, where 'file' does not exist anympre
-    file_types = (io.IOBase, )
+import re
+import os, sys
+from io import IOBase
 
-from qe_tools.constants import bohr_to_ang
-from qe_tools.utils.exceptions import ParsingError, InputValidationError
+import numpy as np
+
+from ..constants import bohr_to_ang
+from ..utils.exceptions import ParsingError, InputValidationError
 
 RE_FLAGS = re.M | re.X | re.I
 
 
-class QeInputFile(object):
+class QeInputFile:
     """
     Class used for parsing Quantum Espresso pw.x input files and using the info.
 
     Members:
-    
+
     * ``namelists``:
         A nested dictionary of the namelists and their key-value
         pairs. The namelists will always be upper-case keys, while the parameter
@@ -106,7 +95,7 @@ class QeInputFile(object):
               This differs from the Quantum Espresso convention, where an offset
               value of ``1`` corresponds to a half-grid-step offset, but adheres
               to the current AiiDA convention.
-            
+
 
         Examples::
 
@@ -163,7 +152,7 @@ class QeInputFile(object):
         """
         # Get the text of the pwinput file as a single string.
         # File.
-        if isinstance(pwinput, file_types):
+        if isinstance(pwinput, io.IOBase):
             try:
                 self.input_txt = pwinput.read()
             except IOError:
@@ -171,7 +160,7 @@ class QeInputFile(object):
                               ''.format(file.name))
         # List.
         elif isinstance(pwinput, list):
-            if all(isinstance(s, basestring) for s in pwinput):
+            if all(isinstance(s, str) for s in pwinput):
                 self.input_txt = ''.join(pwinput)
             else:
                 raise TypeError(
@@ -179,7 +168,7 @@ class QeInputFile(object):
                     'strings. Each element should be a string containing a line'
                     'of the pwinput file.')
         # Path or string of the text.
-        elif isinstance(pwinput, basestring):
+        elif isinstance(pwinput, str):
             if os.path.isfile(pwinput):
                 if os.path.isabs(pwinput):
                     with open(pwinput) as f:
@@ -273,7 +262,7 @@ def str2val(valstr):
 def parse_namelists(txt):
     """
     Parse txt to extract a dictionary of the namelist info.
-    
+
     :param txt: A single string containing the QE input text to be parsed.
     :type txt: str
 
@@ -600,7 +589,7 @@ def parse_cell_parameters(txt):
                         [\.]?    # an optional dot
                         \d*)     # followed by optional decimals
                         ([E|e|d|D][+|-]?\d+)?  # optional exponents E+03, e-05, d0, D0
-                    
+
                         (
                             \s+      # White space between numbers
                             [-|+]?   # Plus or minus in front of the number (optional)
@@ -760,7 +749,7 @@ def parse_atomic_species(txt):
 
 def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):
     """
-    A function to get the cell from cell parameters and SYSTEM card dictionary as read by 
+    A function to get the cell from cell parameters and SYSTEM card dictionary as read by
     parse_namelists.
     :param cell_parameters: The parameters as returned by parse_cell_parameters
     :param system_dict: the dictionary for card SYSTEM

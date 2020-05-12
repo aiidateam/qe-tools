@@ -2,18 +2,13 @@
 """
 Tools for parsing QE PW input files
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from builtins import (bytes, dict, int, list, object, range, str, ascii, chr,
-                      hex, input, next, oct, open, pow, round, super, filter,
-                      map, zip)
 
 import re
 import numpy as np
 from .qeinputparser import (QeInputFile, parse_namelists,
                             parse_atomic_positions, parse_atomic_species,
                             parse_cell_parameters, RE_FLAGS)
-from qe_tools.utils.exceptions import ParsingError
+from ..utils.exceptions import ParsingError
 
 
 class PwInputFile(QeInputFile):
@@ -21,7 +16,7 @@ class PwInputFile(QeInputFile):
     Class used for parsing Quantum Espresso pw.x input files and using the info.
 
     Members:
-    
+
     * ``namelists``:
         A nested dictionary of the namelists and their key-value
         pairs. The namelists will always be upper-case keys, while the parameter
@@ -95,7 +90,7 @@ class PwInputFile(QeInputFile):
               This differs from the Quantum Espresso convention, where an offset
               value of ``1`` corresponds to a half-grid-step offset, but adheres
               to the current AiiDA convention.
-            
+
 
         Examples::
 
@@ -151,7 +146,7 @@ class PwInputFile(QeInputFile):
             parsing the pwinput.
         """
 
-        super(PwInputFile, self).__init__(pwinput)
+        super().__init__(pwinput)
 
         # Parse the namelists.
         self.namelists = parse_namelists(self.input_txt)

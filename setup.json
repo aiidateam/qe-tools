@@ -3,10 +3,11 @@
     "author_email": "developers@aiida.net",
     "classifiers": [
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Operating System :: OS Independent",
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Scientific/Engineering :: Chemistry",
@@ -26,9 +27,9 @@
         ]
     },
     "install_requires": [
-        "numpy",
-        "future"
+        "numpy"
     ],
+    "python_requires": ">=3.5",
     "license": "MIT License",
     "name": "qe-tools",
     "url": "https://github.com/aiidateam/qe-tools",

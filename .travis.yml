@@ -2,10 +2,12 @@ sudo: required
 
 language: python
 
-matrix: 
+matrix:
     include:
-    - python: "2.7"
     - python: "3.5"
+    - python: "3.6"
+    - python: "3.7"
+    - python: "3.8"
 
 cache: pip
 
@@ -15,7 +17,7 @@ cache: pip
 #            - curl
 #            - gfortran
 #            - libblas-dev
-#            - liblapack-dev 
+#            - liblapack-dev
 
 before_install:
     - pip install --upgrade pip setuptools
@@ -26,5 +28,3 @@ install:
 script:
     - pre-commit run
     - python tests/test_parsers.py
-
-
