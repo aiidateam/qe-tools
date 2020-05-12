@@ -20,7 +20,6 @@ class CustomTestCase(unittest.TestCase):
     comparisons of dicts
     )
     """
-
     def assertNestedAlmostEqual(self, expected, actual, *args, **kwargs):
         """
         Check that dict have almost equal content, for float content.
@@ -128,57 +127,27 @@ class PwTest(CustomTestCase):
             raise ValueError(
                 "Invalid valude for 'parser': '{}'".format(parser))
 
-        in_fname = ParserClass(fname)
-        structure = in_fname.get_structure_from_qeinput()
-
-        # Check opening as file-object
-        with open(fname) as f:
-            in_fobj = ParserClass(f)
-        self.assertNestedAlmostEqual(in_fname.atomic_positions,
-                                     in_fobj.atomic_positions)
-        self.assertNestedAlmostEqual(in_fname.atomic_species,
-                                     in_fobj.atomic_species)
-        self.assertNestedAlmostEqual(in_fname.cell_parameters,
-                                     in_fobj.cell_parameters)
-        self.assertNestedAlmostEqual(in_fname.k_points, in_fobj.k_points)
-        self.assertNestedAlmostEqual(in_fname.namelists, in_fobj.namelists)
-        self.assertNestedAlmostEqual(structure,
-                                     in_fobj.get_structure_from_qeinput())
-
-        # Check opening from string with file content
         # Open in binary mode so I get also '\r\n' from Windows and I check
         # that the parser properly copes with them
-        with open(fname, 'rb') as f:
-            # I decode for python3, internally I want a string not bytes
-            # I assume it's UTF-8
-            content = f.read().decode('utf-8')
-            in_string = ParserClass(content)
-        self.assertNestedAlmostEqual(in_string.atomic_positions,
-                                     in_fobj.atomic_positions)
-        self.assertNestedAlmostEqual(in_string.atomic_species,
-                                     in_fobj.atomic_species)
-        self.assertNestedAlmostEqual(in_string.cell_parameters,
-                                     in_fobj.cell_parameters)
-        self.assertNestedAlmostEqual(in_string.k_points, in_fobj.k_points)
-        self.assertNestedAlmostEqual(in_string.namelists, in_fobj.namelists)
-        self.assertNestedAlmostEqual(in_string.get_structure_from_qeinput(),
-                                     in_fobj.get_structure_from_qeinput())
+        with open(fname, 'rb') as in_file:
+            res_obj = ParserClass(in_file.read().decode('utf-8'))
 
+        structure = res_obj.get_structure_from_qeinput()
         result = {
             # Raw, from input
-            "atomic_positions": in_fname.atomic_positions,
+            "atomic_positions": res_obj.atomic_positions,
             # Raw, from input
-            "atomic_species": in_fname.atomic_species,
+            "atomic_species": res_obj.atomic_species,
             # Raw, from input can be None
-            "cell_parameters": in_fname.cell_parameters,
-            "namelists": in_fname.namelists,
+            "cell_parameters": res_obj.cell_parameters,
+            "namelists": res_obj.namelists,
             # Parsed, always angstrom and Cartesian
             "positions_angstrom": structure['positions'],
             # Parsed, always a 3x3 matrix
             "cell": structure['cell'],
         }
         if parser != 'cp':
-            result["k_points"] = in_fname.k_points
+            result["k_points"] = res_obj.k_points
 
         ref_fname = os.path.join(reference_folder, '{}.json'.format(label))
         try:
