@@ -27,4 +27,4 @@ install:
 
 script:
     - pre-commit run
-    - python tests/test_parsers.py
+    - pytest

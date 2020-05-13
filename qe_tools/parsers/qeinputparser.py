@@ -9,6 +9,7 @@ import numpy as np
 
 from ..constants import bohr_to_ang
 from ..utils.exceptions import ParsingError, InputValidationError
+from ..utils._qe_version import parse_version
 
 RE_FLAGS = re.M | re.X | re.I
 
@@ -127,12 +128,21 @@ class QeInputFile:
                                    'Si3 28.0855 Si.pbe-nl-rrkjus_psl.1.0.0.UPF']
 
     """
-    def __init__(self, pwinput):
+    def __init__(self, pwinput, *, qe_version=None):
         """
         Parse inputs's namelist and cards to create attributes of the info.
 
         :param pwinput:  A single string containing the pwinput file's text.
         :type pwinput: str
+
+        :param qe_version: A string defining which version of QuantumESPRESSO
+            the input file is used for. This is used in cases where different
+            QE versions handle the input differently.
+            If no version is specified, it will default to the latest
+            implemented version.
+            The string must comply with the PEP440 versioning scheme.
+            Valid version strings are e.g. '6.5', '6.4.1', '6.4rc2'.
+        :type qe_version: Optional[str]
 
         :raises TypeError: if ``pwinput`` is not a string.
 
@@ -144,6 +154,7 @@ class QeInputFile:
                 type(pwinput)))
 
         self.input_txt = pwinput
+        self._qe_version = parse_version(qe_version)
 
         # Check that pwinput is not empty.
         if len(self.input_txt.strip()) == 0:
@@ -160,7 +171,8 @@ class QeInputFile:
             namelists=self.namelists,
             atomic_positions=self.atomic_positions,
             atomic_species=self.atomic_species,
-            cell_parameters=self.cell_parameters)
+            cell_parameters=self.cell_parameters,
+            qe_version=self._qe_version)
         return structure_dict
 
 
@@ -699,18 +711,35 @@ def parse_atomic_species(txt):
     return info_dict
 
 
-def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):  # pylint: disable=too-many-locals,too-many-statements,too-many-branches
+def get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-statements,too-many-branches
+        cell_parameters,
+        system_dict,
+        alat,
+        using_celldm,
+        *,
+        qe_version=None):
     """
     A function to get the cell from cell parameters and SYSTEM card dictionary as read by
     parse_namelists.
     :param cell_parameters: The parameters as returned by parse_cell_parameters
     :param system_dict: the dictionary for card SYSTEM
     :param alat: The value for alat
+    :param qe_version: A string defining which version of QuantumESPRESSO
+        the input file is used for. This is used in cases where different
+        QE versions handle the input differently.
+        If no version is specified, it will default to the latest
+        implemented version.
+        The string must comply with the PEP440 versioning scheme.
+        Valid version strings are e.g. '6.5', '6.4.1', '6.4rc2'.
+    :type qe_version: Optional[str]
+
     :returns: The cell as a numpy array
     """
+    qe_version = parse_version(qe_version)
+
     ibrav = system_dict['ibrav']
 
-    valid_ibravs = list(range(15)) + [-3, -5, -9, -12, 91]
+    valid_ibravs = list(range(15)) + [-3, -5, -9, -12, -13, 91]
     if ibrav not in valid_ibravs:
         raise InputValidationError('I found ibrav = {} in input, \n'
                                    'but it is not among the valid values\n'
@@ -756,7 +785,7 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm): 
             ):
                 # They are the same in trigonal R
                 cosa = cosg
-            if ibrav in (-12, 14):
+            if ibrav in (-12, -13, 14):
                 if using_celldm:
                     cosb = system_dict['celldm(5)']
                 else:
@@ -944,6 +973,24 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm): 
         #  where gamma is the angle between axis a and b
         cell = np.array([[0.5 * alat, 0., -0.5 * c], [b * cosg, b * sing, 0.],
                          [0.5 * alat, 0., 0.5 * c]])
+    elif ibrav == -13:
+        # -13          Monoclinic base-centered        celldm(2)=b/a
+        #              (unique axis b)                 celldm(3)=c/a,
+        #                                              celldm(5)=cos(beta)
+        #       v1 = (  a/2,       b/2,             0),
+        #       v2 = ( -a/2,       b/2,             0),
+        #       v3 = (c*cos(beta),   0,   c*sin(beta)),
+        #       where beta=angle between axis a and c projected on xz plane
+        #  IMPORTANT NOTICE: until QE v.6.4.1, axis for ibrav=-13 had a
+        #  different definition: v1(old) = v2(now), v2(old) = -v1(now)
+        if qe_version >= parse_version('6.4.1'):
+            cell = np.array([[0.5 * alat, 0.5 * b,
+                              0], [-0.5 * alat, 0.5 * b, 0],
+                             [c * cosb, 0, c * sinb]])
+        else:
+            cell = np.array([[-0.5 * alat, 0.5 * b, 0],
+                             [-0.5 * alat, -0.5 * b, 0],
+                             [c * cosb, 0, c * sinb]])
     elif ibrav == 14:
         #  14       Triclinic                     celldm(2)= b/a,
         #                                         celldm(3)= c/a,
@@ -968,13 +1015,15 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm): 
     return cell
 
 
-def get_structure_from_qeinput(  # pylint: disable=too-many-arguments,too-many-branches
+def get_structure_from_qeinput(  # pylint: disable=too-many-arguments,too-many-branches,too-many-locals
         filepath=None,
         text=None,
         namelists=None,
         atomic_species=None,
         atomic_positions=None,
-        cell_parameters=None):
+        cell_parameters=None,
+        *,
+        qe_version=None):
     """
     This function parses a Quantum ESPRESSO input file and returns a dictionary
     of parsed information.
@@ -988,6 +1037,14 @@ def get_structure_from_qeinput(  # pylint: disable=too-many-arguments,too-many-b
     :param dict atomic_species: The dictionary of the atomic_species (optional)
     :param atomic_positions: The atomic positions as specified in the file (optional)
     :param list cell_parameters: The cell parameters (optional)
+    :param qe_version: A string defining which version of QuantumESPRESSO
+        the input file is used for. This is used in cases where different
+        QE versions handle the input differently.
+        If no version is specified, it will default to the latest
+        implemented version.
+        The string must comply with the PEP440 versioning scheme.
+        Valid version strings are e.g. '6.5', '6.4.1', '6.4rc2'.
+    :type qe_version: Optional[str]
 
     :returns: A dictionary of all the parsed information:
         {
@@ -1034,8 +1091,11 @@ def get_structure_from_qeinput(  # pylint: disable=too-many-arguments,too-many-b
         alat = None
         using_celldm = None
 
-    cell = get_cell_from_parameters(cell_parameters, system_dict, alat,
-                                    using_celldm)
+    cell = get_cell_from_parameters(cell_parameters,
+                                    system_dict,
+                                    alat,
+                                    using_celldm,
+                                    qe_version=qe_version)
 
     ################## POSITIONS #######################
     positions_units = atomic_positions['units']
