@@ -710,7 +710,7 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm): 
     """
     ibrav = system_dict['ibrav']
 
-    valid_ibravs = list(range(15)) + [-3, -5, -9, -12]
+    valid_ibravs = list(range(15)) + [-3, -5, -9, -12, 91]
     if ibrav not in valid_ibravs:
         raise InputValidationError('I found ibrav = {} in input, \n'
                                    'but it is not among the valid values\n'
@@ -898,6 +898,13 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm): 
         #  v1 = (a/2,-b/2,0),  v2 = (a/2,-b/2,0),  v3 = (0,0,c)
         cell = np.array([[0.5 * alat, 0.5 * b, 0.], [0.5 * alat, -0.5 * b, 0.],
                          [0., 0., c]])
+    elif ibrav == 91:
+        # 91          Orthorhombic one-face base-centered A-type
+        #                                             celldm(2)=b/a
+        #                                             celldm(3)=c/a
+        #      v1 = (a, 0, 0),  v2 = (0,b/2,-c/2),  v3 = (0,b/2,c/2)
+        cell = np.array([[alat, 0, 0], [0, 0.5 * b, -0.5 * c],
+                         [0, 0.5 * b, 0.5 * c]])
     elif ibrav == 10:
         # 10          Orthorhombic face-centered      celldm(2)=b/a
         #                                         celldm(3)=c/a

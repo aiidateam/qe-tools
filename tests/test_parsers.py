@@ -269,6 +269,9 @@ class PwTest(CustomTestCase):
     def test_lattice_ibrav9(self):
         self.singletest(label='lattice_ibrav9')
 
+    def test_lattice_ibrav91(self):
+        self.singletest(label='lattice_ibrav91')
+
     # The following is for negative ibravs
 
     def test_lattice_ibrav_12(self):
@@ -321,7 +324,8 @@ def print_test_comparison(label, parser='pw', write=False):
     else:
         raise ValueError("Invalid valude for 'parser': '{}'".format(parser))
 
-    parsed = ParserClass(fname)
+    with open(fname, 'rb') as in_f:
+        parsed = ParserClass(in_f.read().decode('utf-8'))
     structure = parsed.get_structure_from_qeinput()
 
     result = {
