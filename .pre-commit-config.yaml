@@ -21,3 +21,10 @@
     name: prospector
     description: "This hook runs Prospector: https://github.com/landscapeio/prospector"
     entry: prospector
+
+# mypy: static type checking
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v0.770
+  hooks:
+  - id: mypy
+    exclude: '^(doc/)|(examples/)|(playground/)'
