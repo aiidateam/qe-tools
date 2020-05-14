@@ -3,10 +3,7 @@
 Tools for parsing QE PW input files.
 """
 
-import io
 import re
-import os, sys
-from io import IOBase
 
 import numpy as np
 
@@ -198,8 +195,8 @@ def str2val(valstr):
                    (float_re,
                     lambda s: float(s.replace('d', 'e').replace('D', 'E'))),
                    (re.compile(r"[-+]?\d+$"),
-                    lambda s: int(s)), (re.compile(r"""['"].+['"]"""),
-                                        lambda s: str(s.strip("\'\""))))
+                    int), (re.compile(r"""['"].+['"]"""),
+                           lambda s: str(s.strip("\'\""))))
     # Convert valstr to a value.
     val = None
     for regex, conversion_fn in re_fn_tuple:
@@ -210,13 +207,12 @@ def str2val(valstr):
                 val = conversion_fn(valstr)
             except ValueError as error:
                 raise ValueError('Error converting {} to a value'.format(
-                    repr(valstr)))
+                    repr(valstr))) from error
     if val is None:
         raise ValueError('Unable to convert {} to a python variable.\n'
                          'NOTE: Support for algebraic expressions is not yet '
                          'implemented.'.format(repr(valstr)))
-    else:
-        return val
+    return val
 
 
 def parse_namelists(txt):
@@ -345,11 +341,9 @@ def parse_atomic_positions(txt):
         """
         if s == '0':
             return True
-        elif s == '1':
+        if s == '1':
             return False
-        else:
-            raise ParsingError(
-                'Unable to convert if_pos = "{}" to bool'.format(s))
+        raise ParsingError('Unable to convert if_pos = "{}" to bool'.format(s))
 
     # Define re for the card block.
     # NOTE: This will match card block lines w/ or w/out force modifications.
@@ -396,23 +390,23 @@ def parse_atomic_positions(txt):
         )
         """, re.X | re.M)
 
-    atomic_positions_block_re_ = re.compile(
-        r"""
-        ^ [ \t]* ATOMIC_POSITIONS [ \t]*
-            [{(]? [ \t]* (?P<units>\S+?)? [ \t]* [)}]? [ \t]* $\n
-        (?P<block>
-         (?:
-          ^ [ \t]*
-          (?:
-           \S+ [ \t]+ \S+ [ \t]+ \S+ [ \t]+ \S+
-           (?:[ \t]+ [{(]? [ \t]* [01] [ \t]+ [01] [ \t]+ [01] [ \t]* [)}]?)?
-          )
-          [ \t]* $\n?
-         )+
-        )
-        """, RE_FLAGS)
-    # Define re for atomic positions without force modifications.
+    # atomic_positions_block_re_ = re.compile(
+    #     r"""
+    #     ^ [ \t]* ATOMIC_POSITIONS [ \t]*
+    #         [{(]? [ \t]* (?P<units>\S+?)? [ \t]* [)}]? [ \t]* $\n
+    #     (?P<block>
+    #      (?:
+    #       ^ [ \t]*
+    #       (?:
+    #        \S+ [ \t]+ \S+ [ \t]+ \S+ [ \t]+ \S+
+    #        (?:[ \t]+ [{(]? [ \t]* [01] [ \t]+ [01] [ \t]+ [01] [ \t]* [)}]?)?
+    #       )
+    #       [ \t]* $\n?
+    #      )+
+    #     )
+    #     """, RE_FLAGS)
 
+    # Define re for atomic positions without force modifications.
     atomic_positions_w_constraints_re = re.compile(
         r"""
         ^                                       # Linestart
@@ -452,8 +446,8 @@ def parse_atomic_positions(txt):
     if match.group('block') is None:
         raise ParsingError(
             'The ATOMIC_POSITIONS card block was parsed as empty in\n' + txt)
-    else:
-        blockstr = match.group('block')
+
+    blockstr = match.group('block')
 
     # Define a small helper function to convert if_pos strings to bools that
     # correspond to the mapping of BasePwCpInputGenerator._if_pos method.
@@ -620,8 +614,7 @@ def parse_cell_parameters(txt):
     if match.group('block') is None:
         raise ParsingError(
             'The CELL_PARAMETER card block was parsed as empty in\n' + txt)
-    else:
-        blockstr = match.group('block')
+    blockstr = match.group('block')
     # Define a small helper function to convert strings of fortran-type floats.
     fortfloat = lambda s: float(s.replace('d', 'e').replace('D', 'E'))
     # Now, extract the lattice vectors.
@@ -691,8 +684,8 @@ def parse_atomic_species(txt):
     if match.group('block') is None:
         raise ParsingError(
             'The ATOMIC_POSITIONS card block was parse as empty in\n' + txt)
-    else:
-        blockstr = match.group('block')
+
+    blockstr = match.group('block')
     # Define a small helper function to convert strings of fortran-type floats.
     fortfloat = lambda s: float(s.replace('d', 'e').replace('D', 'E'))
     # Now, extract the name, mass, and pseudopotential file name from each line
@@ -706,7 +699,7 @@ def parse_atomic_species(txt):
     return info_dict
 
 
-def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):
+def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):  # pylint: disable=too-many-locals,too-many-statements,too-many-branches
     """
     A function to get the cell from cell parameters and SYSTEM card dictionary as read by
     parse_namelists.
@@ -763,7 +756,6 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):
             ):
                 # They are the same in trigonal R
                 cosa = cosg
-                sina = sing
             if ibrav in (-12, 14):
                 if using_celldm:
                     cosb = system_dict['celldm(5)']
@@ -969,12 +961,13 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm):
     return cell
 
 
-def get_structure_from_qeinput(filepath=None,
-                               text=None,
-                               namelists=None,
-                               atomic_species=None,
-                               atomic_positions=None,
-                               cell_parameters=None):
+def get_structure_from_qeinput(  # pylint: disable=too-many-arguments,too-many-branches
+        filepath=None,
+        text=None,
+        namelists=None,
+        atomic_species=None,
+        atomic_positions=None,
+        cell_parameters=None):
     """
     This function parses a Quantum ESPRESSO input file and returns a dictionary
     of parsed information.
@@ -1022,7 +1015,7 @@ def get_structure_from_qeinput(filepath=None,
     if 'a' in system_dict and 'celldm(1)' in system_dict:
         # The user should define exclusively in celldm or ABC-system
         raise InputValidationError('Both a and celldm(1) specified')
-    elif 'a' in system_dict:
+    if 'a' in system_dict:
         alat = system_dict['a']
         using_celldm = False
     elif 'celldm(1)' in system_dict:
@@ -1047,7 +1040,7 @@ def get_structure_from_qeinput(filepath=None,
             "This is deprecated behavior for QE.\n"
             "In addition the default values by CP and PW differ (bohr and alat)"
         )
-    elif positions_units == 'angstrom':
+    if positions_units == 'angstrom':
         pass
     elif positions_units == 'bohr':
         positions = bohr_to_ang * positions
