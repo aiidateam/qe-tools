@@ -21,7 +21,8 @@
             "yapf==0.30.0",
             "prospector==1.2.0",
             "pylint==2.4.4",
-            "mypy==0.770"
+            "mypy==0.770",
+            "pytest"
         ],
         "docs": [
             "Sphinx",
@@ -30,7 +31,8 @@
         ]
     },
     "install_requires": [
-        "numpy"
+        "numpy",
+        "packaging"
     ],
     "license": "MIT License",
     "name": "qe-tools",

@@ -108,13 +108,15 @@ class CustomTestCase(unittest.TestCase):
 
 
 class PwTest(CustomTestCase):
-    def singletest(self, label, parser='pw'):
+    def singletest(self, label, parser='pw', qe_version=None):
         """
         Run a single test.
 
         :param label: used to generate the filename (<label>.in)
         :param parser: used to define the parser to use. Possible values:
             ``pw``, ``cp``.
+        :param parser: used to define a specific QE version with which
+            to test the parser.
         """
         fname = os.path.join(data_folder, '{}.in'.format(label))
         if not os.path.isfile(fname):
@@ -130,7 +132,8 @@ class PwTest(CustomTestCase):
         # Open in binary mode so I get also '\r\n' from Windows and I check
         # that the parser properly copes with them
         with open(fname, 'rb') as in_file:
-            res_obj = ParserClass(in_file.read().decode('utf-8'))
+            res_obj = ParserClass(in_file.read().decode('utf-8'),
+                                  qe_version=qe_version)
 
         structure = res_obj.get_structure_from_qeinput()
         result = {
@@ -149,7 +152,11 @@ class PwTest(CustomTestCase):
         if parser != 'cp':
             result["k_points"] = res_obj.k_points
 
-        ref_fname = os.path.join(reference_folder, '{}.json'.format(label))
+        if qe_version is None:
+            reflabel = label
+        else:
+            reflabel = '{}-{}'.format(label, qe_version)
+        ref_fname = os.path.join(reference_folder, '{}.json'.format(reflabel))
         try:
             with open(ref_fname) as f:
                 ref = json.load(f)
@@ -269,10 +276,19 @@ class PwTest(CustomTestCase):
     def test_lattice_ibrav9(self):
         self.singletest(label='lattice_ibrav9')
 
+    def test_lattice_ibrav91(self):
+        self.singletest(label='lattice_ibrav91')
+
     # The following is for negative ibravs
 
     def test_lattice_ibrav_12(self):
         self.singletest(label='lattice_ibrav_12')
+
+    def test_lattice_ibrav_13(self):
+        self.singletest(label='lattice_ibrav_13')
+
+    def test_lattice_ibrav_13_old(self):
+        self.singletest(label='lattice_ibrav_13', qe_version='6.4.0')
 
     def test_lattice_ibrav_3(self):
         self.singletest(label='lattice_ibrav_3')
@@ -321,7 +337,8 @@ def print_test_comparison(label, parser='pw', write=False):
     else:
         raise ValueError("Invalid valude for 'parser': '{}'".format(parser))
 
-    parsed = ParserClass(fname)
+    with open(fname, 'rb') as in_f:
+        parsed = ParserClass(in_f.read().decode('utf-8'))
     structure = parsed.get_structure_from_qeinput()
 
     result = {

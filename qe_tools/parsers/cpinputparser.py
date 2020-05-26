@@ -6,17 +6,21 @@ from .qeinputparser import (QeInputFile, parse_namelists,
 
 
 class CpInputFile(QeInputFile):
-    def __init__(self, pwinput):
+    def __init__(self, pwinput, *, qe_version=None):
         """
         Parse inputs's namelist and cards to create attributes of the info.
 
-        :param pwinput:
-            Any one of the following
+        :param pwinput:  A single string containing the pwinput file's text.
+        :type pwinput: str
 
-                * A string of the (existing) absolute path to the pwinput file.
-                * A single string containing the pwinput file's text.
-                * A list of strings, with the lines of the file as the elements.
-                * A file object. (It will be opened, if it isn't already.)
+        :param qe_version: A string defining which version of QuantumESPRESSO
+            the input file is used for. This is used in cases where different
+            QE versions handle the input differently.
+            If no version is specified, it will default to the latest
+            implemented version.
+            The string must comply with the PEP440 versioning scheme.
+            Valid version strings are e.g. '6.5', '6.4.1', '6.4rc2'.
+        :type qe_version: Optional[str]
 
         :raises IOError: if ``pwinput`` is a file and there is a problem reading
             the file.
@@ -26,7 +30,7 @@ class CpInputFile(QeInputFile):
             parsing the pwinput.
         """
 
-        super().__init__(pwinput)
+        super().__init__(pwinput, qe_version=qe_version)
 
         # Parse the namelists.
         self.namelists = parse_namelists(self.input_txt)
