@@ -982,14 +982,14 @@ def get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-statem
         #       v3 = (c*cos(beta),   0,   c*sin(beta)),
         #       where beta=angle between axis a and c projected on xz plane
         #  IMPORTANT NOTICE: until QE v.6.4.1, axis for ibrav=-13 had a
-        #  different definition: v1(old) = v2(now), v2(old) = -v1(now)
-        if qe_version >= parse_version('6.4.1'):
+        #  different definition: v1(now) = v2(old), v2(now) = -v1(old)
+        if qe_version >= parse_version('6.5'):
             cell = np.array([[0.5 * alat, 0.5 * b,
                               0], [-0.5 * alat, 0.5 * b, 0],
                              [c * cosb, 0, c * sinb]])
         else:
-            cell = np.array([[-0.5 * alat, 0.5 * b, 0],
-                             [-0.5 * alat, -0.5 * b, 0],
+            cell = np.array([[0.5 * alat, -0.5 * b,
+                              0], [0.5 * alat, 0.5 * b, 0],
                              [c * cosb, 0, c * sinb]])
     elif ibrav == 14:
         #  14       Triclinic                     celldm(2)= b/a,
