@@ -167,7 +167,7 @@ class QeInputFile:
 
     def get_structure_from_qeinput(self):
         structure_dict = get_structure_from_qeinput(
-            text=self.input_txt,
+            txt=self.input_txt,
             namelists=self.namelists,
             atomic_positions=self.atomic_positions,
             atomic_species=self.atomic_species,
@@ -1016,8 +1016,7 @@ def get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-statem
 
 
 def get_structure_from_qeinput(  # pylint: disable=too-many-arguments,too-many-branches,too-many-locals
-        filepath=None,
-        text=None,
+        txt=None,
         namelists=None,
         atomic_species=None,
         atomic_positions=None,
@@ -1031,8 +1030,7 @@ def get_structure_from_qeinput(  # pylint: disable=too-many-arguments,too-many-b
     This function can deal with ibrav being set different from 0 and the cell being defined
     with celldm(n) or A,B,C, cosAB etc.
 
-    :param str filepath: the filepath storing **or**
-    :param str text: the string of the standard QE-input file.
+    :param str txt: the string content of the standard QE-input file.
     :param dict namelists: The dictionary of the namelist (optional)
     :param dict atomic_species: The dictionary of the atomic_species (optional)
     :param atomic_positions: The atomic positions as specified in the file (optional)
@@ -1054,16 +1052,6 @@ def get_structure_from_qeinput(  # pylint: disable=too-many-arguments,too-many-b
             "atom_names": A list of the kind names as used in the input,
         }
     """
-    # I need either a valid filepath or the text of the qeinput file:
-    if filepath:
-        with open(filepath) as f:
-            txt = f.read()
-    elif text:
-        txt = text
-    else:
-        raise InputValidationError(
-            'Provide either a filepath or text to be parsed')
-
     if namelists is None:
         namelists = parse_namelists(txt)
     if atomic_species is None:
