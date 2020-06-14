@@ -7,8 +7,8 @@ import json
 
 import numpy
 
-from qe_tools import PwInputFile, CpInputFile
-from qe_tools.utils.exceptions import InputValidationError
+from qe_tools.parsers import PwInputFile, CpInputFile
+from qe_tools.exceptions import InputValidationError
 
 # Folder with input file examples
 data_folder = os.path.join(os.path.split(os.path.abspath(__file__))[0], 'data')
@@ -135,7 +135,7 @@ class PwTest(CustomTestCase):
             res_obj = ParserClass(in_file.read().decode('utf-8'),
                                   qe_version=qe_version)
 
-        structure = res_obj.get_structure_from_qeinput()
+        structure = res_obj.structure
         result = {
             # Raw, from input
             "atomic_positions": res_obj.atomic_positions,
@@ -339,7 +339,7 @@ def print_test_comparison(label, parser='pw', write=False):
 
     with open(fname, 'rb') as in_f:
         parsed = ParserClass(in_f.read().decode('utf-8'))
-    structure = parsed.get_structure_from_qeinput()
+    structure = parsed.structure
 
     result = {
         # Raw, from input

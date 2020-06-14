@@ -4,17 +4,20 @@ Tools for parsing QE PW input files.
 """
 
 import re
+from typing import Tuple
 
 import numpy as np
 
-from ..constants import bohr_to_ang
-from ..utils.exceptions import ParsingError, InputValidationError
-from ..utils._qe_version import parse_version
+from .. import CONSTANTS
+from ..exceptions import ParsingError, InputValidationError
+from .._qe_version import parse_version
 
 RE_FLAGS = re.M | re.X | re.I
 
+__all__ = tuple()  # type: Tuple[str, ...]
 
-class QeInputFile:
+
+class _BaseInputFile:
     """
     Class used for parsing Quantum Espresso pw.x input files and using the info.
 
@@ -128,12 +131,12 @@ class QeInputFile:
                                    'Si3 28.0855 Si.pbe-nl-rrkjus_psl.1.0.0.UPF']
 
     """
-    def __init__(self, pwinput, *, qe_version=None):
+    def __init__(self, content, *, qe_version=None):
         """
         Parse inputs's namelist and cards to create attributes of the info.
 
-        :param pwinput:  A single string containing the pwinput file's text.
-        :type pwinput: str
+        :param content:  A single string containing the content file's text.
+        :type content: str
 
         :param qe_version: A string defining which version of QuantumESPRESSO
             the input file is used for. This is used in cases where different
@@ -144,39 +147,46 @@ class QeInputFile:
             Valid version strings are e.g. '6.5', '6.4.1', '6.4rc2'.
         :type qe_version: Optional[str]
 
-        :raises TypeError: if ``pwinput`` is not a string.
+        :raises TypeError: if ``content`` is not a string.
 
         :raises qe_tools.utils.exceptions.ParsingError: if there are issues
-            parsing the pwinput.
+            parsing the content.
         """
-        if not isinstance(pwinput, str):
-            raise TypeError("Unknown type for input 'pwinput': {}".format(
-                type(pwinput)))
+        if not isinstance(content, str):
+            raise TypeError("Unknown type for input 'content': {}".format(
+                type(content)))
 
-        self.input_txt = pwinput
+        self._input_txt = content
         self._qe_version = parse_version(qe_version)
 
-        # Check that pwinput is not empty.
-        if len(self.input_txt.strip()) == 0:
-            raise ParsingError('The pwinput provided was empty!')
+        # Check that content is not empty.
+        if len(self._input_txt.strip()) == 0:
+            raise ParsingError('The content provided was empty!')
 
         # Convert all types of newlines to '\n'
-        self.input_txt = '\n'.join(self.input_txt.splitlines())
+        self._input_txt = '\n'.join(self._input_txt.splitlines())
         # Add a newline, as a partial fix to #15
-        self.input_txt += "\n"
+        self._input_txt += "\n"
 
-    def get_structure_from_qeinput(self):
-        structure_dict = get_structure_from_qeinput(
-            txt=self.input_txt,
+        # Parse the namelists.
+        self.namelists = _parse_namelists(self._input_txt)
+        # Parse the ATOMIC_POSITIONS card.
+        self.atomic_positions = parse_atomic_positions(self._input_txt)
+        # Parse the CELL_PARAMETERS card.
+        self.cell_parameters = _parse_cell_parameters(self._input_txt)
+        # Parse the ATOMIC_SPECIES card.
+        self.atomic_species = _parse_atomic_species(self._input_txt)
+
+        self.structure = _parse_structure(
+            txt=self._input_txt,
             namelists=self.namelists,
             atomic_positions=self.atomic_positions,
             atomic_species=self.atomic_species,
             cell_parameters=self.cell_parameters,
             qe_version=self._qe_version)
-        return structure_dict
 
 
-def str2val(valstr):
+def _str2val(valstr):
     """
     Return a python value by converting valstr according to f90 syntax.
 
@@ -227,7 +237,7 @@ def str2val(valstr):
     return val
 
 
-def parse_namelists(txt):
+def _parse_namelists(txt):
     """
     Parse txt to extract a dictionary of the namelist info.
 
@@ -287,7 +297,7 @@ def parse_namelists(txt):
         # Remove comments on each line, and then put back the \n
         # Note that strip_comment does not want \n in the string!
         blocklines = [
-            "{}\n".format(strip_comment(line)) for line in blocklines
+            "{}\n".format(_strip_comment(line)) for line in blocklines
         ]
 
         for blockline in blocklines:
@@ -296,7 +306,7 @@ def parse_namelists(txt):
                     raise ValueError(
                         "Key {} found more than once in namelist {}".format(
                             key.lower(), nmlst))
-                nmlst_dict[key.lower()] = str2val(valstr)
+                nmlst_dict[key.lower()] = _str2val(valstr)
         # ...and, store nmlst_dict as a value in params_dict with the namelist
         # as the key.
         if len(nmlst_dict.keys()) > 0:
@@ -502,7 +512,7 @@ def parse_atomic_positions(txt):
     return info_dict
 
 
-def parse_cell_parameters(txt):
+def _parse_cell_parameters(txt):
     """
     Return dict containing info from the CELL_PARAMETERS card block in txt.
 
@@ -640,7 +650,7 @@ def parse_cell_parameters(txt):
     return info_dict
 
 
-def parse_atomic_species(txt):
+def _parse_atomic_species(txt):
     """
     Return a dictionary containing info from the ATOMIC_SPECIES card block
     in txt.
@@ -711,7 +721,7 @@ def parse_atomic_species(txt):
     return info_dict
 
 
-def get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-statements,too-many-branches
+def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-statements,too-many-branches
         cell_parameters,
         system_dict,
         alat,
@@ -720,7 +730,7 @@ def get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-statem
         qe_version=None):
     """
     A function to get the cell from cell parameters and SYSTEM card dictionary as read by
-    parse_namelists.
+    _parse_namelists.
     :param cell_parameters: The parameters as returned by parse_cell_parameters
     :param system_dict: the dictionary for card SYSTEM
     :param alat: The value for alat
@@ -819,7 +829,7 @@ def get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-statem
         if cell_unit == 'angstrom':
             pass
         elif cell_unit == 'bohr':
-            cell = bohr_to_ang * cell
+            cell = CONSTANTS.bohr_to_ang * cell
         elif cell_unit == 'alat':
             if alat is None:
                 raise InputValidationError(
@@ -831,7 +841,7 @@ def get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-statem
             # If alat was somehow specified, cell is given in units of alats
             # if alat was not specified, the default is bohr:
             if alat is None:
-                cell = bohr_to_ang * cell
+                cell = CONSTANTS.bohr_to_ang * cell
             else:
                 cell = alat * cell
         else:
@@ -1015,7 +1025,7 @@ def get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-statem
     return cell
 
 
-def get_structure_from_qeinput(  # pylint: disable=too-many-arguments,too-many-branches,too-many-locals
+def _parse_structure(  # pylint: disable=too-many-arguments,too-many-branches,too-many-locals
         txt=None,
         namelists=None,
         atomic_species=None,
@@ -1053,11 +1063,11 @@ def get_structure_from_qeinput(  # pylint: disable=too-many-arguments,too-many-b
         }
     """
     if namelists is None:
-        namelists = parse_namelists(txt)
+        namelists = _parse_namelists(txt)
     if atomic_species is None:
-        atomic_species = parse_atomic_species(txt)
+        atomic_species = _parse_atomic_species(txt)
     if cell_parameters is None:
-        cell_parameters = parse_cell_parameters(txt)
+        cell_parameters = _parse_cell_parameters(txt)
     if atomic_positions is None:
         atomic_positions = parse_atomic_positions(txt)
 
@@ -1071,7 +1081,7 @@ def get_structure_from_qeinput(  # pylint: disable=too-many-arguments,too-many-b
         alat = system_dict['a']
         using_celldm = False
     elif 'celldm(1)' in system_dict:
-        alat = bohr_to_ang * system_dict['celldm(1)']
+        alat = CONSTANTS.bohr_to_ang * system_dict['celldm(1)']
         using_celldm = True
     else:
         assert system_dict[
@@ -1079,11 +1089,11 @@ def get_structure_from_qeinput(  # pylint: disable=too-many-arguments,too-many-b
         alat = None
         using_celldm = None
 
-    cell = get_cell_from_parameters(cell_parameters,
-                                    system_dict,
-                                    alat,
-                                    using_celldm,
-                                    qe_version=qe_version)
+    cell = _get_cell_from_parameters(cell_parameters,
+                                     system_dict,
+                                     alat,
+                                     using_celldm,
+                                     qe_version=qe_version)
 
     ################## POSITIONS #######################
     positions_units = atomic_positions['units']
@@ -1098,7 +1108,7 @@ def get_structure_from_qeinput(  # pylint: disable=too-many-arguments,too-many-b
     if positions_units == 'angstrom':
         pass
     elif positions_units == 'bohr':
-        positions = bohr_to_ang * positions
+        positions = CONSTANTS.bohr_to_ang * positions
     elif positions_units == 'crystal':
         positions = np.dot(positions, cell)
     elif positions_units == 'alat':
@@ -1122,9 +1132,9 @@ def get_structure_from_qeinput(  # pylint: disable=too-many-arguments,too-many-b
                 atom_names=atomic_positions['names'])
 
 
-def strip_comment(string,
-                  comment_characters=('!', ),
-                  quote_characters=('"', "'")):
+def _strip_comment(string,
+                   comment_characters=('!', ),
+                   quote_characters=('"', "'")):
     """
     Return the string only until the first comment (if any), but makes
     sure to ignore comments if inside a string
