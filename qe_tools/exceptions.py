@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+
+__all__ = ('ParsingError', 'InputValidationError')
+
+
 class ParsingError(Exception):
     """
     Generic error raised when there is a parsing error

@@ -7,8 +7,8 @@ from typing import Iterable, Union, Dict, Optional
 import numpy as np
 import scipy.linalg as la
 
-from ..constants import bohr_to_ang
-from ..parsers.qeinputparser import get_cell_from_parameters
+from .. import CONSTANTS
+from ..parsers._input_base import _get_cell_from_parameters
 
 CellT = Iterable[Iterable[float]]
 ParametersT = Dict[str, float]
@@ -151,7 +151,7 @@ def _check_parameters(*,
         'ibrav': ibrav,
         **parameters
     }  # type: Dict[str, Union[int, float]]
-    cell_reconstructed = get_cell_from_parameters(
+    cell_reconstructed = _get_cell_from_parameters(
         cell_parameters=None,  # this is only used for ibrav=0
         system_dict=system_dict,
         alat=parameters['a'],
@@ -172,7 +172,7 @@ def _convert_to_celldm(parameters: ParametersT, ibrav: int) -> ParametersT:
     """
     alat = parameters.pop('a')
 
-    res_parameters = {'celldm(1)': alat / bohr_to_ang}
+    res_parameters = {'celldm(1)': alat / CONSTANTS.bohr_to_ang}
 
     for in_key, out_key in [('b', 'celldm(2)'), ('c', 'celldm(3)')]:
         if in_key in parameters:

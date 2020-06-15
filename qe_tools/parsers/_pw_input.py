@@ -4,13 +4,14 @@ Tools for parsing QE PW input files
 """
 
 import re
-from .qeinputparser import (QeInputFile, parse_namelists,
-                            parse_atomic_positions, parse_atomic_species,
-                            parse_cell_parameters, RE_FLAGS)
-from ..utils.exceptions import ParsingError
+
+from ._input_base import _BaseInputFile, RE_FLAGS
+from ..exceptions import ParsingError
+
+__all__ = ('PwInputFile', )
 
 
-class PwInputFile(QeInputFile):
+class PwInputFile(_BaseInputFile):
     """
     Class used for parsing Quantum Espresso pw.x input files and using the info.
 
@@ -124,12 +125,12 @@ class PwInputFile(QeInputFile):
                                    'Si3 28.0855 Si.pbe-nl-rrkjus_psl.1.0.0.UPF']
 
     """
-    def __init__(self, pwinput, *, qe_version=None):
+    def __init__(self, content, *, qe_version=None):
         """
         Parse inputs's namelist and cards to create attributes of the info.
 
-        :param pwinput:  A single string containing the pwinput file's text.
-        :type pwinput: str
+        :param content:  A single string containing the content file's text.
+        :type content: str
 
         :param qe_version: A string defining which version of QuantumESPRESSO
             the input file is used for. This is used in cases where different
@@ -140,26 +141,18 @@ class PwInputFile(QeInputFile):
             Valid version strings are e.g. '6.5', '6.4.1', '6.4rc2'.
         :type qe_version: Optional[str]
 
-        :raises IOError: if ``pwinput`` is a file and there is a problem reading
+        :raises IOError: if ``content`` is a file and there is a problem reading
             the file.
-        :raises TypeError: if ``pwinput`` is a list containing any non-string
+        :raises TypeError: if ``content`` is a list containing any non-string
             element(s).
         :raises qe_tools.utils.exceptions.ParsingError: if there are issues
-            parsing the pwinput.
+            parsing the content.
         """
 
-        super().__init__(pwinput, qe_version=qe_version)
+        super().__init__(content, qe_version=qe_version)
 
-        # Parse the namelists.
-        self.namelists = parse_namelists(self.input_txt)
-        # Parse the ATOMIC_POSITIONS card.
-        self.atomic_positions = parse_atomic_positions(self.input_txt)
-        # Parse the CELL_PARAMETERS card.
-        self.cell_parameters = parse_cell_parameters(self.input_txt)
         # Parse the K_POINTS card.
-        self.k_points = parse_k_points(self.input_txt)
-        # Parse the ATOMIC_SPECIES card.
-        self.atomic_species = parse_atomic_species(self.input_txt)
+        self.k_points = parse_k_points(self._input_txt)
 
 
 def parse_k_points(txt):
