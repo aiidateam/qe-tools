@@ -6,6 +6,6 @@ from . import parsers
 from . import converters
 from . import exceptions
 
-__version__ = "2.0.0dev"
+__version__ = "2.0.0rc1"
 
 __all__ = ('CONSTANTS', 'parsers', 'converters', 'exceptions')
