@@ -5,15 +5,15 @@ import pathlib
 
 import numpy as np
 import pytest
-from pytest_cases import cases_data, case_name, cases_generator, CaseData, THIS_MODULE
+from pytest_cases import parametrize, parametrize_with_cases
 
 from qe_tools.converters import get_parameters_from_cell
 
 CASES_DATA_DIR = pathlib.Path(__file__).resolve().parent / 'data' / 'ref'
 
 
-@cases_generator("case {path.name}", path=CASES_DATA_DIR.iterdir())
-def case_structure_generator(path) -> CaseData:
+@parametrize(path=CASES_DATA_DIR.iterdir())
+def case_structure_generator(path):
     with open(str(path), 'r') as in_f:
         case_data = json.load(in_f)
     system_dict = case_data['namelists']['SYSTEM']
@@ -40,19 +40,16 @@ def case_structure_generator(path) -> CaseData:
     return ins, outs, None
 
 
-@case_name("case ibrav=0")
-def case_ibrav_zero() -> CaseData:
+def case_ibrav_zero():
     return {'cell': np.eye(3), 'ibrav': 0}, None, ValueError
 
 
-@case_name("case wrong cell")
-def case_wrong_cell() -> CaseData:
+def case_wrong_cell():
     return {'cell': np.eye(3), 'ibrav': 3}, None, ValueError
 
 
-@cases_data(module=THIS_MODULE)
-def test_parameters_from_cell(case_data):
-    inputs, expected_output, expected_error = case_data.get()
+@parametrize_with_cases("inputs, expected_output, expected_error", cases='.')
+def test_parameters_from_cell(inputs, expected_output, expected_error):
     if expected_error is not None:
         with pytest.raises(expected_error):
             get_parameters_from_cell(**inputs)

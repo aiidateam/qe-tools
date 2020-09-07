@@ -22,7 +22,7 @@
             "prospector==1.2.0",
             "pylint==2.4.4",
             "pytest",
-            "pytest-cases",
+            "pytest-cases~=2.2",
             "mypy==0.770"
         ],
         "docs": [
