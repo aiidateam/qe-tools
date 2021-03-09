@@ -125,7 +125,11 @@ class PwInputFile(_BaseInputFile):
                                    'Si3 28.0855 Si.pbe-nl-rrkjus_psl.1.0.0.UPF']
 
     """
-    def __init__(self, content, *, qe_version=None):
+    def __init__(self,
+                 content,
+                 *,
+                 qe_version=None,
+                 validate_species_names=True):
         """
         Parse inputs's namelist and cards to create attributes of the info.
 
@@ -141,6 +145,11 @@ class PwInputFile(_BaseInputFile):
             Valid version strings are e.g. '6.5', '6.4.1', '6.4rc2'.
         :type qe_version: Optional[str]
 
+        :param validate_species_names: A boolean flag (default: True) to enable
+            the consistency check between atom names and species names inferred
+            from the pseudopotential file name.
+        :type validate_species_names: Optional[bool]
+
         :raises IOError: if ``content`` is a file and there is a problem reading
             the file.
         :raises TypeError: if ``content`` is a list containing any non-string
@@ -149,7 +158,9 @@ class PwInputFile(_BaseInputFile):
             parsing the content.
         """
 
-        super().__init__(content, qe_version=qe_version)
+        super().__init__(content,
+                         qe_version=qe_version,
+                         validate_species_names=validate_species_names)
 
         # Parse the K_POINTS card.
         self.k_points = parse_k_points(self._input_txt)

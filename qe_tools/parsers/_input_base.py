@@ -131,7 +131,11 @@ class _BaseInputFile:
                                    'Si3 28.0855 Si.pbe-nl-rrkjus_psl.1.0.0.UPF']
 
     """
-    def __init__(self, content, *, qe_version=None):
+    def __init__(self,
+                 content,
+                 *,
+                 qe_version=None,
+                 validate_species_names=True):
         """
         Parse inputs's namelist and cards to create attributes of the info.
 
@@ -146,6 +150,11 @@ class _BaseInputFile:
             The string must comply with the PEP440 versioning scheme.
             Valid version strings are e.g. '6.5', '6.4.1', '6.4rc2'.
         :type qe_version: Optional[str]
+
+        :param validate_species_names: A boolean flag (default: True) to enable
+            the consistency check between atom names and species names inferred
+            from the pseudopotential file name.
+        :type validate_species_names: Optional[bool]
 
         :raises TypeError: if ``content`` is not a string.
 
@@ -175,7 +184,8 @@ class _BaseInputFile:
         # Parse the CELL_PARAMETERS card.
         self.cell_parameters = _parse_cell_parameters(self._input_txt)
         # Parse the ATOMIC_SPECIES card.
-        self.atomic_species = _parse_atomic_species(self._input_txt)
+        self.atomic_species = _parse_atomic_species(
+            self._input_txt, validate_species_names=validate_species_names)
 
         self.structure = _parse_structure(
             txt=self._input_txt,
@@ -650,13 +660,18 @@ def _parse_cell_parameters(txt):
     return info_dict
 
 
-def _parse_atomic_species(txt):
+def _parse_atomic_species(txt, validate_species_names=True):
     """
     Return a dictionary containing info from the ATOMIC_SPECIES card block
     in txt.
 
     :param txt: A single string containing the QE input text to be parsed.
     :type txt: str
+
+    :param validate_species_names: A boolean flag (default: True) to enable
+        the consistency check between atom names and species names inferred
+        from the pseudopotential file name.
+    :type validate_species_names: Optional[bool]
 
     :returns:
         A dictionary with
@@ -679,6 +694,36 @@ def _parse_atomic_species(txt):
     :raises qe_tools.utils.exceptions.ParsingError: if there are issues
         parsing the input.
     """
+    def validate_species_name(atom_name, pseudo_file_name):
+        """
+        Check if the atom name is consistent with the species name parsed from the
+        corresponding pseudopotential file name.
+        It checks if the atom name is equal to the species name parsed from the
+        pseudopotential file name plus an optional underscore and optional digits;
+        if not, an InputValidationError is raised.
+
+        :param atom_name: A string containing the atom name.
+        :type atom_name: str
+
+        :param pseudo_file_name: A string containing the pseudopotential file name.
+        :type pseudo_file_name: str
+
+        :raises qe_tools.utils.exceptions.InputValidationError: if the atom_name
+        does not match the species name parsed from the pseudo_file_name up to
+        an optional underscore followed by optional digits.
+        """
+        species_from_pseudo = pseudo_file_name
+        for sep in ["-", ".", "_"]:
+            species_from_pseudo = species_from_pseudo.partition(sep)[0]
+        species_from_pseudo = species_from_pseudo.capitalize()
+        pattern = re.compile(r"^" + species_from_pseudo + r"_?\d*$",
+                             re.IGNORECASE)
+        if pattern.match(atom_name) is None:
+            raise InputValidationError(
+                "The element symbol '{}' does not match the species '{}' inferred "
+                "by the pseudopotential file name".format(
+                    atom_name, species_from_pseudo))
+
     # Define re for atomic species card block.
     atomic_species_block_re = re.compile(
         r"""
@@ -717,6 +762,8 @@ def _parse_atomic_species(txt):
         names.append(match.group('name'))
         masses.append(fortfloat(match.group('mass')))
         pseudo_fnms.append(match.group('pseudo'))
+        if validate_species_names:
+            validate_species_name(match.group('name'), match.group('pseudo'))
     info_dict = dict(names=names, masses=masses, pseudo_file_names=pseudo_fnms)
     return info_dict
 
