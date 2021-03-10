@@ -299,6 +299,10 @@ class PwTest(CustomTestCase):
     def test_alat_coords_with_ibrav_non0(self):
         self.singletest(label='alat_coords_with_ibrav_non0')
 
+    def test_non_matching_species_validate(self):
+        with self.assertRaises(InputValidationError):
+            self.singletest(label='non_matching_species')
+
     def test_no_newline_exponential_time(self):
         """
         This tries to avoid a regression of #15
