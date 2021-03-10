@@ -14,6 +14,7 @@ CASES_DATA_DIR = pathlib.Path(__file__).resolve().parent / 'data' / 'ref'
 
 @parametrize(path=CASES_DATA_DIR.iterdir())
 def case_structure_generator(path):
+    """Create test cases from reference data files."""
     with open(str(path), 'r') as in_f:
         case_data = json.load(in_f)
     system_dict = case_data['namelists']['SYSTEM']
@@ -50,6 +51,10 @@ def case_wrong_cell():
 
 @parametrize_with_cases("inputs, expected_output, expected_error", cases='.')
 def test_parameters_from_cell(inputs, expected_output, expected_error):
+    """
+    Test the `get_parameters_from_cell` behavior matches the expected
+    output or error defined in the test cases.
+    """
     if expected_error is not None:
         with pytest.raises(expected_error):
             get_parameters_from_cell(**inputs)

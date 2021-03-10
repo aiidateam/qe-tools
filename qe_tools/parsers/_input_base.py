@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+
+# pylint: disable=too-many-lines
 """
 Tools for parsing QE PW input files.
 """
@@ -743,9 +745,9 @@ def _parse_atomic_species(txt, validate_species_names=True):
     # Find the card block and extract units and the lines of the block.
     try:
         match = atomic_species_block_re.search(txt)
-    except AttributeError:
+    except AttributeError as exc:
         raise ParsingError('The ATOMIC_SPECIES card block was not found in\n' +
-                           txt)
+                           txt) from exc
     # Make sure the card block lines were extracted. If they were, store the
     # string of lines as blockstr.
     if match.group('block') is None:
@@ -862,7 +864,7 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
             raise InputValidationError(
                 '\nException {} raised when searching for\n'
                 'key {} in qeinput, necessary when ibrav = {}'.format(
-                    e, e.message, ibrav))
+                    type(e), e, ibrav)) from e
     # Calculating the cell according to ibrav.
     # The comments in each case are taken from
     # http://www.quantum-espresso.org/wp-content/uploads/Doc/INPUT_PW.html#ibrav
