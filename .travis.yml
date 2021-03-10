@@ -3,7 +3,7 @@ sudo: required
 language: python
 
 matrix:
-    include:
+  include:
     - python: "3.5"
     - python: "3.6"
     - python: "3.7"
@@ -20,11 +20,11 @@ cache: pip
 #            - liblapack-dev
 
 before_install:
-    - pip install --upgrade pip setuptools
+  - pip install --upgrade pip setuptools
 
 install:
-    - pip install -e .[dev]
+  - pip install -e .[dev]
 
 script:
-    - pre-commit run
-    - pytest
+  - pre-commit run --all-files
+  - pytest
