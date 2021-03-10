@@ -5,7 +5,7 @@ import sys
 this_path = os.path.split(os.path.realpath(__file__))[0]
 
 # Get current JSON content
-setup_path = os.path.join(this_path, os.pardir, os.pardir, 'setup.json')
+setup_path = os.path.join(this_path, os.pardir, 'setup.json')
 with open(setup_path) as f:
     setup_content = json.load(f)
 

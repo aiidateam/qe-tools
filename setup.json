@@ -22,8 +22,10 @@
             "prospector==1.2.0",
             "pylint==2.4.4",
             "pytest",
+            "pytest-cov",
             "pytest-cases~=3.2",
-            "mypy==0.770"
+            "mypy==0.770",
+            "ruamel.yaml"
         ],
         "docs": [
             "Sphinx",
