@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# pylint: disable=redefined-outer-name
+
 import io
 import os
 import unittest
@@ -57,7 +59,7 @@ class CustomTestCase(unittest.TestCase):
         except AssertionError as exc:
             exc.__dict__.setdefault('traces', []).append(trace)
             if is_root:
-                trace = ' -> '.join(reversed(exc.traces))
+                trace = ' -> '.join(reversed(exc.traces))  # pylint: disable=no-member
                 exc = AssertionError("%s\nTRACE: %s" % (str(exc), trace))
             raise exc
 
@@ -102,12 +104,13 @@ class CustomTestCase(unittest.TestCase):
         except AssertionError as exc:
             exc.__dict__.setdefault('traces', []).append(trace)
             if is_root:
-                trace = ' -> '.join(reversed(exc.traces))
+                trace = ' -> '.join(reversed(exc.traces))  # pylint: disable=no-member
                 exc = AssertionError("%s\nTRACE: %s" % (str(exc), trace))
             raise exc
 
 
 class PwTest(CustomTestCase):
+    """Test class for the PW input parser."""
     def singletest(self,
                    label,
                    parser='pw',
