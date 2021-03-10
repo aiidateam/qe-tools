@@ -108,15 +108,21 @@ class CustomTestCase(unittest.TestCase):
 
 
 class PwTest(CustomTestCase):
-    def singletest(self, label, parser='pw', qe_version=None):
+    def singletest(self,
+                   label,
+                   parser='pw',
+                   qe_version=None,
+                   validate_species_names=True):
         """
         Run a single test.
 
         :param label: used to generate the filename (<label>.in)
         :param parser: used to define the parser to use. Possible values:
             ``pw``, ``cp``.
-        :param parser: used to define a specific QE version with which
+        :param qe_version: used to define a specific QE version with which
             to test the parser.
+        :param validate_species_names: used to determine whether to validate
+            the species names against the ones parsed from the pseudo file names.
         """
         fname = os.path.join(data_folder, '{}.in'.format(label))
         if not os.path.isfile(fname):
@@ -132,8 +138,10 @@ class PwTest(CustomTestCase):
         # Open in binary mode so I get also '\r\n' from Windows and I check
         # that the parser properly copes with them
         with open(fname, 'rb') as in_file:
-            res_obj = ParserClass(in_file.read().decode('utf-8'),
-                                  qe_version=qe_version)
+            res_obj = ParserClass(
+                in_file.read().decode('utf-8'),
+                qe_version=qe_version,
+                validate_species_names=validate_species_names)
 
         structure = res_obj.structure
         result = {
@@ -303,6 +311,10 @@ class PwTest(CustomTestCase):
         with self.assertRaises(InputValidationError):
             self.singletest(label='non_matching_species')
 
+    def test_non_matching_species_no_validation(self):
+        self.singletest(label='non_matching_species',
+                        validate_species_names=False)
+
     def test_no_newline_exponential_time(self):
         """
         This tries to avoid a regression of #15
@@ -342,7 +354,8 @@ def print_test_comparison(label, parser='pw', write=False):
         raise ValueError("Invalid valude for 'parser': '{}'".format(parser))
 
     with open(fname, 'rb') as in_f:
-        parsed = ParserClass(in_f.read().decode('utf-8'))
+        parsed = ParserClass(in_f.read().decode('utf-8'),
+                             validate_species_names=False)
     structure = parsed.structure
 
     result = {
