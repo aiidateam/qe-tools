@@ -148,7 +148,7 @@ class PwInputFile(_BaseInputFile):
         :param validate_species_names: A boolean flag (default: True) to enable
             the consistency check between atom names and species names inferred
             from the pseudopotential file name.
-        :type validate_species_names: Optional[bool]
+        :type validate_species_names: bool
 
         :raises IOError: if ``content`` is a file and there is a problem reading
             the file.

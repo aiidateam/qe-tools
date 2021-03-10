@@ -154,7 +154,7 @@ class _BaseInputFile:
         :param validate_species_names: A boolean flag (default: True) to enable
             the consistency check between atom names and species names inferred
             from the pseudopotential file name.
-        :type validate_species_names: Optional[bool]
+        :type validate_species_names: bool
 
         :raises TypeError: if ``content`` is not a string.
 
@@ -671,7 +671,7 @@ def _parse_atomic_species(txt, validate_species_names=True):
     :param validate_species_names: A boolean flag (default: True) to enable
         the consistency check between atom names and species names inferred
         from the pseudopotential file name.
-    :type validate_species_names: Optional[bool]
+    :type validate_species_names: bool
 
     :returns:
         A dictionary with
@@ -694,7 +694,7 @@ def _parse_atomic_species(txt, validate_species_names=True):
     :raises qe_tools.utils.exceptions.ParsingError: if there are issues
         parsing the input.
     """
-    def validate_species_name(atom_name, pseudo_file_name):
+    def _validate_species_name(atom_name, pseudo_file_name):
         """
         Check if the atom name is consistent with the species name parsed from the
         corresponding pseudopotential file name.
@@ -763,7 +763,7 @@ def _parse_atomic_species(txt, validate_species_names=True):
         masses.append(fortfloat(match.group('mass')))
         pseudo_fnms.append(match.group('pseudo'))
         if validate_species_names:
-            validate_species_name(match.group('name'), match.group('pseudo'))
+            _validate_species_name(match.group('name'), match.group('pseudo'))
     info_dict = dict(names=names, masses=masses, pseudo_file_names=pseudo_fnms)
     return info_dict
 
