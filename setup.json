@@ -41,5 +41,5 @@
     "name": "qe-tools",
     "python_requires": ">=3.6",
     "url": "https://github.com/aiidateam/qe-tools",
-    "version": "2.0.0rc1"
+    "version": "2.0.0rc2"
 }
