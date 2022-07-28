@@ -1,12 +1,6 @@
 repos:
   - repo: local
     hooks:
-      - id: version-number
-        name: Check consistency in version number
-        entry: python ./.utils/fix_setup_version.py
-        language: system
-        pass_filenames: false
-
       - id: yapf
         name: yapf
         entry: yapf
