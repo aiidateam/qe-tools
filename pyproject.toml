@@ -60,6 +60,10 @@ exclude = [
     '.pre-commit-config.yaml',
 ]
 
+[tool.flynt]
+line-length = 120
+fail-on-change = true
+
 [tool.pylint.format]
 max-line-length = 120
 
@@ -87,7 +91,6 @@ good-names = [
 
 [tool.pylint.messages_control]
 disable = [
-    'consider-using-f-string',
     'fixme',
     'import-error',
     'missing-function-docstring',

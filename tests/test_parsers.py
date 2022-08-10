@@ -53,7 +53,7 @@ class CustomTestCase(unittest.TestCase):
             exc.__dict__.setdefault('traces', []).append(trace)
             if is_root:
                 trace = ' -> '.join(reversed(exc.traces))  # pylint: disable=no-member
-                exc = AssertionError("%s\nTRACE: %s" % (str(exc), trace))
+                exc = AssertionError(f"{str(exc)}\nTRACE: {trace}")
             raise exc
 
     def assert_nested_almost_equal_only_keys_in_first(self, expected, actual, *args, **kwargs):
@@ -89,7 +89,7 @@ class CustomTestCase(unittest.TestCase):
             exc.__dict__.setdefault('traces', []).append(trace)
             if is_root:
                 trace = ' -> '.join(reversed(exc.traces))  # pylint: disable=no-member
-                exc = AssertionError("%s\nTRACE: %s" % (str(exc), trace))
+                exc = AssertionError(f"{str(exc)}\nTRACE: {trace}")
             raise exc
 
 
@@ -108,15 +108,15 @@ class PwTest(CustomTestCase):
         :param validate_species_names: used to determine whether to validate
             the species names against the ones parsed from the pseudo file names.
         """
-        fname = os.path.join(data_folder, '{}.in'.format(label))
+        fname = os.path.join(data_folder, f'{label}.in')
         if not os.path.isfile(fname):
-            raise ValueError("File {} not found".format(fname))
+            raise ValueError(f"File {fname} not found")
         if parser == 'pw':
             ParserClass = PwInputFile
         elif parser == 'cp':
             ParserClass = CpInputFile
         else:
-            raise ValueError("Invalid valude for 'parser': '{}'".format(parser))
+            raise ValueError(f"Invalid valude for 'parser': '{parser}'")
 
         # Open in binary mode so I get also '\r\n' from Windows and I check
         # that the parser properly copes with them
@@ -145,8 +145,8 @@ class PwTest(CustomTestCase):
         if qe_version is None:
             reflabel = label
         else:
-            reflabel = '{}-{}'.format(label, qe_version)
-        ref_fname = os.path.join(reference_folder, '{}.json'.format(reflabel))
+            reflabel = f'{label}-{qe_version}'
+        ref_fname = os.path.join(reference_folder, f'{reflabel}.json')
         try:
             with open(ref_fname, encoding='utf-8') as f:
                 ref = json.load(f)
@@ -324,15 +324,15 @@ def print_test_comparison(label, parser='pw', write=False):
     :param parser: used to define the parser to use. Possible values:
         ``pw``, ``cp``.
     """
-    fname = os.path.join(data_folder, '{}.in'.format(label))
+    fname = os.path.join(data_folder, f'{label}.in')
     if not os.path.isfile(fname):
-        raise ValueError("File {} not found".format(fname))
+        raise ValueError(f"File {fname} not found")
     if parser == 'pw':
         ParserClass = PwInputFile
     elif parser == 'cp':
         ParserClass = CpInputFile
     else:
-        raise ValueError("Invalid valude for 'parser': '{}'".format(parser))
+        raise ValueError(f"Invalid valude for 'parser': '{parser}'")
 
     with open(fname, 'rb') as in_f:
         parsed = ParserClass(in_f.read().decode('utf-8'), validate_species_names=False)
@@ -356,10 +356,10 @@ def print_test_comparison(label, parser='pw', write=False):
         result["k_points"] = parsed.k_points
 
     if write:
-        ref_fname = os.path.join(reference_folder, '{}.json'.format(label))
+        ref_fname = os.path.join(reference_folder, f'{label}.json')
         with io.open(ref_fname, 'w', encoding="utf-8") as f:
             f.write(str(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False)))
-            print("File '{}' written.".format(ref_fname))
+            print(f"File '{ref_fname}' written.")
     else:
         print(json.dumps(result, indent=2, sort_keys=True))
 
