@@ -3,8 +3,8 @@
 Helper module for managing the QuantumESPRESSO version.
 """
 
-from typing import Optional, Union
 from functools import total_ordering
+from typing import Optional, Union
 
 from packaging.version import Version
 

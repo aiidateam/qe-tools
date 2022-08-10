@@ -3,14 +3,14 @@
 # pylint: disable=redefined-outer-name
 
 import io
+import json
 import os
 import unittest
-import json
 
 import numpy
 
-from qe_tools.parsers import PwInputFile, CpInputFile
 from qe_tools.exceptions import InputValidationError
+from qe_tools.parsers import CpInputFile, PwInputFile
 
 # Folder with input file examples
 data_folder = os.path.join(os.path.split(os.path.abspath(__file__))[0], 'data')
@@ -302,6 +302,7 @@ class PwTest(CustomTestCase):
         (too slow parsing of specific output)
         """
         import timeout_decorator  # pylint: disable=import-outside-toplevel
+
         # Should not run in more than 2 seconds
         # (it should be actually much faster!)
         @timeout_decorator.timeout(2)
