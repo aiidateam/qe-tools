@@ -39,7 +39,7 @@ repos:
         pass_filenames: true
         files: >-
             (?x)^(
-                qe_tools/.*py|
+                src/.*py|
             )$
 
     -   id: pylint
