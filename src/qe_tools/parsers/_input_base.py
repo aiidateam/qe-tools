@@ -6,13 +6,13 @@ Tools for parsing QE PW input files.
 """
 
 import re
-from typing import Tuple
+from typing import List, Tuple
 
 import numpy as np
 
 from .. import CONSTANTS
-from ..exceptions import ParsingError, InputValidationError
 from .._qe_version import parse_version
+from ..exceptions import InputValidationError, ParsingError
 
 RE_FLAGS = re.M | re.X | re.I
 
@@ -133,11 +133,8 @@ class _BaseInputFile:
                                    'Si3 28.0855 Si.pbe-nl-rrkjus_psl.1.0.0.UPF']
 
     """
-    def __init__(self,
-                 content,
-                 *,
-                 qe_version=None,
-                 validate_species_names=True):
+
+    def __init__(self, content, *, qe_version=None, validate_species_names=True):
         """
         Parse inputs's namelist and cards to create attributes of the info.
 
@@ -164,8 +161,7 @@ class _BaseInputFile:
             parsing the content.
         """
         if not isinstance(content, str):
-            raise TypeError("Unknown type for input 'content': {}".format(
-                type(content)))
+            raise TypeError(f"Unknown type for input 'content': {type(content)}")
 
         self._input_txt = content
         self._qe_version = parse_version(qe_version)
@@ -177,7 +173,7 @@ class _BaseInputFile:
         # Convert all types of newlines to '\n'
         self._input_txt = '\n'.join(self._input_txt.splitlines())
         # Add a newline, as a partial fix to #15
-        self._input_txt += "\n"
+        self._input_txt += '\n'
 
         # Parse the namelists.
         self.namelists = _parse_namelists(self._input_txt)
@@ -186,8 +182,7 @@ class _BaseInputFile:
         # Parse the CELL_PARAMETERS card.
         self.cell_parameters = _parse_cell_parameters(self._input_txt)
         # Parse the ATOMIC_SPECIES card.
-        self.atomic_species = _parse_atomic_species(
-            self._input_txt, validate_species_names=validate_species_names)
+        self.atomic_species = _parse_atomic_species(self._input_txt, validate_species_names=validate_species_names)
 
         self.structure = _parse_structure(
             txt=self._input_txt,
@@ -195,7 +190,8 @@ class _BaseInputFile:
             atomic_positions=self.atomic_positions,
             atomic_species=self.atomic_species,
             cell_parameters=self.cell_parameters,
-            qe_version=self._qe_version)
+            qe_version=self._qe_version
+        )
 
 
 def _str2val(valstr):
@@ -218,19 +214,16 @@ def _str2val(valstr):
          |                    # or
          \d+[\.]?\d* )          # 10.53 or 10. or 10
         (?:[dEeE][-+]?[0-9]+)?  # optional exponent
-        """, re.X)
+        """, re.X
+    )
     # Strip any white space characters before analyzing.
     valstr = valstr.strip()
     # Define a tuple of regular expressions to match and their corresponding
     # conversion functions.
-    re_fn_tuple = ((re.compile(r"[.](true|t)[.]", re.I),
-                    lambda s: True), (re.compile(r"[.](false|f)[.]",
-                                                 re.I), lambda s: False),
-                   (float_re,
-                    lambda s: float(s.replace('d', 'e').replace('D', 'E'))),
-                   (re.compile(r"[-+]?\d+$"),
-                    int), (re.compile(r"""['"].+['"]"""),
-                           lambda s: str(s.strip("\'\""))))
+    re_fn_tuple = ((re.compile(r'[.](true|t)[.]',
+                               re.I), lambda s: True), (re.compile(r'[.](false|f)[.]', re.I), lambda s: False),
+                   (float_re, lambda s: float(s.replace('d', 'e').replace('D', 'E'))), (re.compile(r'[-+]?\d+$'), int),
+                   (re.compile(r"""['"].+['"]"""), lambda s: str(s.strip("\'\""))))
     # Convert valstr to a value.
     val = None
     for regex, conversion_fn in re_fn_tuple:
@@ -238,14 +231,14 @@ def _str2val(valstr):
         # conversion_fn.
         if regex.match(valstr):
             try:
-                val = conversion_fn(valstr)
+                val = conversion_fn(valstr)  # type: ignore[operator]
             except ValueError as error:
-                raise ValueError('Error converting {} to a value'.format(
-                    repr(valstr))) from error
+                raise ValueError(f'Error converting {repr(valstr)} to a value') from error
     if val is None:
-        raise ValueError('Unable to convert {} to a python variable.\n'
-                         'NOTE: Support for algebraic expressions is not yet '
-                         'implemented.'.format(repr(valstr)))
+        raise ValueError(
+            f'Unable to convert {valstr} to a python variable.\n'
+            'NOTE: Support for algebraic expressions is not yet implemented.'
+        )
     return val
 
 
@@ -288,7 +281,8 @@ def _parse_namelists(txt):
          [\S\s]*?                # match any line non-greedily
         )                        # save the group of text between nmlst
         ^ [ \t]* / [ \t]* $\n    # match line w/ "/" as only non-whitespace char
-        """, re.M | re.X)
+        """, re.M | re.X
+    )
     # Define the re to match and extract all of the key = val pairs inside
     # a block of namelist text.
     key_value_re = re.compile(
@@ -297,7 +291,8 @@ def _parse_namelists(txt):
         =               # equals sign separates key and value
         [ \t]* (\S+?) [ \t]*  # match and store value
         [\n,]           # return or comma separates "key = value" pairs
-        """, re.M | re.X)
+        """, re.M | re.X
+    )
     # Scan through the namelists...
     params_dict = {}
     for nmlst, blockstr in namelist_re.findall(txt):
@@ -308,25 +303,19 @@ def _parse_namelists(txt):
         blocklines = blockstr.splitlines()
         # Remove comments on each line, and then put back the \n
         # Note that strip_comment does not want \n in the string!
-        blocklines = [
-            "{}\n".format(_strip_comment(line)) for line in blocklines
-        ]
+        blocklines = [f'{_strip_comment(line)}\n' for line in blocklines]
 
         for blockline in blocklines:
             for key, valstr in key_value_re.findall(blockline):
                 if key.lower() in nmlst_dict:
-                    raise ValueError(
-                        "Key {} found more than once in namelist {}".format(
-                            key.lower(), nmlst))
+                    raise ValueError(f'Key {key.lower()} found more than once in namelist {nmlst}')
                 nmlst_dict[key.lower()] = _str2val(valstr)
         # ...and, store nmlst_dict as a value in params_dict with the namelist
         # as the key.
         if len(nmlst_dict.keys()) > 0:
             params_dict[nmlst.upper()] = nmlst_dict
     if len(params_dict) == 0:
-        raise ParsingError(
-            'No data was found while parsing the namelist in the following '
-            'text\n' + txt)
+        raise ParsingError('No data was found while parsing the namelist in the following text\n' + txt)
     # TODO: uppercase correct
     return params_dict
 
@@ -365,6 +354,7 @@ def parse_atomic_positions(txt):
     :raises qe_tools.utils.exceptions.ParsingError: if there are issues
         parsing the input.
     """
+
     def str01_to_bool(s):
         """
         Map strings '0', '1' strings to bools: '0' --> True; '1' --> False.
@@ -377,7 +367,7 @@ def parse_atomic_positions(txt):
             return True
         if s == '1':
             return False
-        raise ParsingError('Unable to convert if_pos = "{}" to bool'.format(s))
+        raise ParsingError(f'Unable to convert if_pos = "{s}" to bool')
 
     # Define re for the card block.
     # NOTE: This will match card block lines w/ or w/out force modifications.
@@ -422,7 +412,8 @@ def parse_atomic_positions(txt):
                 [\n]                                    # line break at the end
             )+                                          # A positions block should be one or more lines
         )
-        """, re.X | re.M)
+        """, re.X | re.M
+    )
 
     # atomic_positions_block_re_ = re.compile(
     #     r"""
@@ -466,20 +457,19 @@ def parse_atomic_positions(txt):
         (?P<fy>[01]?)                           # Get fx
         [ \t]*
         (?P<fz>[01]?)                           # Get fx
-        """, re.X | re.M)
+        """, re.X | re.M
+    )
     # Find the card block and extract units and the lines of the block.
     match = atomic_positions_block_re.search(txt)
     if not match:
-        raise ParsingError(
-            'The ATOMIC_POSITIONS card block was not found in\n' + txt)
+        raise ParsingError('The ATOMIC_POSITIONS card block was not found in\n' + txt)
     # Get the units. If they are not found, match.group('units') will be None.
     units = match.group('units')
     if units is not None:
         units = units.lower()
     # Get the string containing the lines of the block.
     if match.group('block') is None:
-        raise ParsingError(
-            'The ATOMIC_POSITIONS card block was parsed as empty in\n' + txt)
+        raise ParsingError('The ATOMIC_POSITIONS card block was parsed as empty in\n' + txt)
 
     blockstr = match.group('block')
 
@@ -501,9 +491,7 @@ def parse_atomic_positions(txt):
     # Next, try using the re for lines with force modifications.
     for match in atomic_positions_w_constraints_re.finditer(blockstr):
         positions.append(list(map(fortfloat, match.group('x', 'y', 'z'))))
-        fixed_coords_this_pos = [
-            f or '1' for f in match.group('fx', 'fy', 'fz')
-        ]  # False <--> not fixed (the default)
+        fixed_coords_this_pos = [f or '1' for f in match.group('fx', 'fy', 'fz')]  # False <--> not fixed (the default)
         fixed_coords.append(list(map(str01_to_bool, fixed_coords_this_pos)))
         names.append(match.group('name'))
 
@@ -517,10 +505,7 @@ def parse_atomic_positions(txt):
     #~ 'ATOMIC_POSITIONS card block:\n{}'.format(len(names), n_lines,
     #~ blockstr)
     #~ )
-    info_dict = dict(units=units,
-                     names=names,
-                     positions=positions,
-                     fixed_coords=fixed_coords)
+    info_dict = dict(units=units, names=names, positions=positions, fixed_coords=fixed_coords)
     return info_dict
 
 
@@ -602,7 +587,8 @@ def _parse_cell_parameters(txt):
             [\n]                 # line break at the end
         ){3}                     # I need exactly 3 vectors
     )
-    """, RE_FLAGS)
+    """, RE_FLAGS
+    )
 
     cell_vector_regex = re.compile(
         r"""
@@ -622,7 +608,8 @@ def _parse_cell_parameters(txt):
             [\-|\+]? (\d*[\.]\d+ | \d+[\.]?\d*)
             ([E|e|d|D][+|-]?\d+)?
         )
-        """, re.X | re.M)
+        """, re.X | re.M
+    )
     #~ cell_parameters_block_re = re.compile(r"""
     #~ ^ [ \t]* CELL_PARAMETERS [ \t]*
     #~ [{(]? [ \t]* (?P<units>\S+?)? [ \t]* [)}]? [ \t]* $\n
@@ -646,18 +633,14 @@ def _parse_cell_parameters(txt):
         units = units.lower()
     # Get the string containing the lines of the block.
     if match.group('block') is None:
-        raise ParsingError(
-            'The CELL_PARAMETER card block was parsed as empty in\n' + txt)
+        raise ParsingError('The CELL_PARAMETER card block was parsed as empty in\n' + txt)
     blockstr = match.group('block')
     # Define a small helper function to convert strings of fortran-type floats.
     fortfloat = lambda s: float(s.replace('d', 'e').replace('D', 'E'))
     # Now, extract the lattice vectors.
     lattice_vectors = []
     for match in cell_vector_regex.finditer(blockstr):
-        lattice_vectors.append(
-            list(
-                map(fortfloat,
-                    (match.group('x'), match.group('y'), match.group('z')))))
+        lattice_vectors.append(list(map(fortfloat, (match.group('x'), match.group('y'), match.group('z')))))
     info_dict = dict(units=units, cell=lattice_vectors)
     return info_dict
 
@@ -696,6 +679,7 @@ def _parse_atomic_species(txt, validate_species_names=True):
     :raises qe_tools.utils.exceptions.ParsingError: if there are issues
         parsing the input.
     """
+
     def _validate_species_name(atom_name, pseudo_file_name):
         """
         Check if the atom name is consistent with the species name parsed from the
@@ -715,16 +699,15 @@ def _parse_atomic_species(txt, validate_species_names=True):
         an optional underscore followed by optional digits.
         """
         species_from_pseudo = pseudo_file_name
-        for sep in ["-", ".", "_"]:
+        for sep in ['-', '.', '_']:
             species_from_pseudo = species_from_pseudo.partition(sep)[0]
         species_from_pseudo = species_from_pseudo.capitalize()
-        pattern = re.compile(r"^" + species_from_pseudo + r"_?\d*$",
-                             re.IGNORECASE)
+        pattern = re.compile(r'^' + species_from_pseudo + r'_?\d*$', re.IGNORECASE)
         if pattern.match(atom_name) is None:
             raise InputValidationError(
-                "The element symbol '{}' does not match the species '{}' inferred "
-                "by the pseudopotential file name".format(
-                    atom_name, species_from_pseudo))
+                f"The element symbol '{atom_name}' does not match the species '{species_from_pseudo}' inferred "
+                'by the pseudopotential file name'
+            )
 
     # Define re for atomic species card block.
     atomic_species_block_re = re.compile(
@@ -735,26 +718,26 @@ def _parse_atomic_species(txt, validate_species_names=True):
           ^ [ \t]* \S+ [ \t]+ \S+ [ \t]+ \S+ [ \t]* $\n?
          )+
         )
-        """, RE_FLAGS)
+        """, RE_FLAGS
+    )
     # Define re for the info contained in the block.
     atomic_species_re = re.compile(
         r"""
         ^ [ \t]* (?P<name>\S+) [ \t]+ (?P<mass>\S+) [ \t]+ (?P<pseudo>\S+)
             [ \t]* $\n?
-        """, RE_FLAGS)
+        """, RE_FLAGS
+    )
     # Find the card block and extract units and the lines of the block.
     try:
         match = atomic_species_block_re.search(txt)
     except AttributeError as exc:
-        raise ParsingError('The ATOMIC_SPECIES card block was not found in\n' +
-                           txt) from exc
+        raise ParsingError('The ATOMIC_SPECIES card block was not found in\n' + txt) from exc
     # Make sure the card block lines were extracted. If they were, store the
     # string of lines as blockstr.
-    if match.group('block') is None:
-        raise ParsingError(
-            'The ATOMIC_POSITIONS card block was parse as empty in\n' + txt)
+    if match.group('block') is None:  # type: ignore[union-attr]
+        raise ParsingError('The ATOMIC_POSITIONS card block was parse as empty in\n' + txt)
 
-    blockstr = match.group('block')
+    blockstr = match.group('block')  # type: ignore[union-attr]
     # Define a small helper function to convert strings of fortran-type floats.
     fortfloat = lambda s: float(s.replace('d', 'e').replace('D', 'E'))
     # Now, extract the name, mass, and pseudopotential file name from each line
@@ -800,9 +783,9 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
 
     valid_ibravs = list(range(15)) + [-3, -5, -9, -12, -13, 91]
     if ibrav not in valid_ibravs:
-        raise InputValidationError('I found ibrav = {} in input, \n'
-                                   'but it is not among the valid values\n'
-                                   '{}'.format(ibrav, valid_ibravs))
+        raise InputValidationError(
+            f'I found ibrav = {ibrav} in input, \nbut it is not among the valid values\n{valid_ibravs}'
+        )
 
     if ibrav != 0:
         # Ok, user was not nice and used ibrav > 0 to define cell using
@@ -839,8 +822,8 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
                     cosg = system_dict['cosab']
                 sing = np.sqrt(1. - cosg**2)
             if ibrav in (
-                    5,
-                    -5,
+                5,
+                -5,
             ):
                 # They are the same in trigonal R
                 cosa = cosg
@@ -850,7 +833,7 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
                 else:
                     cosb = system_dict['cosac']
                 sinb = np.sqrt(1. - cosb**2)
-            if ibrav in (14, ):
+            if ibrav in (14,):
                 if using_celldm:
                     cosa = system_dict['celldm(4)']
                 else:
@@ -862,9 +845,8 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
                 sing = np.sqrt(1. - cosg**2)
         except Exception as e:
             raise InputValidationError(
-                '\nException {} raised when searching for\n'
-                'key {} in qeinput, necessary when ibrav = {}'.format(
-                    type(e), e, ibrav)) from e
+                f'\nException {type(e)} raised when searching for\nkey {e} in qeinput, necessary when ibrav = {ibrav}'
+            ) from e
     # Calculating the cell according to ibrav.
     # The comments in each case are taken from
     # http://www.quantum-espresso.org/wp-content/uploads/Doc/INPUT_PW.html#ibrav
@@ -882,8 +864,9 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
         elif cell_unit == 'alat':
             if alat is None:
                 raise InputValidationError(
-                    "You have specified units of alat for the cell, \n"
-                    "but you have not provided a value for alat")
+                    'You have specified units of alat for the cell, \n'
+                    'but you have not provided a value for alat'
+                )
             cell = alat * cell
         elif cell_unit == '':
             # Now here comes some piece of retardedness in QE:
@@ -894,8 +877,7 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
             else:
                 cell = alat * cell
         else:
-            raise InputValidationError(
-                "Unknown unit for CELL_PARAMETERS {}".format(cell_unit))
+            raise InputValidationError(f'Unknown unit for CELL_PARAMETERS {cell_unit}')
 
     if ibrav == 1:
         # 1          cubic P (sc)
@@ -928,8 +910,7 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
     elif ibrav == 4:
         # 4          Hexagonal and Trigonal P        celldm(3)=c/a
         # v1 = a(1,0,0),  v2 = a(-1/2,sqrt(3)/2,0),  v3 = a(0,0,c/a)
-        cell = alat * np.array([[1., 0., 0.], [-0.5, 0.5 * np.sqrt(3.), 0.],
-                                [0., 0., c / alat]])
+        cell = alat * np.array([[1., 0., 0.], [-0.5, 0.5 * np.sqrt(3.), 0.], [0., 0., c / alat]])
     elif ibrav == 5:
         # 5          Trigonal R, 3fold axis c        celldm(4)=cos(alpha)
         # The crystallographic vectors form a three-fold star around
@@ -941,8 +922,7 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
         tx = np.sqrt((1. - cosa) / 2.)
         ty = np.sqrt((1. - cosa) / 6.)
         tz = np.sqrt((1. + 2. * cosa) / 3.)
-        cell = alat * np.array([[tx, -ty, tz], [0., 2 * ty, tz],
-                                [-tx, -ty, tz]])
+        cell = alat * np.array([[tx, -ty, tz], [0., 2 * ty, tz], [-tx, -ty, tz]])
     elif ibrav == -5:
         # -5          Trigonal R, 3fold axis <111>    celldm(4)=cos(alpha)
         # The crystallographic vectors form a three-fold star around
@@ -963,13 +943,11 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
     elif ibrav == 6:
         # 6          Tetragonal P (st)               celldm(3)=c/a
         # v1 = a(1,0,0),  v2 = a(0,1,0),  v3 = a(0,0,c/a)
-        cell = alat * np.array([[1., 0., 0.], [0., 1., 0.], [0., 0., c / alat]
-                                ])
+        cell = alat * np.array([[1., 0., 0.], [0., 1., 0.], [0., 0., c / alat]])
     elif ibrav == 7:
         # 7          Tetragonal I (bct)              celldm(3)=c/a
         # v1=(a/2)(1,-1,c/a),  v2=(a/2)(1,1,c/a),  v3=(a/2)(-1,-1,c/a)
-        cell = 0.5 * alat * np.array([[1., -1., c / alat], [1., 1., c / alat],
-                                      [-1., -1., c / alat]])
+        cell = 0.5 * alat * np.array([[1., -1., c / alat], [1., 1., c / alat], [-1., -1., c / alat]])
     elif ibrav == 8:
         # 8  Orthorhombic P       celldm(2)=b/a
         #                         celldm(3)=c/a
@@ -979,32 +957,27 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
         #   9   Orthorhombic base-centered(bco) celldm(2)=b/a
         #                                         celldm(3)=c/a
         #  v1 = (a/2, b/2,0),  v2 = (-a/2,b/2,0),  v3 = (0,0,c)
-        cell = np.array([[0.5 * alat, 0.5 * b, 0.], [-0.5 * alat, 0.5 * b, 0.],
-                         [0., 0., c]])
+        cell = np.array([[0.5 * alat, 0.5 * b, 0.], [-0.5 * alat, 0.5 * b, 0.], [0., 0., c]])
     elif ibrav == -9:
         # -9          as 9, alternate description
         #  v1 = (a/2,-b/2,0),  v2 = (a/2,-b/2,0),  v3 = (0,0,c)
-        cell = np.array([[0.5 * alat, 0.5 * b, 0.], [0.5 * alat, -0.5 * b, 0.],
-                         [0., 0., c]])
+        cell = np.array([[0.5 * alat, 0.5 * b, 0.], [0.5 * alat, -0.5 * b, 0.], [0., 0., c]])
     elif ibrav == 91:
         # 91          Orthorhombic one-face base-centered A-type
         #                                             celldm(2)=b/a
         #                                             celldm(3)=c/a
         #      v1 = (a, 0, 0),  v2 = (0,b/2,-c/2),  v3 = (0,b/2,c/2)
-        cell = np.array([[alat, 0, 0], [0, 0.5 * b, -0.5 * c],
-                         [0, 0.5 * b, 0.5 * c]])
+        cell = np.array([[alat, 0, 0], [0, 0.5 * b, -0.5 * c], [0, 0.5 * b, 0.5 * c]])
     elif ibrav == 10:
         # 10          Orthorhombic face-centered      celldm(2)=b/a
         #                                         celldm(3)=c/a
         #  v1 = (a/2,0,c/2),  v2 = (a/2,b/2,0),  v3 = (0,b/2,c/2)
-        cell = np.array([[0.5 * alat, 0., 0.5 * c], [0.5 * alat, 0.5 * b, 0.],
-                         [0., 0.5 * b, 0.5 * c]])
+        cell = np.array([[0.5 * alat, 0., 0.5 * c], [0.5 * alat, 0.5 * b, 0.], [0., 0.5 * b, 0.5 * c]])
     elif ibrav == 11:
         # 11          Orthorhombic body-centered      celldm(2)=b/a
         #                                        celldm(3)=c/a
         #  v1=(a/2,b/2,c/2),  v2=(-a/2,b/2,c/2),  v3=(-a/2,-b/2,c/2)
-        cell = np.array([[0.5 * alat, 0.5 * b, 0.5 * c],
-                         [-0.5 * alat, 0.5 * b, 0.5 * c],
+        cell = np.array([[0.5 * alat, 0.5 * b, 0.5 * c], [-0.5 * alat, 0.5 * b, 0.5 * c],
                          [-0.5 * alat, -0.5 * b, 0.5 * c]])
     elif ibrav == 12:
         # 12      Monoclinic P, unique axis c     celldm(2)=b/a
@@ -1012,16 +985,14 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
         #                                         celldm(4)=cos(ab)
         #  v1=(a,0,0), v2=(b*cos(gamma),b*sin(gamma),0),  v3 = (0,0,c)
         #  where gamma is the angle between axis a and b.
-        cell = np.array([[alat, 0., 0.], [b * cosg, b * sing, 0.], [0., 0.,
-                                                                    c]])
+        cell = np.array([[alat, 0., 0.], [b * cosg, b * sing, 0.], [0., 0., c]])
     elif ibrav == -12:
         # -12          Monoclinic P, unique axis b     celldm(2)=b/a
         #                                         celldm(3)=c/a,
         #                                         celldm(5)=cos(ac)
         #  v1 = (a,0,0), v2 = (0,b,0), v3 = (c*cos(beta),0,c*sin(beta))
         #  where beta is the angle between axis a and c
-        cell = np.array([[alat, 0., 0.], [0., b, 0.], [c * cosb, 0.,
-                                                       c * sinb]])
+        cell = np.array([[alat, 0., 0.], [0., b, 0.], [c * cosb, 0., c * sinb]])
     elif ibrav == 13:
         # 13          Monoclinic base-centered        celldm(2)=b/a
         #                                          celldm(3)=c/a,
@@ -1030,8 +1001,7 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
         #  v2 = (b*cos(gamma), b*sin(gamma), 0),
         #  v3 = (  a/2,         0,                  c/2),
         #  where gamma is the angle between axis a and b
-        cell = np.array([[0.5 * alat, 0., -0.5 * c], [b * cosg, b * sing, 0.],
-                         [0.5 * alat, 0., 0.5 * c]])
+        cell = np.array([[0.5 * alat, 0., -0.5 * c], [b * cosg, b * sing, 0.], [0.5 * alat, 0., 0.5 * c]])
     elif ibrav == -13:
         # -13          Monoclinic base-centered        celldm(2)=b/a
         #              (unique axis b)                 celldm(3)=c/a,
@@ -1043,13 +1013,9 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
         #  IMPORTANT NOTICE: until QE v.6.4.1, axis for ibrav=-13 had a
         #  different definition: v1(now) = v2(old), v2(now) = -v1(old)
         if qe_version >= parse_version('6.5'):
-            cell = np.array([[0.5 * alat, 0.5 * b,
-                              0], [-0.5 * alat, 0.5 * b, 0],
-                             [c * cosb, 0, c * sinb]])
+            cell = np.array([[0.5 * alat, 0.5 * b, 0], [-0.5 * alat, 0.5 * b, 0], [c * cosb, 0, c * sinb]])
         else:
-            cell = np.array([[0.5 * alat, -0.5 * b,
-                              0], [0.5 * alat, 0.5 * b, 0],
-                             [c * cosb, 0, c * sinb]])
+            cell = np.array([[0.5 * alat, -0.5 * b, 0], [0.5 * alat, 0.5 * b, 0], [c * cosb, 0, c * sinb]])
     elif ibrav == 14:
         #  14       Triclinic                     celldm(2)= b/a,
         #                                         celldm(3)= c/a,
@@ -1067,8 +1033,7 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
         cell = np.array([[alat, 0., 0.], [b * cosg, b * sing, 0.],
                          [
                              c * cosb, c * (cosa - cosb * cosg) / sing,
-                             c * np.sqrt(1. + 2. * cosa * cosb * cosg -
-                                         cosa**2 - cosb**2 - cosg**2) / sing
+                             c * np.sqrt(1. + 2. * cosa * cosb * cosg - cosa**2 - cosb**2 - cosg**2) / sing
                          ]])
 
     return cell
@@ -1133,16 +1098,11 @@ def _parse_structure(  # pylint: disable=too-many-arguments,too-many-branches,to
         alat = CONSTANTS.bohr_to_ang * system_dict['celldm(1)']
         using_celldm = True
     else:
-        assert system_dict[
-            'ibrav'] == 0, "Neither a nor celldm(1) are specified, and you are not using ibrav=0!"
+        assert system_dict['ibrav'] == 0, 'Neither a nor celldm(1) are specified, and you are not using ibrav=0!'
         alat = None
         using_celldm = None
 
-    cell = _get_cell_from_parameters(cell_parameters,
-                                     system_dict,
-                                     alat,
-                                     using_celldm,
-                                     qe_version=qe_version)
+    cell = _get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm, qe_version=qe_version)
 
     ################## POSITIONS #######################
     positions_units = atomic_positions['units']
@@ -1150,9 +1110,9 @@ def _parse_structure(  # pylint: disable=too-many-arguments,too-many-branches,to
 
     if positions_units is None:
         raise InputValidationError(
-            "There is no unit for positions\n"
-            "This is deprecated behavior for QE.\n"
-            "In addition the default values by CP and PW differ (bohr and alat)"
+            'There is no unit for positions\n'
+            'This is deprecated behavior for QE.\n'
+            'In addition the default values by CP and PW differ (bohr and alat)'
         )
     if positions_units == 'angstrom':
         pass
@@ -1168,22 +1128,18 @@ def _parse_structure(  # pylint: disable=too-many-arguments,too-many-branches,to
     elif positions_units == 'crystal_sg':
         raise NotImplementedError('crystal_sg is not implemented')
     else:
-        valid_positions_units = ('alat', 'bohr', 'angstrom', 'crystal',
-                                 'crystal_sg')
-        raise InputValidationError('\nFound atom unit {}, which is not\n'
-                                   'among the valid units: {}'.format(
-                                       positions_units,
-                                       ', '.join(valid_positions_units)))
+        valid_positions_units = ('alat', 'bohr', 'angstrom', 'crystal', 'crystal_sg')
+        units_string = ', '.join(valid_positions_units)
+        raise InputValidationError(
+            f'\nFound atom unit {positions_units}, which is not\namong the valid units: {units_string}'
+        )
     ######### DEFINE SITES ######################
-    return dict(positions=positions.tolist(),
-                species=atomic_species,
-                cell=cell.tolist(),
-                atom_names=atomic_positions['names'])
+    return dict(
+        positions=positions.tolist(), species=atomic_species, cell=cell.tolist(), atom_names=atomic_positions['names']
+    )
 
 
-def _strip_comment(string,
-                   comment_characters=('!', ),
-                   quote_characters=('"', "'")):
+def _strip_comment(string, comment_characters=('!',), quote_characters=('"', "'")):
     """
     Return the string only until the first comment (if any), but makes
     sure to ignore comments if inside a string
@@ -1196,7 +1152,7 @@ def _strip_comment(string,
     :param comment_characters: a list or tuple of accepted comment characters
     :param quote_characters: a list or tuple of accepted valid string characters
     """
-    new_string = []  # Will contain individual charachters of the new string
+    new_string: List[str] = []  # Will contain individual charachters of the new string
 
     in_string = False
     string_quote = None  # Will contain the specific character used to enter
@@ -1205,8 +1161,7 @@ def _strip_comment(string,
 
     for char in string:
         if char == '\n':
-            raise ValueError(
-                "I still cannot cope with newlines in the string...")
+            raise ValueError('I still cannot cope with newlines in the string...')
         # Check if we are entering/existing a string
         if in_string and char == string_quote:
             #print("EXIT")
@@ -1220,14 +1175,12 @@ def _strip_comment(string,
 
         # We found a comment, return until here (without the comment)
         if not in_string and char in comment_characters:
-            return "".join(new_string)
+            return ''.join(new_string)
 
         new_string.append(char)
 
     # If we are here, no comments where found
     if in_string:
-        raise ValueError(
-            "String >>{}<< is not closed, it was open with the {} char".format(
-                string, string_quote))
+        raise ValueError(f'String >>{string}<< is not closed, it was open with the {string_quote} char')
     # I just return the same string, even if this would be equivalent to "".join(new_string)
     return string

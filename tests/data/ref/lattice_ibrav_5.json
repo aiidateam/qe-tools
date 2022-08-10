@@ -2,88 +2,88 @@
   "atomic_positions": {
     "fixed_coords": [
       [
-        false, 
-        false, 
+        false,
+        false,
         false
-      ], 
+      ],
       [
-        false, 
-        false, 
+        false,
+        false,
         false
       ]
-    ], 
+    ],
     "names": [
-      "H", 
+      "H",
       "H"
-    ], 
+    ],
     "positions": [
       [
-        0.0, 
-        0.0, 
+        0.0,
+        0.0,
         -0.35
-      ], 
+      ],
       [
-        0.0, 
-        0.0, 
+        0.0,
+        0.0,
         0.35
       ]
-    ], 
+    ],
     "units": "angstrom"
-  }, 
+  },
   "atomic_species": {
     "masses": [
       1.0008
-    ], 
+    ],
     "names": [
       "H"
-    ], 
+    ],
     "pseudo_file_names": [
       "H.pz-vbc.UPF"
     ]
-  }, 
+  },
   "cell": [
     [
-      0.0, 
-      3.741847926433571, 
+      0.0,
+      3.741847926433571,
       3.741847926433571
-    ], 
+    ],
     [
-      3.741847926433571, 
-      0.0, 
+      3.741847926433571,
+      0.0,
       3.741847926433571
-    ], 
+    ],
     [
-      3.741847926433571, 
-      3.741847926433571, 
+      3.741847926433571,
+      3.741847926433571,
       0.0
     ]
-  ], 
-  "cell_parameters": null, 
+  ],
+  "cell_parameters": null,
   "k_points": {
     "type": "gamma"
-  }, 
+  },
   "namelists": {
     "CONTROL": {
       "calculation": "scf"
-    }, 
+    },
     "SYSTEM": {
-      "celldm(1)": 10.0, 
-      "celldm(4)": 0.5, 
-      "ecutwfc": 25.0, 
-      "ibrav": -5, 
-      "nat": 2, 
+      "celldm(1)": 10.0,
+      "celldm(4)": 0.5,
+      "ecutwfc": 25.0,
+      "ibrav": -5,
+      "nat": 2,
       "ntyp": 1
     }
-  }, 
+  },
   "positions_angstrom": [
     [
-      0.0, 
-      0.0, 
+      0.0,
+      0.0,
       -0.35
-    ], 
+    ],
     [
-      0.0, 
-      0.0, 
+      0.0,
+      0.0,
       0.35
     ]
   ]

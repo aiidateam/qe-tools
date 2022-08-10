@@ -2,105 +2,105 @@
   "atomic_positions": {
     "fixed_coords": [
       [
-        false, 
-        false, 
+        false,
+        false,
         false
-      ], 
+      ],
       [
-        false, 
-        false, 
+        false,
+        false,
         false
       ]
-    ], 
+    ],
     "names": [
-      "H", 
+      "H",
       "H"
-    ], 
+    ],
     "positions": [
       [
-        0.0, 
-        0.0, 
+        0.0,
+        0.0,
         -0.35
-      ], 
+      ],
       [
-        0.0, 
-        0.0, 
+        0.0,
+        0.0,
         0.35
       ]
-    ], 
+    ],
     "units": "angstrom"
-  }, 
+  },
   "atomic_species": {
     "masses": [
       1.0008
-    ], 
+    ],
     "names": [
       "H"
-    ], 
+    ],
     "pseudo_file_names": [
       "H.pz-vbc.UPF"
     ]
-  }, 
+  },
   "cell": [
     [
-      5.291772, 
-      0.0, 
+      5.291772,
+      0.0,
       0.0
-    ], 
+    ],
     [
-      2.381297, 
-      7.572044, 
+      2.381297,
+      7.572044,
       0.0
-    ], 
+    ],
     [
-      2.116709, 
-      0.443784, 
+      2.116709,
+      0.443784,
       10.36021
     ]
-  ], 
+  ],
   "cell_parameters": {
     "cell": [
       [
-        5.291772, 
-        0.0, 
+        5.291772,
+        0.0,
         0.0
-      ], 
+      ],
       [
-        2.381297, 
-        7.572044, 
+        2.381297,
+        7.572044,
         0.0
-      ], 
+      ],
       [
-        2.116709, 
-        0.443784, 
+        2.116709,
+        0.443784,
         10.36021
       ]
-    ], 
+    ],
     "units": "angstrom"
-  }, 
+  },
   "k_points": {
     "type": "gamma"
-  }, 
+  },
   "namelists": {
     "CONTROL": {
       "calculation": "scf"
-    }, 
+    },
     "SYSTEM": {
-      "ecutwfc": 25.0, 
-      "ibrav": 0, 
-      "nat": 2, 
+      "ecutwfc": 25.0,
+      "ibrav": 0,
+      "nat": 2,
       "ntyp": 1
     }
-  }, 
+  },
   "positions_angstrom": [
     [
-      0.0, 
-      0.0, 
+      0.0,
+      0.0,
       -0.35
-    ], 
+    ],
     [
-      0.0, 
-      0.0, 
+      0.0,
+      0.0,
       0.35
     ]
   ]

@@ -5,8 +5,8 @@
  /
  &system
     ibrav = 0
-    ! ibrav =  -3, 
-    celldm(1) = 20.385647759,	
+    ! ibrav =  -3,
+    celldm(1) = 20.385647759,
     nat =  1,
     ntyp = 1,
     ecutwfc = 30

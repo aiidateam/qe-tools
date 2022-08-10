@@ -1,0 +1,144 @@
+[build-system]
+requires = ['flit_core >=3.4,<4']
+build-backend = 'flit_core.buildapi'
+
+[project]
+name = 'qe-tools'
+dynamic = ['version', 'description']
+authors = [{name = 'The AiiDA team', email = 'developers@aiida.net'}]
+readme = 'README.md'
+license = {file = 'LICENSE.txt'}
+classifiers = [
+    'License :: OSI Approved :: MIT License',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Operating System :: OS Independent',
+    'Topic :: Scientific/Engineering :: Physics',
+    'Topic :: Scientific/Engineering :: Chemistry',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+]
+requires-python = '>=3.6'
+dependencies = [
+    'numpy',
+    'scipy',
+    'packaging',
+]
+
+[project.urls]
+Home = 'https://github.com/aiidateam/qe-tools'
+Source = 'https://github.com/aiidateam/qe-tools'
+
+[project.optional-dependencies]
+dev = [
+    'codecov',
+    'mypy==0.930',
+    'pre-commit',
+    'timeout-decorator',
+    'pylint==2.7.2',
+    'pytest',
+    'pytest-cov',
+    'pytest-cases~=3.2',
+    'ruamel.yaml',
+]
+docs = [
+    'Sphinx',
+    'docutils',
+    'sphinx_rtd_theme',
+]
+
+[tool.flit.module]
+name = 'qe_tools'
+
+[tool.flit.sdist]
+exclude = [
+    '.github/',
+    'tests/',
+    '.gitignore',
+    '.pre-commit-config.yaml',
+]
+
+[tool.flynt]
+line-length = 120
+fail-on-change = true
+
+[tool.isort]
+force_sort_within_sections = true
+include_trailing_comma = true
+line_length = 120
+multi_line_output = 3
+
+[tool.mypy]
+show_error_codes = true
+check_untyped_defs = true
+scripts_are_modules = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_warn_no_return = true
+show_traceback = true
+
+[[tool.mypy.overrides]]
+module = 'qe_tools.*'
+follow_imports = 'skip'
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = [
+    'scipy.*',
+]
+ignore_missing_imports = true
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.basic]
+good-names = [
+    'a',
+    'b',
+    'c',
+    'e',
+    'f',
+    'i',
+    'i',
+    'j',
+    'k',
+    's',
+    'u',
+    'v',
+    'tx',
+    'ty',
+    'tz',
+    'v1',
+    'v2',
+]
+
+
+[tool.pylint.messages_control]
+disable = [
+    'fixme',
+    'import-error',
+    'missing-function-docstring',
+    'missing-module-docstring',
+    'too-few-public-methods',
+    'too-many-public-methods',
+
+]
+
+[tool.pytest.ini_options]
+testpaths = [
+    'tests',
+]
+filterwarnings = [
+    'ignore:WARNING the new order is not taken into account !!:UserWarning',
+]
+
+[tool.yapf]
+align_closing_bracket_with_visual_indent = true
+based_on_style = 'google'
+coalesce_brackets = true
+column_limit = 120
+dedent_closing_brackets = true
+indent_dictionary_value = false
+split_arguments_when_comma_terminated = true
