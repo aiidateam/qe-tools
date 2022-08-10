@@ -4,8 +4,7 @@ build-backend = 'flit_core.buildapi'
 
 [project]
 name = 'qe-tools'
-dynamic = ['version']
-description = 'A set of useful tools to manage Quantum ESPRESSO files'
+dynamic = ['version', 'description']
 authors = [{name = 'The AiiDA team', email = 'developers@aiida.net'}]
 readme = 'README.md'
 license = {file = 'LICENSE.txt'}
@@ -15,6 +14,7 @@ classifiers = [
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
     'Operating System :: OS Independent',
     'Topic :: Scientific/Engineering :: Physics',
     'Topic :: Scientific/Engineering :: Chemistry',
@@ -28,15 +28,13 @@ dependencies = [
 ]
 
 [project.urls]
-Home = 'https://github.com/aiidateam/aiida-quantumespresso'
-Source = 'https://github.com/aiidateam/aiida-quantumespresso'
-Documentation = 'https://aiida-quantumespresso.readthedocs.io'
+Home = 'https://github.com/aiidateam/qe-tools'
+Source = 'https://github.com/aiidateam/qe-tools'
 
 [project.optional-dependencies]
 dev = [
     'pre-commit',
     'timeout-decorator',
-    'yapf==0.30.0',
     'pylint==2.7.2',
     'pytest',
     'pytest-cov',
@@ -55,18 +53,11 @@ name = 'qe_tools'
 
 [tool.flit.sdist]
 exclude = [
+    '.github/',
     'tests/',
+    '.gitignore',
+    '.pre-commit-config.yaml',
 ]
-
-[tool.flynt]
-line-length = 120
-fail-on-change = true
-
-[tool.isort]
-force_sort_within_sections = true
-include_trailing_comma = true
-line_length = 120
-multi_line_output = 3  # this configuration is compatible with yapf
 
 [tool.pylint.format]
 max-line-length = 120
@@ -86,21 +77,11 @@ disable = [
     'too-many-locals',
 ]
 
-[tool.pylint.basic]
-good-names = [
-    'i',
-    'j',
-    'k',
-]
-
 [tool.pytest.ini_options]
-minversion = '6.0'
 testpaths = [
     'tests',
 ]
 filterwarnings = [
-    'ignore::DeprecationWarning:pkg_resources:',
-    'ignore::DeprecationWarning:sqlalchemy_utils:',
     'ignore:WARNING the new order is not taken into account !!:UserWarning'
 ]
 
@@ -112,44 +93,3 @@ column_limit = 120
 dedent_closing_brackets = true
 indent_dictionary_value = false
 split_arguments_when_comma_terminated = true
-
-[tool.tox]
-legacy_tox_ini = '''
-[tox]
-envlist = py37
-
-[testenv]
-usedevelop=True
-
-[testenv:py{36,37,38}]
-extras = tests
-commands = pytest {posargs}
-
-[testenv:py38-pre-commit]
-description = Run the pre-commit checks
-extras =
-    tests
-    pre-commit
-commands = pre-commit run {posargs}
-
-[tools.mypy]
-python_version = 3.6
-disallow_any_generics = True
-
-no_implicit_optional = True
-no_strict_optional = False
-
-warn_redundant_casts = True
-warn_unused_ignores = True
-warn_return_any = True
-warn_unreachable = True
-
-allow_untyped_globals = False
-strict_equality = True
-
-[tools.mypy-numpy.*]
-ignore_missing_imports = True
-
-[tools.mypy-scipy.*]
-ignore_missing_imports = True
-'''
