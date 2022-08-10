@@ -48,7 +48,7 @@ def case_wrong_cell():
     return {'cell': np.eye(3), 'ibrav': 3}, None, ValueError
 
 
-@parametrize_with_cases("inputs, expected_output, expected_error", cases='.')
+@parametrize_with_cases('inputs, expected_output, expected_error', cases='.')
 def test_parameters_from_cell(inputs, expected_output, expected_error):
     """
     Test the `get_parameters_from_cell` behavior matches the expected

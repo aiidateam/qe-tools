@@ -173,7 +173,7 @@ class _BaseInputFile:
         # Convert all types of newlines to '\n'
         self._input_txt = '\n'.join(self._input_txt.splitlines())
         # Add a newline, as a partial fix to #15
-        self._input_txt += "\n"
+        self._input_txt += '\n'
 
         # Parse the namelists.
         self.namelists = _parse_namelists(self._input_txt)
@@ -220,9 +220,9 @@ def _str2val(valstr):
     valstr = valstr.strip()
     # Define a tuple of regular expressions to match and their corresponding
     # conversion functions.
-    re_fn_tuple = ((re.compile(r"[.](true|t)[.]",
-                               re.I), lambda s: True), (re.compile(r"[.](false|f)[.]", re.I), lambda s: False),
-                   (float_re, lambda s: float(s.replace('d', 'e').replace('D', 'E'))), (re.compile(r"[-+]?\d+$"), int),
+    re_fn_tuple = ((re.compile(r'[.](true|t)[.]',
+                               re.I), lambda s: True), (re.compile(r'[.](false|f)[.]', re.I), lambda s: False),
+                   (float_re, lambda s: float(s.replace('d', 'e').replace('D', 'E'))), (re.compile(r'[-+]?\d+$'), int),
                    (re.compile(r"""['"].+['"]"""), lambda s: str(s.strip("\'\""))))
     # Convert valstr to a value.
     val = None
@@ -303,12 +303,12 @@ def _parse_namelists(txt):
         blocklines = blockstr.splitlines()
         # Remove comments on each line, and then put back the \n
         # Note that strip_comment does not want \n in the string!
-        blocklines = [f"{_strip_comment(line)}\n" for line in blocklines]
+        blocklines = [f'{_strip_comment(line)}\n' for line in blocklines]
 
         for blockline in blocklines:
             for key, valstr in key_value_re.findall(blockline):
                 if key.lower() in nmlst_dict:
-                    raise ValueError(f"Key {key.lower()} found more than once in namelist {nmlst}")
+                    raise ValueError(f'Key {key.lower()} found more than once in namelist {nmlst}')
                 nmlst_dict[key.lower()] = _str2val(valstr)
         # ...and, store nmlst_dict as a value in params_dict with the namelist
         # as the key.
@@ -699,14 +699,14 @@ def _parse_atomic_species(txt, validate_species_names=True):
         an optional underscore followed by optional digits.
         """
         species_from_pseudo = pseudo_file_name
-        for sep in ["-", ".", "_"]:
+        for sep in ['-', '.', '_']:
             species_from_pseudo = species_from_pseudo.partition(sep)[0]
         species_from_pseudo = species_from_pseudo.capitalize()
-        pattern = re.compile(r"^" + species_from_pseudo + r"_?\d*$", re.IGNORECASE)
+        pattern = re.compile(r'^' + species_from_pseudo + r'_?\d*$', re.IGNORECASE)
         if pattern.match(atom_name) is None:
             raise InputValidationError(
                 f"The element symbol '{atom_name}' does not match the species '{species_from_pseudo}' inferred "
-                "by the pseudopotential file name"
+                'by the pseudopotential file name'
             )
 
     # Define re for atomic species card block.
@@ -864,8 +864,8 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
         elif cell_unit == 'alat':
             if alat is None:
                 raise InputValidationError(
-                    "You have specified units of alat for the cell, \n"
-                    "but you have not provided a value for alat"
+                    'You have specified units of alat for the cell, \n'
+                    'but you have not provided a value for alat'
                 )
             cell = alat * cell
         elif cell_unit == '':
@@ -877,7 +877,7 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
             else:
                 cell = alat * cell
         else:
-            raise InputValidationError(f"Unknown unit for CELL_PARAMETERS {cell_unit}")
+            raise InputValidationError(f'Unknown unit for CELL_PARAMETERS {cell_unit}')
 
     if ibrav == 1:
         # 1          cubic P (sc)
@@ -1098,7 +1098,7 @@ def _parse_structure(  # pylint: disable=too-many-arguments,too-many-branches,to
         alat = CONSTANTS.bohr_to_ang * system_dict['celldm(1)']
         using_celldm = True
     else:
-        assert system_dict['ibrav'] == 0, "Neither a nor celldm(1) are specified, and you are not using ibrav=0!"
+        assert system_dict['ibrav'] == 0, 'Neither a nor celldm(1) are specified, and you are not using ibrav=0!'
         alat = None
         using_celldm = None
 
@@ -1110,9 +1110,9 @@ def _parse_structure(  # pylint: disable=too-many-arguments,too-many-branches,to
 
     if positions_units is None:
         raise InputValidationError(
-            "There is no unit for positions\n"
-            "This is deprecated behavior for QE.\n"
-            "In addition the default values by CP and PW differ (bohr and alat)"
+            'There is no unit for positions\n'
+            'This is deprecated behavior for QE.\n'
+            'In addition the default values by CP and PW differ (bohr and alat)'
         )
     if positions_units == 'angstrom':
         pass
@@ -1161,7 +1161,7 @@ def _strip_comment(string, comment_characters=('!',), quote_characters=('"', "'"
 
     for char in string:
         if char == '\n':
-            raise ValueError("I still cannot cope with newlines in the string...")
+            raise ValueError('I still cannot cope with newlines in the string...')
         # Check if we are entering/existing a string
         if in_string and char == string_quote:
             #print("EXIT")
@@ -1175,12 +1175,12 @@ def _strip_comment(string, comment_characters=('!',), quote_characters=('"', "'"
 
         # We found a comment, return until here (without the comment)
         if not in_string and char in comment_characters:
-            return "".join(new_string)
+            return ''.join(new_string)
 
         new_string.append(char)
 
     # If we are here, no comments where found
     if in_string:
-        raise ValueError(f"String >>{string}<< is not closed, it was open with the {string_quote} char")
+        raise ValueError(f'String >>{string}<< is not closed, it was open with the {string_quote} char')
     # I just return the same string, even if this would be equivalent to "".join(new_string)
     return string

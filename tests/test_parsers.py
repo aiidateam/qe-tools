@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # pylint: disable=redefined-outer-name
 
@@ -53,7 +54,7 @@ class CustomTestCase(unittest.TestCase):
             exc.__dict__.setdefault('traces', []).append(trace)
             if is_root:
                 trace = ' -> '.join(reversed(exc.traces))  # pylint: disable=no-member
-                exc = AssertionError(f"{str(exc)}\nTRACE: {trace}")
+                exc = AssertionError(f'{str(exc)}\nTRACE: {trace}')
             raise exc
 
     def assert_nested_almost_equal_only_keys_in_first(self, expected, actual, *args, **kwargs):
@@ -89,7 +90,7 @@ class CustomTestCase(unittest.TestCase):
             exc.__dict__.setdefault('traces', []).append(trace)
             if is_root:
                 trace = ' -> '.join(reversed(exc.traces))  # pylint: disable=no-member
-                exc = AssertionError(f"{str(exc)}\nTRACE: {trace}")
+                exc = AssertionError(f'{str(exc)}\nTRACE: {trace}')
             raise exc
 
 
@@ -110,7 +111,7 @@ class PwTest(CustomTestCase):
         """
         fname = os.path.join(data_folder, f'{label}.in')
         if not os.path.isfile(fname):
-            raise ValueError(f"File {fname} not found")
+            raise ValueError(f'File {fname} not found')
         if parser == 'pw':
             ParserClass = PwInputFile
         elif parser == 'cp':
@@ -128,19 +129,19 @@ class PwTest(CustomTestCase):
         structure = res_obj.structure
         result = {
             # Raw, from input
-            "atomic_positions": res_obj.atomic_positions,
+            'atomic_positions': res_obj.atomic_positions,
             # Raw, from input
-            "atomic_species": res_obj.atomic_species,
+            'atomic_species': res_obj.atomic_species,
             # Raw, from input can be None
-            "cell_parameters": res_obj.cell_parameters,
-            "namelists": res_obj.namelists,
+            'cell_parameters': res_obj.cell_parameters,
+            'namelists': res_obj.namelists,
             # Parsed, always angstrom and Cartesian
-            "positions_angstrom": structure['positions'],
+            'positions_angstrom': structure['positions'],
             # Parsed, always a 3x3 matrix
-            "cell": structure['cell'],
+            'cell': structure['cell'],
         }
         if parser != 'cp':
-            result["k_points"] = res_obj.k_points
+            result['k_points'] = res_obj.k_points
 
         if qe_version is None:
             reflabel = label
@@ -151,7 +152,7 @@ class PwTest(CustomTestCase):
             with open(ref_fname, encoding='utf-8') as f:
                 ref = json.load(f)
         except Exception:
-            print("What I parsed (to be used in a test reference):")
+            print('What I parsed (to be used in a test reference):')
             print_test_comparison(label=label, parser=parser, write=False)
             raise
 
@@ -176,7 +177,7 @@ class PwTest(CustomTestCase):
 
         # It should complain about 'tstress' being found multiple times
         the_exception = exception_obj.exception
-        self.assertIn("tstress", str(the_exception))
+        self.assertIn('tstress', str(the_exception))
 
     def test_example_ibrav0_uppercaseunits(self):
         self.singletest(label='example_ibrav0_uppercaseunits')
@@ -327,7 +328,7 @@ def print_test_comparison(label, parser='pw', write=False):
     """
     fname = os.path.join(data_folder, f'{label}.in')
     if not os.path.isfile(fname):
-        raise ValueError(f"File {fname} not found")
+        raise ValueError(f'File {fname} not found')
     if parser == 'pw':
         ParserClass = PwInputFile
     elif parser == 'cp':
@@ -341,31 +342,31 @@ def print_test_comparison(label, parser='pw', write=False):
 
     result = {
         # Raw, from input
-        "atomic_positions": parsed.atomic_positions,
+        'atomic_positions': parsed.atomic_positions,
         # Raw, from input
-        "atomic_species": parsed.atomic_species,
+        'atomic_species': parsed.atomic_species,
         # Raw, from input can be None
-        "cell_parameters": parsed.cell_parameters,
-        "namelists": parsed.namelists,
+        'cell_parameters': parsed.cell_parameters,
+        'namelists': parsed.namelists,
         # Parsed, always angstrom and Cartesian
-        "positions_angstrom": structure['positions'],
+        'positions_angstrom': structure['positions'],
         # Parsed, always a 3x3 matrix
-        "cell": structure['cell'],
+        'cell': structure['cell'],
     }
 
     if parser != 'cp':
-        result["k_points"] = parsed.k_points
+        result['k_points'] = parsed.k_points
 
     if write:
         ref_fname = os.path.join(reference_folder, f'{label}.json')
-        with io.open(ref_fname, 'w', encoding="utf-8") as f:
+        with io.open(ref_fname, 'w', encoding='utf-8') as f:
             f.write(str(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False)))
             print(f"File '{ref_fname}' written.")
     else:
         print(json.dumps(result, indent=2, sort_keys=True))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     import sys
 
     if len(sys.argv) > 1:
@@ -373,7 +374,7 @@ if __name__ == "__main__":
             try:
                 label = sys.argv[2]
             except IndexError:
-                print("Pass as filename (and optionally pw or cp to specify a parser, default: pw)", file=sys.stderr)
+                print('Pass as filename (and optionally pw or cp to specify a parser, default: pw)', file=sys.stderr)
                 sys.exit(1)
             try:
                 parser = sys.argv[3]
@@ -381,7 +382,7 @@ if __name__ == "__main__":
                 parser = 'pw'  # pylint: disable=invalid-name
             print_test_comparison(label, parser=parser, write=True)
         else:
-            print("If you pass additional parameters, they must be --write-ref <label> [pw/cp]", file=sys.stderr)
+            print('If you pass additional parameters, they must be --write-ref <label> [pw/cp]', file=sys.stderr)
 
     else:
         unittest.main()
