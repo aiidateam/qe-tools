@@ -8,7 +8,7 @@ from functools import total_ordering
 
 from packaging.version import Version
 
-__all__ = ('parse_version', )
+__all__ = ('parse_version',)
 
 
 @total_ordering

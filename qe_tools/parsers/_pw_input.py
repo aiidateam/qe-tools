@@ -8,7 +8,7 @@ import re
 from ._input_base import _BaseInputFile, RE_FLAGS
 from ..exceptions import ParsingError
 
-__all__ = ('PwInputFile', )
+__all__ = ('PwInputFile',)
 
 
 class PwInputFile(_BaseInputFile):
@@ -125,11 +125,8 @@ class PwInputFile(_BaseInputFile):
                                    'Si3 28.0855 Si.pbe-nl-rrkjus_psl.1.0.0.UPF']
 
     """
-    def __init__(self,
-                 content,
-                 *,
-                 qe_version=None,
-                 validate_species_names=True):
+
+    def __init__(self, content, *, qe_version=None, validate_species_names=True):
         """
         Parse inputs's namelist and cards to create attributes of the info.
 
@@ -158,9 +155,7 @@ class PwInputFile(_BaseInputFile):
             parsing the content.
         """
 
-        super().__init__(content,
-                         qe_version=qe_version,
-                         validate_species_names=validate_species_names)
+        super().__init__(content, qe_version=qe_version, validate_species_names=validate_species_names)
 
         # Parse the K_POINTS card.
         self.k_points = parse_k_points(self._input_txt)
@@ -225,24 +220,28 @@ def parse_k_points(txt):
           ^ [ \t]* \S+ [ \t]+ \S+ [ \t]+ \S+ [ \t]+ \S+ [ \t]* $\n?
          )+
         )
-        """, RE_FLAGS)
+        """, RE_FLAGS
+    )
     # Define re for the info contained in the special-type block.
     k_points_special_re = re.compile(
         r"""
     ^ [ \t]* (\S+) [ \t]+ (\S+) [ \t]+ (\S+) [ \t]+ (\S+) [ \t]* $\n?
-    """, RE_FLAGS)
+    """, RE_FLAGS
+    )
     # Define re for the automatic-type card block and its line of info.
     k_points_automatic_block_re = re.compile(
         r"""
         ^ [ \t]* K_POINTS [ \t]* [{(]? [ \t]* automatic [ \t]* [)}]? [ \t]* $\n
         ^ [ \t]* (\S+) [ \t]+ (\S+) [ \t]+ (\S+) [ \t]+ (\S+) [ \t]+ (\S+)
             [ \t]+ (\S+) [ \t]* $\n?
-        """, RE_FLAGS)
+        """, RE_FLAGS
+    )
     # Define re for the gamma-type card block. (There is no block info.)
     k_points_gamma_block_re = re.compile(
         r"""
         ^ [ \t]* K_POINTS [ \t]* [{(]? [ \t]* gamma [ \t]* [)}]? [ \t]* $\n
-        """, RE_FLAGS)
+        """, RE_FLAGS
+    )
     # Try finding the card block using all three types.
     info_dict = {}
     match = k_points_special_block_re.search(txt)
@@ -264,9 +263,7 @@ def parse_k_points(txt):
         if match:
             info_dict['type'] = 'automatic'
             info_dict['points'] = list(map(int, match.group(1, 2, 3)))
-            info_dict['offset'] = [
-                0. if x == 0 else 0.5 for x in map(int, match.group(4, 5, 6))
-            ]
+            info_dict['offset'] = [0. if x == 0 else 0.5 for x in map(int, match.group(4, 5, 6))]
         else:
             match = k_points_gamma_block_re.search(txt)
             if match:

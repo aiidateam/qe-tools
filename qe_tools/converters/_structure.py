@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__all__ = ('get_parameters_from_cell', )
+__all__ = ('get_parameters_from_cell',)
 
 from typing import Iterable, Union, Dict, Optional
 
@@ -14,12 +14,14 @@ CellT = Iterable[Iterable[float]]
 ParametersT = Dict[str, float]
 
 
-def get_parameters_from_cell(*,
-                             ibrav: int,
-                             cell: CellT,
-                             tolerance: float = 1e-4,
-                             using_celldm: bool = False,
-                             qe_version: Optional[str] = None) -> ParametersT:
+def get_parameters_from_cell(
+    *,
+    ibrav: int,
+    cell: CellT,
+    tolerance: float = 1e-4,
+    using_celldm: bool = False,
+    qe_version: Optional[str] = None
+) -> ParametersT:
     """
     Get the cell parameters from a given `ibrav` and cell. Only the
     parameters necessary for the given ibrav are returned.
@@ -65,11 +67,7 @@ def get_parameters_from_cell(*,
 
     parameters = _get_parameters_from_cell_bare(ibrav=ibrav, cell=cell)
 
-    _check_parameters(ibrav=ibrav,
-                      cell=cell,
-                      parameters=parameters,
-                      tolerance=tolerance,
-                      qe_version=qe_version)
+    _check_parameters(ibrav=ibrav, cell=cell, parameters=parameters, tolerance=tolerance, qe_version=qe_version)
 
     if using_celldm:
         parameters = _convert_to_celldm(parameters, ibrav=ibrav)
@@ -77,7 +75,8 @@ def get_parameters_from_cell(*,
 
 
 def _get_parameters_from_cell_bare(  # pylint: disable=too-many-branches
-        *, ibrav: int, cell: CellT) -> ParametersT:
+    *, ibrav: int, cell: CellT
+) -> ParametersT:
     """
     Implementation of the conversion from cell to parameters, without
     checks. This function always returns the parameters in the
@@ -122,8 +121,7 @@ def _get_parameters_from_cell_bare(  # pylint: disable=too-many-branches
         parameters[cosAC] = np.dot(v1, v3) / (parameters[A] * parameters[C])
     elif ibrav == 13:
         parameters = {A: 2 * v1[0], B: la.norm(v2), C: 2 * v3[2]}
-        parameters[cosAB] = 2 * np.dot(v1,
-                                       v2) / (parameters[A] * parameters[B])
+        parameters[cosAB] = 2 * np.dot(v1, v2) / (parameters[A] * parameters[B])
     elif ibrav == -13:
         parameters = {A: 2 * abs(v1[0]), B: 2 * abs(v1[1]), C: la.norm(v3)}
         parameters[cosAC] = v3[0] / la.norm(v3)
@@ -133,34 +131,30 @@ def _get_parameters_from_cell_bare(  # pylint: disable=too-many-branches
         parameters[cosAC] = np.dot(v1, v3) / (parameters[A] * parameters[C])
         parameters[cosBC] = np.dot(v2, v3) / (parameters[B] * parameters[C])
     else:
-        raise ValueError(
-            "The given 'ibrav' value '{}' is not understood.".format(ibrav))
+        raise ValueError("The given 'ibrav' value '{}' is not understood.".format(ibrav))
     return parameters
 
 
-def _check_parameters(*,
-                      ibrav: int,
-                      parameters: ParametersT,
-                      cell: CellT,
-                      tolerance: float,
-                      qe_version: Optional[str] = None) -> None:
+def _check_parameters(
+    *, ibrav: int, parameters: ParametersT, cell: CellT, tolerance: float, qe_version: Optional[str] = None
+) -> None:
     """
     Check that the parameters describe the given cell.
     """
-    system_dict = {
-        'ibrav': ibrav,
-        **parameters
-    }  # type: Dict[str, Union[int, float]]
+    system_dict = {'ibrav': ibrav, **parameters}  # type: Dict[str, Union[int, float]]
     cell_reconstructed = _get_cell_from_parameters(
         cell_parameters=None,  # this is only used for ibrav=0
         system_dict=system_dict,
         alat=parameters['a'],
         using_celldm=False,
-        qe_version=qe_version)
+        qe_version=qe_version
+    )
     if not np.allclose(cell_reconstructed, cell, rtol=0, atol=tolerance):
         raise ValueError(
-            "The cell {} constructed with 'ibrav={}', parameters={} does not match the input cell{}."
-            .format(cell_reconstructed, ibrav, parameters, cell))
+            "The cell {} constructed with 'ibrav={}', parameters={} does not match the input cell{}.".format(
+                cell_reconstructed, ibrav, parameters, cell
+            )
+        )
 
 
 def _convert_to_celldm(parameters: ParametersT, ibrav: int) -> ParametersT:

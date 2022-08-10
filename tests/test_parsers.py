@@ -24,7 +24,8 @@ class CustomTestCase(unittest.TestCase):
     comparisons of dicts
     )
     """
-    def assertNestedAlmostEqual(self, expected, actual, *args, **kwargs):
+
+    def assert_nested_almost_equal(self, expected, actual, *args, **kwargs):
         """
         Check that dict have almost equal content, for float content.
         Works recursively for dicts, tuples, lists, ... Use
@@ -41,19 +42,11 @@ class CustomTestCase(unittest.TestCase):
                 self.assertEqual(len(expected), len(actual))
                 for index, _ in enumerate(expected):
                     v1, v2 = expected[index], actual[index]
-                    self.assertNestedAlmostEqual(v1,
-                                                 v2,
-                                                 __trace=repr(index),
-                                                 *args,
-                                                 **kwargs)
+                    self.assert_nested_almost_equal(v1, v2, __trace=repr(index), *args, **kwargs)
             elif isinstance(expected, dict):
                 self.assertEqual(set(expected), set(actual))
                 for key in expected:
-                    self.assertNestedAlmostEqual(expected[key],
-                                                 actual[key],
-                                                 __trace=repr(key),
-                                                 *args,
-                                                 **kwargs)
+                    self.assert_nested_almost_equal(expected[key], actual[key], __trace=repr(key), *args, **kwargs)
             else:
                 self.assertEqual(expected, actual)
         except AssertionError as exc:
@@ -63,8 +56,7 @@ class CustomTestCase(unittest.TestCase):
                 exc = AssertionError("%s\nTRACE: %s" % (str(exc), trace))
             raise exc
 
-    def assertNestedAlmostEqualOnlyKeysInFirst(self, expected, actual, *args,
-                                               **kwargs):
+    def assert_nested_almost_equal_only_keys_in_first(self, expected, actual, *args, **kwargs):
         """
         Check that dict have almost equal content, for float content.
 
@@ -84,21 +76,13 @@ class CustomTestCase(unittest.TestCase):
                 self.assertEqual(len(expected), len(actual))
                 for index, _ in enumerate(expected):
                     v1, v2 = expected[index], actual[index]
-                    self.assertNestedAlmostEqual(v1,
-                                                 v2,
-                                                 __trace=repr(index),
-                                                 *args,
-                                                 **kwargs)
+                    self.assert_nested_almost_equal(v1, v2, __trace=repr(index), *args, **kwargs)
             elif isinstance(expected, dict):
-                self.assertEqual(set(expected),
-                                 set(actual).intersection(set(expected)))
+                self.assertEqual(set(expected), set(actual).intersection(set(expected)))
                 for key in expected:
-                    self.assertNestedAlmostEqualOnlyKeysInFirst(
-                        expected[key],
-                        actual[key],
-                        __trace=repr(key),
-                        *args,
-                        **kwargs)
+                    self.assert_nested_almost_equal_only_keys_in_first(
+                        expected[key], actual[key], __trace=repr(key), *args, **kwargs
+                    )
             else:
                 self.assertEqual(expected, actual)
         except AssertionError as exc:
@@ -111,11 +95,8 @@ class CustomTestCase(unittest.TestCase):
 
 class PwTest(CustomTestCase):
     """Test class for the PW input parser."""
-    def singletest(self,
-                   label,
-                   parser='pw',
-                   qe_version=None,
-                   validate_species_names=True):
+
+    def singletest(self, label, parser='pw', qe_version=None, validate_species_names=True):
         """
         Run a single test.
 
@@ -135,16 +116,14 @@ class PwTest(CustomTestCase):
         elif parser == 'cp':
             ParserClass = CpInputFile
         else:
-            raise ValueError(
-                "Invalid valude for 'parser': '{}'".format(parser))
+            raise ValueError("Invalid valude for 'parser': '{}'".format(parser))
 
         # Open in binary mode so I get also '\r\n' from Windows and I check
         # that the parser properly copes with them
         with open(fname, 'rb') as in_file:
             res_obj = ParserClass(
-                in_file.read().decode('utf-8'),
-                qe_version=qe_version,
-                validate_species_names=validate_species_names)
+                in_file.read().decode('utf-8'), qe_version=qe_version, validate_species_names=validate_species_names
+            )
 
         structure = res_obj.structure
         result = {
@@ -169,7 +148,7 @@ class PwTest(CustomTestCase):
             reflabel = '{}-{}'.format(label, qe_version)
         ref_fname = os.path.join(reference_folder, '{}.json'.format(reflabel))
         try:
-            with open(ref_fname) as f:
+            with open(ref_fname, encoding='utf-8') as f:
                 ref = json.load(f)
         except Exception:
             print("What I parsed (to be used in a test reference):")
@@ -179,7 +158,7 @@ class PwTest(CustomTestCase):
         # Check only things in the first dictionary (that therefore must be the
         # test json). In this way I can remove things from the test json
         # if I don't want to test them.
-        self.assertNestedAlmostEqualOnlyKeysInFirst(ref, result)
+        self.assert_nested_almost_equal_only_keys_in_first(ref, result)
 
     ############################################################################
     ## Here start the tests
@@ -315,8 +294,7 @@ class PwTest(CustomTestCase):
             self.singletest(label='non_matching_species')
 
     def test_non_matching_species_no_validation(self):
-        self.singletest(label='non_matching_species',
-                        validate_species_names=False)
+        self.singletest(label='non_matching_species', validate_species_names=False)
 
     def test_no_newline_exponential_time(self):
         """
@@ -357,8 +335,7 @@ def print_test_comparison(label, parser='pw', write=False):
         raise ValueError("Invalid valude for 'parser': '{}'".format(parser))
 
     with open(fname, 'rb') as in_f:
-        parsed = ParserClass(in_f.read().decode('utf-8'),
-                             validate_species_names=False)
+        parsed = ParserClass(in_f.read().decode('utf-8'), validate_species_names=False)
     structure = parsed.structure
 
     result = {
@@ -381,12 +358,7 @@ def print_test_comparison(label, parser='pw', write=False):
     if write:
         ref_fname = os.path.join(reference_folder, '{}.json'.format(label))
         with io.open(ref_fname, 'w', encoding="utf-8") as f:
-            f.write(
-                str(
-                    json.dumps(result,
-                               indent=2,
-                               sort_keys=True,
-                               ensure_ascii=False)))
+            f.write(str(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False)))
             print("File '{}' written.".format(ref_fname))
     else:
         print(json.dumps(result, indent=2, sort_keys=True))
@@ -400,19 +372,15 @@ if __name__ == "__main__":
             try:
                 label = sys.argv[2]
             except IndexError:
-                print(
-                    "Pass as filename (and optionally pw or cp to specify a parser, default: pw)",
-                    file=sys.stderr)
+                print("Pass as filename (and optionally pw or cp to specify a parser, default: pw)", file=sys.stderr)
                 sys.exit(1)
             try:
                 parser = sys.argv[3]
             except IndexError:
-                parser = 'pw'
+                parser = 'pw'  # pylint: disable=invalid-name
             print_test_comparison(label, parser=parser, write=True)
         else:
-            print(
-                "If you pass additional parameters, they must be --write-ref <label> [pw/cp]",
-                file=sys.stderr)
+            print("If you pass additional parameters, they must be --write-ref <label> [pw/cp]", file=sys.stderr)
 
     else:
         unittest.main()

@@ -63,19 +63,38 @@ exclude = [
 [tool.pylint.format]
 max-line-length = 120
 
+[tool.pylint.basic]
+good-names = [
+    'a',
+    'b',
+    'c',
+    'e',
+    'f',
+    'i',
+    'i',
+    'j',
+    'k',
+    's',
+    'u',
+    'v',
+    'tx',
+    'ty',
+    'tz',
+    'v1',
+    'v2',
+]
+
+
 [tool.pylint.messages_control]
 disable = [
-    'bad-continuation',
-    'duplicate-code',
-    'locally-disabled',
-    'logging-format-interpolation',
-    'inconsistent-return-statements',
-    'import-outside-toplevel',
-    'no-else-raise',
-    'too-many-arguments',
-    'too-many-ancestors',
-    'too-many-branches',
-    'too-many-locals',
+    'consider-using-f-string',
+    'fixme',
+    'import-error',
+    'missing-function-docstring',
+    'missing-module-docstring',
+    'too-few-public-methods',
+    'too-many-public-methods',
+
 ]
 
 [tool.pytest.ini_options]

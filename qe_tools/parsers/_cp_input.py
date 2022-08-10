@@ -2,7 +2,7 @@
 
 from ._input_base import _BaseInputFile
 
-__all__ = ('CpInputFile', )
+__all__ = ('CpInputFile',)
 
 
 class CpInputFile(_BaseInputFile):

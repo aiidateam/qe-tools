@@ -11,7 +11,7 @@ the constants in this file.
 
 from types import SimpleNamespace
 
-__all__ = ('DEFAULT', )
+__all__ = ('DEFAULT',)
 
 DEFAULT = SimpleNamespace(
     ## These have been put here from the one of QE, taken directly from
