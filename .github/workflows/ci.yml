@@ -1,89 +1,66 @@
-name: Continuous Integration
+name: ci
 
 on: [push, pull_request]
+
 jobs:
-  # docs:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       python-version: [3.8]
-  #       install-type: [dev]
-  #   steps:
-  #     - *CHECKOUT
-  #     - *PIP_CACHE
-  #     - *PYTHON_SETUP
-  #     - *INSTALL_PROJECT
-  #     - name: Build documentation
-  #       env:
-  #         READTHEDOCS: "True"
-  #       run: SPHINXOPTS='-nW' make -C doc html
-  #     - uses: actions/upload-artifact@v2
-  #       with:
-  #         name: doc-build
-  #         path: doc/build/html
-  pre-commit:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.9]
-        install-type: [dev]
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
 
-    - uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: pip-${{ matrix.python-version }}-${{ matrix.install-type }}-${{ hashFiles('**/setup.json')
-          }}
-        restore-keys: pip-${{ matrix.python-version }}-${{ matrix.install-type }}
+    pre-commit:
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+        runs-on: ubuntu-latest
 
-    - name: Install the python project
-      env:
-        INSTALL_TYPE: ${{ matrix.install-type }}
-      run: .ci/install_script.sh
+        steps:
+        -   uses: actions/checkout@v2
 
-    - name: Run pre-commit
-      run: pre-commit run --all-files || ( git status --short ; git diff ; exit 1
-        )
-  tests:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
-        install-type: [dev]
-        include:
-        - python-version: 3.9
-          install-type: dev_sdist
-        - python-version: 3.9
-          install-type: dev_bdist_wheel
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+        -   name: Cache Python dependencies
+            id: cache-pip
+            uses: actions/cache@v1
+            with:
+                path: ~/.cache/pip
+                key: pip-pre-commit-${{ hashFiles('**/setup.json') }}
+                restore-keys:
+                    pip-pre-commit-
 
-    - uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: pip-${{ matrix.python-version }}-${{ matrix.install-type }}-${{ hashFiles('**/setup.json')
-          }}
-        restore-keys: pip-${{ matrix.python-version }}-${{ matrix.install-type }}
+        -   name: Install Python
+            uses: actions/setup-python@v2
+            with:
+                python-version: '3.9'
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+        -   name: Install Python package and dependencies
+            run: pip install -e .[dev]
 
-    - name: Install the python project
-      env:
-        INSTALL_TYPE: ${{ matrix.install-type }}
-      run: .ci/install_script.sh
+        -   name: Run pre-commit
+            run: pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
 
-    - name: Run pytest
-      run: pytest --cov=qe_tools --cov-config=.coveragerc
-    - name: Run codecov
-      run: codecov
+    tests:
+
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                python-version: ['3.6', '3.7', '3.8', '3.9']
+
+        steps:
+        -   uses: actions/checkout@v2
+
+        -   name: Cache Python dependencies
+            id: cache-pip
+            uses: actions/cache@v1
+            with:
+                path: ~/.cache/pip
+                key: pip-${{ matrix.python-version }}-tests-${{ hashFiles('**/setup.json') }}
+                restore-keys:
+                    pip-${{ matrix.python-version }}-tests
+
+        -   name: Install Python ${{ matrix.python-version }}
+            uses: actions/setup-python@v2
+            with:
+                python-version: ${{ matrix.python-version }}
+
+        -   name: Install Python package and dependencies
+            run: pip install -e .[dev]
+
+        -   name: Run pytest
+            run: pytest -sv --cov=qe_tools --cov-config=.coveragerc tests
+
+        -   name: Run codecov
+            run: codecov
