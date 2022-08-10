@@ -11,8 +11,8 @@ from typing import Tuple
 import numpy as np
 
 from .. import CONSTANTS
-from ..exceptions import ParsingError, InputValidationError
 from .._qe_version import parse_version
+from ..exceptions import InputValidationError, ParsingError
 
 RE_FLAGS = re.M | re.X | re.I
 

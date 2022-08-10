@@ -5,7 +5,7 @@ Tests for the version parsing helper.
 
 import pytest
 
-from qe_tools._qe_version import parse_version, _LatestVersionImpl
+from qe_tools._qe_version import _LatestVersionImpl, parse_version
 
 VERSION_INPUT_SORTED = ['2.3', '6.4.1', '6.4.2a1', '6.4.2', None]
 

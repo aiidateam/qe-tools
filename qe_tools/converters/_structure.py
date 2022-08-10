@@ -2,7 +2,7 @@
 
 __all__ = ('get_parameters_from_cell',)
 
-from typing import Iterable, Union, Dict, Optional
+from typing import Dict, Iterable, Optional, Union
 
 import numpy as np
 import scipy.linalg as la
