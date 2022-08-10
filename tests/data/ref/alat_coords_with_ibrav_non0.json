@@ -2,114 +2,114 @@
   "atomic_positions": {
     "fixed_coords": [
       [
-        false, 
-        false, 
+        false,
+        false,
         false
-      ], 
+      ],
       [
-        false, 
-        false, 
+        false,
+        false,
         false
       ]
-    ], 
+    ],
     "names": [
-      "B", 
+      "B",
       "N"
-    ], 
+    ],
     "positions": [
       [
-        0.0, 
-        0.0, 
+        0.0,
+        0.0,
         0.0
-      ], 
+      ],
       [
-        0.25, 
-        0.25, 
+        0.25,
+        0.25,
         0.25
       ]
-    ], 
+    ],
     "units": "alat"
-  }, 
+  },
   "atomic_species": {
     "masses": [
-      10.811, 
+      10.811,
       14.0067
-    ], 
+    ],
     "names": [
-      "B", 
+      "B",
       "N"
-    ], 
+    ],
     "pseudo_file_names": [
-      "B-PBE.upf", 
+      "B-PBE.upf",
       "N-PBE.upf"
     ]
-  }, 
+  },
   "cell": [
     [
-      -1.8078498619708403, 
-      0.0, 
+      -1.8078498619708403,
+      0.0,
       1.8078498619708403
-    ], 
+    ],
     [
-      0.0, 
-      1.8078498619708403, 
+      0.0,
+      1.8078498619708403,
       1.8078498619708403
-    ], 
+    ],
     [
-      -1.8078498619708403, 
-      1.8078498619708403, 
+      -1.8078498619708403,
+      1.8078498619708403,
       0.0
     ]
-  ], 
-  "cell_parameters": null, 
+  ],
+  "cell_parameters": null,
   "k_points": {
     "offset": [
-      0.0, 
-      0.0, 
+      0.0,
+      0.0,
       0.0
-    ], 
+    ],
     "points": [
-      20, 
-      20, 
+      20,
+      20,
       20
-    ], 
+    ],
     "type": "automatic"
-  }, 
+  },
   "namelists": {
     "CONTROL": {
-      "calculation": "scf", 
-      "outdir": "./", 
-      "prefix": "bn", 
-      "pseudo_dir": "../pp", 
-      "restart_mode": "from_scratch", 
-      "tprnfor": true, 
-      "tstress": true, 
+      "calculation": "scf",
+      "outdir": "./",
+      "prefix": "bn",
+      "pseudo_dir": "../pp",
+      "restart_mode": "from_scratch",
+      "tprnfor": true,
+      "tstress": true,
       "wf_collect": true
-    }, 
+    },
     "ELECTRONS": {
-      "conv_thr": 1e-13, 
-      "diagonalization": "david", 
+      "conv_thr": 1e-13,
+      "diagonalization": "david",
       "mixing_beta": 0.7
-    }, 
+    },
     "SYSTEM": {
-      "celldm(1)": 6.832682257, 
-      "ecutwfc": 100, 
-      "ibrav": 2, 
-      "lspinorb": true, 
-      "nat": 2, 
-      "noncolin": true, 
+      "celldm(1)": 6.832682257,
+      "ecutwfc": 100,
+      "ibrav": 2,
+      "lspinorb": true,
+      "nat": 2,
+      "noncolin": true,
       "ntyp": 2
     }
-  }, 
+  },
   "positions_angstrom": [
     [
-      0.0, 
-      0.0, 
+      0.0,
+      0.0,
       0.0
-    ], 
+    ],
     [
-      0.9039249309854201, 
-      0.9039249309854201, 
+      0.9039249309854201,
+      0.9039249309854201,
       0.9039249309854201
     ]
   ]

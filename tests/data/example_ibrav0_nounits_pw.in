@@ -23,9 +23,9 @@ ATOMIC_SPECIES
 Ba     137.327 Ba.pbesol-spn-rrkjus_psl.0.2.3-tot-pslib030.UPF
 O      15.9994 O.pbesol-n-rrkjus_psl.0.1-tested-pslib030.UPF
 Ti     47.867 Ti.pbesol-spn-rrkjus_psl.0.2.3-tot-pslib030.UPF
-ATOMIC_POSITIONS 
+ATOMIC_POSITIONS
 Ba           0.0       0.0       0.0
-Ti           0.5       0.5       0.75 
+Ti           0.5       0.5       0.75
 O            0.5       0.5       0.0
 O            0.5       0.0       0.75
 O            0.0       0.5       0.75
