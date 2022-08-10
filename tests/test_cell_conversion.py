@@ -15,7 +15,7 @@ CASES_DATA_DIR = pathlib.Path(__file__).resolve().parent / 'data' / 'ref'
 @parametrize(path=CASES_DATA_DIR.iterdir())
 def case_structure_generator(path):
     """Create test cases from reference data files."""
-    with open(str(path), 'r') as in_f:
+    with open(str(path), 'r', encoding='utf-8') as in_f:
         case_data = json.load(in_f)
     system_dict = case_data['namelists']['SYSTEM']
     ibrav = system_dict['ibrav']
@@ -32,9 +32,8 @@ def case_structure_generator(path):
     if ibrav == 0:
         return ins, None, ValueError
 
-    outs = dict()
-    for key in (['a', 'b', 'c', 'cosab', 'cosac', 'cosbc'] +
-                ['celldm({})'.format(i) for i in range(1, 7)]):
+    outs = {}
+    for key in (['a', 'b', 'c', 'cosab', 'cosac', 'cosbc'] + ['celldm({})'.format(i) for i in range(1, 7)]):
         if key in system_dict:
             outs[key] = system_dict[key]
 
