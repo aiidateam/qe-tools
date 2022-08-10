@@ -33,6 +33,7 @@ Source = 'https://github.com/aiidateam/qe-tools'
 
 [project.optional-dependencies]
 dev = [
+    'codecov',
     'pre-commit',
     'timeout-decorator',
     'pylint==2.7.2',
