@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+"""A set of useful tools to manage Quantum ESPRESSO files."""
 from ._constants import DEFAULT as CONSTANTS
 
 from . import parsers
