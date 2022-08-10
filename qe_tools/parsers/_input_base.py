@@ -6,7 +6,7 @@ Tools for parsing QE PW input files.
 """
 
 import re
-from typing import Tuple
+from typing import List, Tuple
 
 import numpy as np
 
@@ -231,7 +231,7 @@ def _str2val(valstr):
         # conversion_fn.
         if regex.match(valstr):
             try:
-                val = conversion_fn(valstr)
+                val = conversion_fn(valstr)  # type: ignore[operator]
             except ValueError as error:
                 raise ValueError(f'Error converting {repr(valstr)} to a value') from error
     if val is None:
@@ -734,10 +734,10 @@ def _parse_atomic_species(txt, validate_species_names=True):
         raise ParsingError('The ATOMIC_SPECIES card block was not found in\n' + txt) from exc
     # Make sure the card block lines were extracted. If they were, store the
     # string of lines as blockstr.
-    if match.group('block') is None:
+    if match.group('block') is None:  # type: ignore[union-attr]
         raise ParsingError('The ATOMIC_POSITIONS card block was parse as empty in\n' + txt)
 
-    blockstr = match.group('block')
+    blockstr = match.group('block')  # type: ignore[union-attr]
     # Define a small helper function to convert strings of fortran-type floats.
     fortfloat = lambda s: float(s.replace('d', 'e').replace('D', 'E'))
     # Now, extract the name, mass, and pseudopotential file name from each line
@@ -1152,7 +1152,7 @@ def _strip_comment(string, comment_characters=('!',), quote_characters=('"', "'"
     :param comment_characters: a list or tuple of accepted comment characters
     :param quote_characters: a list or tuple of accepted valid string characters
     """
-    new_string = []  # Will contain individual charachters of the new string
+    new_string: List[str] = []  # Will contain individual charachters of the new string
 
     in_string = False
     string_quote = None  # Will contain the specific character used to enter

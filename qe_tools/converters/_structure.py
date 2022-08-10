@@ -149,7 +149,7 @@ def _check_parameters(
         using_celldm=False,
         qe_version=qe_version
     )
-    if not np.allclose(cell_reconstructed, cell, rtol=0, atol=tolerance):
+    if not np.allclose(cell_reconstructed, cell, rtol=0, atol=tolerance):  # type: ignore[arg-type]
         raise ValueError(
             f'The cell {cell_reconstructed} constructed with ibrav={ibrav}, parameters={parameters} does not match '
             f'the input cell{cell}.'

@@ -27,14 +27,21 @@ repos:
         args: ['-i']
         additional_dependencies: ['toml']
 
--   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v0.812'
-    hooks:
-    -   id: mypy
-        exclude: "^(doc/)|(.utils/)"
-
 -   repo: local
     hooks:
+    -   id: mypy
+        name: mypy
+        entry: mypy
+        args: [--config-file=pyproject.toml]
+        language: python
+        types: [python]
+        require_serial: true
+        pass_filenames: true
+        files: >-
+            (?x)^(
+                qe_tools/.*py|
+            )$
+
     -   id: pylint
         name: pylint
         entry: pylint
