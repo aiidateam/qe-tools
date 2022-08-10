@@ -161,7 +161,7 @@ class _BaseInputFile:
             parsing the content.
         """
         if not isinstance(content, str):
-            raise TypeError("Unknown type for input 'content': {}".format(type(content)))
+            raise TypeError(f"Unknown type for input 'content': {type(content)}")
 
         self._input_txt = content
         self._qe_version = parse_version(qe_version)
@@ -233,12 +233,11 @@ def _str2val(valstr):
             try:
                 val = conversion_fn(valstr)
             except ValueError as error:
-                raise ValueError('Error converting {} to a value'.format(repr(valstr))) from error
+                raise ValueError(f'Error converting {repr(valstr)} to a value') from error
     if val is None:
         raise ValueError(
-            'Unable to convert {} to a python variable.\n'
-            'NOTE: Support for algebraic expressions is not yet '
-            'implemented.'.format(repr(valstr))
+            f'Unable to convert {valstr} to a python variable.\n'
+            'NOTE: Support for algebraic expressions is not yet implemented.'
         )
     return val
 
@@ -304,12 +303,12 @@ def _parse_namelists(txt):
         blocklines = blockstr.splitlines()
         # Remove comments on each line, and then put back the \n
         # Note that strip_comment does not want \n in the string!
-        blocklines = ["{}\n".format(_strip_comment(line)) for line in blocklines]
+        blocklines = [f"{_strip_comment(line)}\n" for line in blocklines]
 
         for blockline in blocklines:
             for key, valstr in key_value_re.findall(blockline):
                 if key.lower() in nmlst_dict:
-                    raise ValueError("Key {} found more than once in namelist {}".format(key.lower(), nmlst))
+                    raise ValueError(f"Key {key.lower()} found more than once in namelist {nmlst}")
                 nmlst_dict[key.lower()] = _str2val(valstr)
         # ...and, store nmlst_dict as a value in params_dict with the namelist
         # as the key.
@@ -368,7 +367,7 @@ def parse_atomic_positions(txt):
             return True
         if s == '1':
             return False
-        raise ParsingError('Unable to convert if_pos = "{}" to bool'.format(s))
+        raise ParsingError(f'Unable to convert if_pos = "{s}" to bool')
 
     # Define re for the card block.
     # NOTE: This will match card block lines w/ or w/out force modifications.
@@ -706,8 +705,8 @@ def _parse_atomic_species(txt, validate_species_names=True):
         pattern = re.compile(r"^" + species_from_pseudo + r"_?\d*$", re.IGNORECASE)
         if pattern.match(atom_name) is None:
             raise InputValidationError(
-                "The element symbol '{}' does not match the species '{}' inferred "
-                "by the pseudopotential file name".format(atom_name, species_from_pseudo)
+                f"The element symbol '{atom_name}' does not match the species '{species_from_pseudo}' inferred "
+                "by the pseudopotential file name"
             )
 
     # Define re for atomic species card block.
@@ -785,9 +784,7 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
     valid_ibravs = list(range(15)) + [-3, -5, -9, -12, -13, 91]
     if ibrav not in valid_ibravs:
         raise InputValidationError(
-            'I found ibrav = {} in input, \n'
-            'but it is not among the valid values\n'
-            '{}'.format(ibrav, valid_ibravs)
+            f'I found ibrav = {ibrav} in input, \nbut it is not among the valid values\n{valid_ibravs}'
         )
 
     if ibrav != 0:
@@ -848,8 +845,7 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
                 sing = np.sqrt(1. - cosg**2)
         except Exception as e:
             raise InputValidationError(
-                '\nException {} raised when searching for\n'
-                'key {} in qeinput, necessary when ibrav = {}'.format(type(e), e, ibrav)
+                f'\nException {type(e)} raised when searching for\nkey {e} in qeinput, necessary when ibrav = {ibrav}'
             ) from e
     # Calculating the cell according to ibrav.
     # The comments in each case are taken from
@@ -881,7 +877,7 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
             else:
                 cell = alat * cell
         else:
-            raise InputValidationError("Unknown unit for CELL_PARAMETERS {}".format(cell_unit))
+            raise InputValidationError(f"Unknown unit for CELL_PARAMETERS {cell_unit}")
 
     if ibrav == 1:
         # 1          cubic P (sc)
@@ -1133,9 +1129,9 @@ def _parse_structure(  # pylint: disable=too-many-arguments,too-many-branches,to
         raise NotImplementedError('crystal_sg is not implemented')
     else:
         valid_positions_units = ('alat', 'bohr', 'angstrom', 'crystal', 'crystal_sg')
+        units_string = ', '.join(valid_positions_units)
         raise InputValidationError(
-            '\nFound atom unit {}, which is not\n'
-            'among the valid units: {}'.format(positions_units, ', '.join(valid_positions_units))
+            f'\nFound atom unit {positions_units}, which is not\namong the valid units: {units_string}'
         )
     ######### DEFINE SITES ######################
     return dict(
@@ -1185,6 +1181,6 @@ def _strip_comment(string, comment_characters=('!',), quote_characters=('"', "'"
 
     # If we are here, no comments where found
     if in_string:
-        raise ValueError("String >>{}<< is not closed, it was open with the {} char".format(string, string_quote))
+        raise ValueError(f"String >>{string}<< is not closed, it was open with the {string_quote} char")
     # I just return the same string, even if this would be equivalent to "".join(new_string)
     return string

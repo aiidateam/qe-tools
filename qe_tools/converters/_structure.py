@@ -131,7 +131,7 @@ def _get_parameters_from_cell_bare(  # pylint: disable=too-many-branches
         parameters[cosAC] = np.dot(v1, v3) / (parameters[A] * parameters[C])
         parameters[cosBC] = np.dot(v2, v3) / (parameters[B] * parameters[C])
     else:
-        raise ValueError("The given 'ibrav' value '{}' is not understood.".format(ibrav))
+        raise ValueError(f"The given 'ibrav' value '{ibrav}' is not understood.")
     return parameters
 
 
@@ -151,9 +151,8 @@ def _check_parameters(
     )
     if not np.allclose(cell_reconstructed, cell, rtol=0, atol=tolerance):
         raise ValueError(
-            "The cell {} constructed with 'ibrav={}', parameters={} does not match the input cell{}.".format(
-                cell_reconstructed, ibrav, parameters, cell
-            )
+            f'The cell {cell_reconstructed} constructed with ibrav={ibrav}, parameters={parameters} does not match '
+            f'the input cell{cell}.'
         )
 
 
@@ -183,6 +182,6 @@ def _convert_to_celldm(parameters: ParametersT, ibrav: int) -> ParametersT:
         res_parameters['celldm(4)'] = parameters.pop('cosab')
 
     # Make sure all input parameters were used.
-    assert not parameters, 'Parameters {} not used.'.format(parameters.keys())
+    assert not parameters, f'Parameters {parameters.keys()} not used.'
 
     return res_parameters
