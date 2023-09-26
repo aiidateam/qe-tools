@@ -218,12 +218,13 @@ def _str2val(valstr):
     )
     # Strip any white space characters before analyzing.
     valstr = valstr.strip()
+
     # Define a tuple of regular expressions to match and their corresponding
     # conversion functions.
     re_fn_tuple = ((re.compile(r'[.](true|t)[.]',
                                re.I), lambda s: True), (re.compile(r'[.](false|f)[.]', re.I), lambda s: False),
                    (float_re, lambda s: float(s.replace('d', 'e').replace('D', 'E'))), (re.compile(r'[-+]?\d+$'), int),
-                   (re.compile(r"""['"].+['"]"""), lambda s: str(s.strip("\'\""))))
+                   (re.compile(r"""['"].*['"]"""), lambda s: str(s.strip("\'\""))))
     # Convert valstr to a value.
     val = None
     for regex, conversion_fn in re_fn_tuple:

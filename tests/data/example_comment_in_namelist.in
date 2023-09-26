@@ -2,6 +2,7 @@
     pseudo_dir  = 'pseudo/'
     calculation = 'scf',
     prefix = 'Si_exc1',
+    title = ''
  /
  &system
     ibrav = 0
