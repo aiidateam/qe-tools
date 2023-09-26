@@ -797,8 +797,7 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
         # I am only going to this for the important first lattice vector
 
         if alat is None:
-            raise Exception('You have to define lattice vector'
-                            'celldm(1) or A')
+            raise InputValidationError('You have to define lattice vector celldm(1) or A')
         # So, depending on what is defined for the first lattice vector,
         # I define the keys that I will look for to find the other
         # geometry definitions

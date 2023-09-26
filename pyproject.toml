@@ -37,7 +37,7 @@ dev = [
     'mypy==0.930',
     'pre-commit',
     'timeout-decorator',
-    'pylint==2.7.2',
+    'pylint~=2.16.0',
     'pytest',
     'pytest-cov',
     'pytest-cases~=3.2',
@@ -123,7 +123,8 @@ disable = [
     'missing-module-docstring',
     'too-few-public-methods',
     'too-many-public-methods',
-
+    'use-dict-literal',
+    'unnecessary-lambda-assignment',
 ]
 
 [tool.pytest.ini_options]
