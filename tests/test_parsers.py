@@ -42,7 +42,7 @@ class CustomTestCase(unittest.TestCase):
             elif isinstance(expected, (list, tuple, numpy.ndarray)):
                 self.assertEqual(len(expected), len(actual))
                 for index, _ in enumerate(expected):
-                    v1, v2 = expected[index], actual[index]
+                    v1, v2 = expected[index], actual[index]  # pylint: disable=unnecessary-list-index-lookup
                     self.assert_nested_almost_equal(v1, v2, __trace=repr(index), *args, **kwargs)
             elif isinstance(expected, dict):
                 self.assertEqual(set(expected), set(actual))
@@ -76,7 +76,7 @@ class CustomTestCase(unittest.TestCase):
             elif isinstance(expected, (list, tuple, numpy.ndarray)):
                 self.assertEqual(len(expected), len(actual))
                 for index, _ in enumerate(expected):
-                    v1, v2 = expected[index], actual[index]
+                    v1, v2 = expected[index], actual[index]  # pylint: disable=unnecessary-list-index-lookup
                     self.assert_nested_almost_equal(v1, v2, __trace=repr(index), *args, **kwargs)
             elif isinstance(expected, dict):
                 self.assertEqual(set(expected), set(actual).intersection(set(expected)))
