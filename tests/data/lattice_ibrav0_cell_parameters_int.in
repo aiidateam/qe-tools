@@ -1,6 +1,9 @@
 &control
  calculation = 'scf'
 /
+&system
+ ibrav = 0
+/
 ATOMIC_SPECIES
  Na  22.99 Na.upf
 ATOMIC_POSITIONS crystal

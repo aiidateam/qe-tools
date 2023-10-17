@@ -5,179 +5,77 @@
         false,
         false,
         false
-      ],
-      [
-        false,
-        false,
-        false
-      ],
-      [
-        false,
-        false,
-        false
-      ],
-      [
-        false,
-        false,
-        false
-      ],
-      [
-        false,
-        false,
-        false
-      ],
-      [
-        false,
-        false,
-        false
-      ],
-      [
-        false,
-        false,
-        false
-      ],
-      [
-        false,
-        false,
-        false
       ]
     ],
     "names": [
-      "Na",
-      "Na",
-      "Na",
-      "Na",
-      "Cl",
-      "Cl",
-      "Cl",
-      "Cl"
+      "Na"
     ],
     "positions": [
       [
         0.0,
         0.0,
         0.0
-      ],
-      [
-        0.0,
-        0.5,
-        0.5
-      ],
-      [
-        0.5,
-        0.0,
-        0.5
-      ],
-      [
-        0.5,
-        0.5,
-        0.0
-      ],
-      [
-        0.5,
-        0.5,
-        0.5
-      ],
-      [
-        0.5,
-        0.0,
-        0.0
-      ],
-      [
-        0.0,
-        0.5,
-        0.0
-      ],
-      [
-        0.0,
-        0.0,
-        0.5
       ]
     ],
     "units": "crystal"
   },
   "atomic_species": {
     "masses": [
-      22.98976928,
-      35.453
+      22.99
     ],
     "names": [
-      "Na",
-      "Cl"
+      "Na"
     ],
     "pseudo_file_names": [
-      "Na.paw.z_9.ld1.psl.v1.0.0-low.upf",
-      "Cl.pbe-n-rrkjus_psl.1.0.0.UPF"
+      "Na.upf"
     ]
   },
   "cell": [
     [
-      5.690301476175671,
+      5.7,
       0.0,
       0.0
     ],
     [
       0.0,
-      5.690301476175671,
+      5.7,
       0.0
     ],
     [
       0.0,
       0.0,
-      5.690301476175671
+      5.7
     ]
   ],
   "cell_parameters": {
     "cell": [
       [
-        5.690301476175671,
+        5.7,
         0.0,
         0.0
       ],
       [
         0.0,
-        5.690301476175671,
+        5.7,
         0.0
       ],
       [
         0.0,
         0.0,
-        5.690301476175671
+        5.7
       ]
     ],
     "units": "angstrom"
   },
   "k_points": {
-    "offset": [
-      0.5,
-      0.5,
-      0.5
-    ],
-    "points": [
-      8,
-      8,
-      8
-    ],
-    "type": "automatic"
+    "type": "gamma"
   },
   "namelists": {
     "CONTROL": {
-      "calculation": "scf",
-      "outdir": "./out_nacl",
-      "prefix": "nacl",
-      "pseudo_dir": "./pseudo/",
-      "tprnfor": true,
-      "tstress": true
-    },
-    "ELECTRONS": {
-      "conv_thr": 1e-09,
-      "diagonalization": "david"
+      "calculation": "scf"
     },
     "SYSTEM": {
-      "ecutwfc": 70.0,
-      "ibrav": 0,
-      "nat": 8,
-      "ntyp": 2
+      "ibrav": 0
     }
   },
   "positions_angstrom": [
@@ -185,41 +83,6 @@
       0.0,
       0.0,
       0.0
-    ],
-    [
-      0.0,
-      2.8451507380878356,
-      2.8451507380878356
-    ],
-    [
-      2.8451507380878356,
-      0.0,
-      2.8451507380878356
-    ],
-    [
-      2.8451507380878356,
-      2.8451507380878356,
-      0.0
-    ],
-    [
-      2.8451507380878356,
-      2.8451507380878356,
-      2.8451507380878356
-    ],
-    [
-      2.8451507380878356,
-      0.0,
-      0.0
-    ],
-    [
-      0.0,
-      2.8451507380878356,
-      0.0
-    ],
-    [
-      0.0,
-      0.0,
-      2.8451507380878356
     ]
   ]
 }
