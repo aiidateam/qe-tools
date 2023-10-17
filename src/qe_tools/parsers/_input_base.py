@@ -32,6 +32,7 @@ NUMBER_PATTERN = r"""
 )
 """
 
+
 class _BaseInputFile:
     """
     Class used for parsing Quantum Espresso pw.x input files and using the info.
