@@ -222,6 +222,9 @@ class PwTest(CustomTestCase):
     def test_lattice_ibrav0_cell_parameters_celldm(self):
         self.singletest(label='lattice_ibrav0_cell_parameters_celldm')
 
+    def test_lattice_ibrav0_cell_parameters_int(self):
+        self.singletest(label='lattice_ibrav0_cell_parameters_int')
+
     def test_lattice_ibrav1(self):
         self.singletest(label='lattice_ibrav1')
 

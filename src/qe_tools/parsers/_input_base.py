@@ -14,10 +14,23 @@ from .. import CONSTANTS
 from .._qe_version import parse_version
 from ..exceptions import InputValidationError, ParsingError
 
-RE_FLAGS = re.M | re.X | re.I
+RE_FLAGS = re.MULTILINE | re.VERBOSE | re.IGNORECASE
 
 __all__ = tuple()  # type: Tuple[str, ...]
 
+NUMBER_PATTERN = r"""
+(?:
+   [-|+]?   # Plus or minus in front of the number (optional)
+   (?:\d*   # optional decimal in the beginning .0001 is ok, for example
+   [\.]     # There has to be a dot followed by
+   \d+)     # at least one decimal
+   |        # OR
+   (?:\d+   # at least one decimal, followed by
+   [\.]?    # an optional dot
+   \d*)     # followed by optional decimals
+   (?:[E|e|d|D][+|-]?\d+)?  # optional exponents E+03, e-05, d0, D0
+)
+"""
 
 class _BaseInputFile:
     """
@@ -373,34 +386,20 @@ def parse_atomic_positions(txt):
     # Define re for the card block.
     # NOTE: This will match card block lines w/ or w/out force modifications.
     atomic_positions_block_re = re.compile(
-        r"""
+        fr"""
         ^ \s* ATOMIC_POSITIONS \s*                      # Atomic positions start with that string
-        [{(]? \s* (?P<units>\S+?)? \s* [)}]? \s* $\n    # The units are after the string in optional brackets
-        (?P<block>                                  # This is the block of positions
+        [{{(]? \s* (?P<units>\S+?)? \s* [)}}]? \s* $\n    # The units are after the string in optional brackets
+        (?P<block>                                      # This is the block of positions
             (
                 (
                     \s*                                 # White space in front of the element spec is ok
                     (
-                        [A-Za-z]+[A-Za-z0-9]{0,2}       # Element spec
+                        [A-Za-z]+[A-Za-z0-9]{{0,2}}     # Element spec
                         (
                             \s+                         # White space in front of the number
-                            [-|+]?                      # Plus or minus in front of the number (optional)
-                            (
-                                (
-                                    \d*                 # optional decimal in the beginning .0001 is ok, for example
-                                    [\.]                # There has to be a dot followed by
-                                    \d+                 # at least one decimal
-                                )
-                                |                       # OR
-                                (
-                                    \d+                 # at least one decimal, followed by
-                                    [\.]?               # an optional dot ( both 1 and 1. are fine)
-                                    \d*                 # And optional number of decimals (1.00001)
-                                )                        # followed by optional decimals
-                            )
-                            ([E|e|d|D][+|-]?\d+)?       # optional exponents E+03, e-05
-                        ){3}                            # I expect three float values
-                        ((\s+[0-1]){3}\s*)?             # Followed by optional ifpos
+                            {NUMBER_PATTERN}
+                        ){{3}}                          # I expect three float values
+                        ((\s+[0-1]){{3}}\s*)?           # Followed by optional ifpos
                         \s*                             # Followed by optional white space
                         |
                         \#.*                            # If a line is commented out, that is also ok
@@ -434,30 +433,27 @@ def parse_atomic_positions(txt):
 
     # Define re for atomic positions without force modifications.
     atomic_positions_w_constraints_re = re.compile(
-        r"""
-        ^                                       # Linestart
-        [ \t]*                                  # Optional white space
-        (?P<name>[A-Za-z]+[A-Za-z0-9]{0,2})\s+   # get the symbol, max 3 chars, starting with a char
-        (?P<x>                                  # Get x
-            [\-|\+]?(\d*[\.]\d+ | \d+[\.]?\d*)
-            ([E|e|d|D][+|-]?\d+)?
+        fr"""
+        ^                                        # Linestart
+        [ \t]*                                   # Optional white space
+        (?P<name>[A-Za-z]+[A-Za-z0-9]{{0,2}})\s+ # get the symbol, max 3 chars, starting with a char
+        (?P<x>                                   # Get x
+            {NUMBER_PATTERN}
         )
         [ \t]+
-        (?P<y>                                  # Get y
-            [\-|\+]?(\d*[\.]\d+ | \d+[\.]?\d*)
-            ([E|e|d|D][+|-]?\d+)?
+        (?P<y>                                   # Get y
+            {NUMBER_PATTERN}
         )
         [ \t]+
-        (?P<z>                                  # Get z
-            [\-|\+]?(\d*[\.]\d+ | \d+[\.]?\d*)
-            ([E|e|d|D][+|-]?\d+)?
+        (?P<z>                                   # Get z
+            {NUMBER_PATTERN}
         )
         [ \t]*
-        (?P<fx>[01]?)                           # Get fx
+        (?P<fx>[01]?)                            # Get fx
         [ \t]*
-        (?P<fy>[01]?)                           # Get fx
+        (?P<fy>[01]?)                            # Get fx
         [ \t]*
-        (?P<fz>[01]?)                           # Get fx
+        (?P<fz>[01]?)                            # Get fx
         """, re.X | re.M
     )
     # Find the card block and extract units and the lines of the block.
@@ -542,39 +538,21 @@ def _parse_cell_parameters(txt):
     """
     # Define re for the card block.
     cell_parameters_block_re = re.compile(
-        r"""
+        fr"""
         ^ [ \t]*
         CELL_PARAMETERS [ \t]*
-        [{(]? \s* (?P<units>[a-z]*) \s* [)}]? \s* [\n]
+        [{{(]? \s* (?P<units>[a-z]*) \s* [)}}]? \s* [\n]
         (?P<block>
         (
             (
-                \s*             # White space in front of the element spec is ok
+                \s*             # White space in front is ok
                 (
-                    # First number
                     (
-                        [-|+]?   # Plus or minus in front of the number (optional)
-                        (\d*     # optional decimal in the beginning .0001 is ok, for example
-                        [\.]     # There has to be a dot followed by
-                        \d+)     # at least one decimal
-                        |        # OR
-                        (\d+     # at least one decimal, followed by
-                        [\.]?    # an optional dot
-                        \d*)     # followed by optional decimals
-                        ([E|e|d|D][+|-]?\d+)?  # optional exponents E+03, e-05, d0, D0
-
-                        (
-                            \s+      # White space between numbers
-                            [-|+]?   # Plus or minus in front of the number (optional)
-                            (\d*     # optional decimal in the beginning .0001 is ok, for example
-                            [\.]     # There has to be a dot followed by
-                            \d+)     # at least one decimal
-                            |        # OR
-                            (\d+     # at least one decimal, followed by
-                            [\.]?    # an optional dot
-                            \d*)     # followed by optional decimals
-                            ([E|e|d|D][+|-]?\d+)?  # optional exponents E+03, e-05, d0, D0
-                        ){2}         # I expect three float values
+                        {NUMBER_PATTERN}
+                        \s+
+                        {NUMBER_PATTERN}
+                        \s+
+                        {NUMBER_PATTERN}
                     )
                     |
                     \#
@@ -586,28 +564,25 @@ def _parse_cell_parameters(txt):
                 \s*              # A line only containing white space
              )
             [\n]                 # line break at the end
-        ){3}                     # I need exactly 3 vectors
+        ){{3}}                   # I need exactly 3 vectors
     )
     """, RE_FLAGS
     )
 
     cell_vector_regex = re.compile(
-        r"""
+        fr"""
         ^                        # Linestart
         [ \t]*                   # Optional white space
         (?P<x>                   # Get x
-            [\-|\+]? ( \d*[\.]\d+ | \d+[\.]?\d*)
-            ([E|e|d|D][+|-]?\d+)?
+            {NUMBER_PATTERN}
         )
         [ \t]+
         (?P<y>                   # Get y
-            [\-|\+]? (\d*[\.]\d+ | \d+[\.]?\d*)
-            ([E|e|d|D][+|-]?\d+)?
+            {NUMBER_PATTERN}
         )
         [ \t]+
         (?P<z>                   # Get z
-            [\-|\+]? (\d*[\.]\d+ | \d+[\.]?\d*)
-            ([E|e|d|D][+|-]?\d+)?
+            {NUMBER_PATTERN}
         )
         """, re.X | re.M
     )
