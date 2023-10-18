@@ -1,0 +1,88 @@
+{
+  "atomic_positions": {
+    "fixed_coords": [
+      [
+        false,
+        false,
+        false
+      ]
+    ],
+    "names": [
+      "Na"
+    ],
+    "positions": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "units": "crystal"
+  },
+  "atomic_species": {
+    "masses": [
+      22.99
+    ],
+    "names": [
+      "Na"
+    ],
+    "pseudo_file_names": [
+      "Na.upf"
+    ]
+  },
+  "cell": [
+    [
+      5.7,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      5.7,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      5.7
+    ]
+  ],
+  "cell_parameters": {
+    "cell": [
+      [
+        5.7,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        5.7,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        5.7
+      ]
+    ],
+    "units": "angstrom"
+  },
+  "k_points": {
+    "type": "gamma"
+  },
+  "namelists": {
+    "CONTROL": {
+      "calculation": "scf"
+    },
+    "SYSTEM": {
+      "ibrav": 0
+    }
+  },
+  "positions_angstrom": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ]
+  ]
+}

@@ -1,0 +1,15 @@
+&control
+ calculation = 'scf'
+/
+&system
+ ibrav = 0
+/
+ATOMIC_SPECIES
+ Na  22.99 Na.upf
+ATOMIC_POSITIONS crystal
+ Na   0.0  0.0  0.0
+CELL_PARAMETERS angstrom
+ 5.7 0 0
+ 0 5.7 0
+ 0 0 5.7
+K_POINTS gamma
