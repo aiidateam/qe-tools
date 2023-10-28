@@ -20,15 +20,15 @@ __all__ = tuple()  # type: Tuple[str, ...]
 
 NUMBER_PATTERN = r"""
 (?:
-   [-|+]?   # Plus or minus in front of the number (optional)
+   [-+]?   # Plus or minus in front of the number (optional)
    (?:\d*   # optional decimal in the beginning .0001 is ok, for example
-   [\.]     # There has to be a dot followed by
+   \.     # There has to be a dot followed by
    \d+)     # at least one decimal
    |        # OR
    (?:\d+   # at least one decimal, followed by
-   [\.]?    # an optional dot
+   \.?    # an optional dot
    \d*)     # followed by optional decimals
-   (?:[E|e|d|D][+|-]?\d+)?  # optional exponents E+03, e-05, d0, D0
+   (?:[EedD][+-]?\d+)?  # optional exponents E+03, e-05, d0, D0
 )
 """
 
