@@ -207,6 +207,12 @@ class _BaseInputFile:
             qe_version=self._qe_version
         )
 
+    def as_dict(self) -> dict:
+        """Return parsed data as dictionary."""
+        return {
+            'structure': self.structure,
+        }
+
 
 def _str2val(valstr):
     """
