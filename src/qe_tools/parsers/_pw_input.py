@@ -160,6 +160,14 @@ class PwInputFile(_BaseInputFile):
         # Parse the K_POINTS card.
         self.k_points = parse_k_points(self._input_txt)
 
+    def as_dict(self) -> dict:
+        """Return parsed data as dictionary."""
+        dictionary = super().as_dict()
+        dictionary.update({
+            'k-points': self.k_points,
+        })
+        return dictionary
+
 
 def parse_k_points(txt):
     """
