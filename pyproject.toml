@@ -38,7 +38,7 @@ dev = [
     'pre-commit',
     'timeout-decorator',
     'pylint~=2.16.0',
-    'pytest',
+    'pytest~=7.0',
     'pytest-cov',
     'pytest-cases~=3.2',
     'ruamel.yaml',
