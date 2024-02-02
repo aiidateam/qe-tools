@@ -1,5 +1,18 @@
 # Change log
 
+## `v2.2.0` - 2024-02-02
+
+### Features
+- Add marda-extractors support for PW and CP input files [[8c50b4c]](https://github.com/aiidateam/qe-tools/commit/8c50b4c6e203b1ccea7dd90f384c2e365e74dd5c)
+
+### Fixes
+- Fix the regex `NUMBER_PATTERN` in `_input_base.py`` [[c0e3c51]](https://github.com/aiidateam/qe-tools/commit/c0e3c516be16731923d8152ea1b08318a32b7aed)
+- Fix input parser for cell parameters with integers [[efe4472]](https://github.com/aiidateam/qe-tools/commit/efe4472eef52caa9c9e87a58f7777ac20bb6ed96)
+
+### Dependencies
+- Pin `pytest~=7.0` [[d0f8124]](https://github.com/aiidateam/qe-tools/commit/d0f8124d5a48c85ae07296c37e93aa58fa35bcbe)
+
+
 ## `v2.1.0` - 2023-09-27
 
 ### Fixes
