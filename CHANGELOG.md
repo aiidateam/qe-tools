@@ -1,5 +1,16 @@
 # Change log
 
+## `v2.3.0` - 2024-05-08
+
+### ✨ New features
+
+* Add conversion constants for a.u. to GPa [[cf00438](https://github.com/aiidateam/qe-tools/commit/cf0043865a7d3d64a9edb8aa11ac2e70c6c423ef)]
+
+### 🔧 Maintenance
+
+* Add `update_changelog.py` script [[38f27ff](https://github.com/aiidateam/qe-tools/commit/38f27ff6639a9258f4f574d3f2874cd16faa5f5c)]
+
+
 ## `v2.2.0` - 2024-02-02
 
 ### Features
