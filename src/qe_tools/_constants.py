@@ -23,6 +23,9 @@ DEFAULT = SimpleNamespace(
     timeau_to_sec=2.418884326155573e-17,
     invcm_to_THz=0.0299792458,
 
+    ## Values taken from https://gitlab.com/QEF/q-e/-/blob/develop/Modules/constants.f90
+    ha_si=4.3597447222071e-18, # J
+    bohr_si=0.529177210903e-10, # m
     # From the definition of Quantum ESPRESSO, conversion from atomic mass
     # units to Rydberg units:
     #  REAL(DP), PARAMETER :: AMU_SI           = 1.660538782E-27_DP  ! Kg
@@ -34,3 +37,4 @@ DEFAULT = SimpleNamespace(
 
 DEFAULT.hartree_to_ev = DEFAULT.ry_to_ev * 2.
 DEFAULT.bohr_si = DEFAULT.bohr_to_ang * DEFAULT.ang_to_m
+DEFAULT.au_gpa = DEFAULT.ha_si / (DEFAULT.bohr_si**3.) / 1.0e9
