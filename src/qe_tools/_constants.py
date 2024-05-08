@@ -37,4 +37,4 @@ DEFAULT = SimpleNamespace(
 
 DEFAULT.hartree_to_ev = DEFAULT.ry_to_ev * 2.
 DEFAULT.bohr_si = DEFAULT.bohr_to_ang * DEFAULT.ang_to_m
-DEFAULT.au_GPA = DEFAULT.ha_SI / (DEFAULT.bohr_SI**3.) / 1.0e9
+DEFAULT.au_gpa = DEFAULT.ha_si / (DEFAULT.bohr_si**3.) / 1.0e9
