@@ -33,7 +33,7 @@ def case_structure_generator(path):
         return ins, None, ValueError
 
     outs = {}
-    for key in (['a', 'b', 'c', 'cosab', 'cosac', 'cosbc'] + [f'celldm({i})' for i in range(1, 7)]):
+    for key in ['a', 'b', 'c', 'cosab', 'cosac', 'cosbc'] + [f'celldm({i})' for i in range(1, 7)]:
         if key in system_dict:
             outs[key] = system_dict[key]
 

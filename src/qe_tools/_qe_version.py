@@ -20,6 +20,7 @@ class _LatestVersionImpl:
     The object is implemented as a singleton, meaning it can only be
     instantiated once.
     """
+
     __instance_count = 0
 
     def __init__(self):
@@ -40,7 +41,7 @@ _LATEST_VERSION = _LatestVersionImpl()
 
 
 def parse_version(
-    qe_version: Optional[Union[str, _LatestVersionImpl, Version]] = None
+    qe_version: Optional[Union[str, _LatestVersionImpl, Version]] = None,
 ) -> Union[_LatestVersionImpl, Version]:
     """Parse the QE version string to a comparable object.
 

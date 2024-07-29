@@ -2,7 +2,7 @@
 
 __all__ = ('get_parameters_from_cell',)
 
-from typing import Dict, Iterable, Optional, Union
+from typing import Dict, Iterable, Optional
 
 import numpy as np
 import scipy.linalg as la
@@ -20,7 +20,7 @@ def get_parameters_from_cell(
     cell: CellT,
     tolerance: float = 1e-4,
     using_celldm: bool = False,
-    qe_version: Optional[str] = None
+    qe_version: Optional[str] = None,
 ) -> ParametersT:
     """
     Get the cell parameters from a given `ibrav` and cell. Only the
@@ -67,7 +67,13 @@ def get_parameters_from_cell(
 
     parameters = _get_parameters_from_cell_bare(ibrav=ibrav, cell=cell)
 
-    _check_parameters(ibrav=ibrav, cell=cell, parameters=parameters, tolerance=tolerance, qe_version=qe_version)
+    _check_parameters(
+        ibrav=ibrav,
+        cell=cell,
+        parameters=parameters,
+        tolerance=tolerance,
+        qe_version=qe_version,
+    )
 
     if using_celldm:
         parameters = _convert_to_celldm(parameters, ibrav=ibrav)
@@ -98,7 +104,7 @@ def _get_parameters_from_cell_bare(  # pylint: disable=too-many-branches
         parameters = {A: la.norm(v1), C: la.norm(v3)}
     elif ibrav in [5, -5]:
         parameters = {A: la.norm(v1)}
-        parameters[cosAB] = np.dot(v1, v2) / parameters[A]**2
+        parameters[cosAB] = np.dot(v1, v2) / parameters[A] ** 2
     elif ibrav == 6:
         parameters = {A: la.norm(v1), C: la.norm(v3)}
     elif ibrav == 7:
@@ -136,20 +142,25 @@ def _get_parameters_from_cell_bare(  # pylint: disable=too-many-branches
 
 
 def _check_parameters(
-    *, ibrav: int, parameters: ParametersT, cell: CellT, tolerance: float, qe_version: Optional[str] = None
+    *,
+    ibrav: int,
+    parameters: ParametersT,
+    cell: CellT,
+    tolerance: float,
+    qe_version: Optional[str] = None,
 ) -> None:
     """
     Check that the parameters describe the given cell.
     """
-    system_dict = {'ibrav': ibrav, **parameters}  # type: Dict[str, Union[int, float]]
+    system_dict = {'ibrav': ibrav, **parameters}
     cell_reconstructed = _get_cell_from_parameters(
         cell_parameters=None,  # this is only used for ibrav=0
         system_dict=system_dict,
         alat=parameters['a'],
         using_celldm=False,
-        qe_version=qe_version
+        qe_version=qe_version,
     )
-    if not np.allclose(cell_reconstructed, cell, rtol=0, atol=tolerance):  # type: ignore[arg-type]
+    if not np.allclose(cell_reconstructed, cell, rtol=0, atol=tolerance):
         raise ValueError(
             f'The cell {cell_reconstructed} constructed with ibrav={ibrav}, parameters={parameters} does not match '
             f'the input cell{cell}.'

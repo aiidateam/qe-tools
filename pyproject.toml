@@ -34,7 +34,7 @@ Source = 'https://github.com/aiidateam/qe-tools'
 [project.optional-dependencies]
 dev = [
     'codecov',
-    'mypy==0.930',
+    'mypy~=1.11',
     'pre-commit',
     'timeout-decorator',
     'pylint~=2.16.0',
@@ -60,10 +60,6 @@ exclude = [
     '.pre-commit-config.yaml',
 ]
 
-[tool.flynt]
-line-length = 120
-fail-on-change = true
-
 [tool.isort]
 force_sort_within_sections = true
 include_trailing_comma = true
@@ -78,54 +74,28 @@ warn_unused_ignores = true
 warn_redundant_casts = true
 no_warn_no_return = true
 show_traceback = true
-
-[[tool.mypy.overrides]]
-module = 'qe_tools.*'
 follow_imports = 'skip'
-check_untyped_defs = true
 
 [[tool.mypy.overrides]]
 module = [
     'scipy.*',
+    'numpy.*'
 ]
+ignore_errors = true
 ignore_missing_imports = true
 
-[tool.pylint.format]
-max-line-length = 120
+[tool.ruff]
+line-length = 120
+indent-width = 4
+target-version = "py38"
 
-[tool.pylint.basic]
-good-names = [
-    'a',
-    'b',
-    'c',
-    'e',
-    'f',
-    'i',
-    'i',
-    'j',
-    'k',
-    's',
-    'u',
-    'v',
-    'tx',
-    'ty',
-    'tz',
-    'v1',
-    'v2',
+[tool.ruff.lint]
+ignore = [
+    'E731'
 ]
 
-
-[tool.pylint.messages_control]
-disable = [
-    'fixme',
-    'import-error',
-    'missing-function-docstring',
-    'missing-module-docstring',
-    'too-few-public-methods',
-    'too-many-public-methods',
-    'use-dict-literal',
-    'unnecessary-lambda-assignment',
-]
+[tool.ruff.format]
+quote-style = 'single'
 
 [tool.pytest.ini_options]
 testpaths = [
@@ -134,12 +104,3 @@ testpaths = [
 filterwarnings = [
     'ignore:WARNING the new order is not taken into account !!:UserWarning',
 ]
-
-[tool.yapf]
-align_closing_bracket_with_visual_indent = true
-based_on_style = 'google'
-coalesce_brackets = true
-column_limit = 120
-dedent_closing_brackets = true
-indent_dictionary_value = false
-split_arguments_when_comma_terminated = true
