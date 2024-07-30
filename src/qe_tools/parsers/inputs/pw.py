@@ -5,13 +5,13 @@ Tools for parsing QE PW input files
 
 import re
 
-from ..exceptions import ParsingError
-from ._input_base import RE_FLAGS, _BaseInputFile
+from qe_tools.exceptions import ParsingError
+from qe_tools.parsers.inputs.base import RE_FLAGS, BaseInputFile
 
 __all__ = ('PwInputFile',)
 
 
-class PwInputFile(_BaseInputFile):
+class PwInputFile(BaseInputFile):
     """
     Class used for parsing Quantum Espresso pw.x input files and using the info.
 
@@ -162,7 +162,7 @@ class PwInputFile(_BaseInputFile):
         )
 
         # Parse the K_POINTS card.
-        self.k_points = parse_k_points(self._input_txt)
+        self.k_points = parse_k_points(self.content)
 
     def as_dict(self) -> dict:
         """Return parsed data as dictionary."""

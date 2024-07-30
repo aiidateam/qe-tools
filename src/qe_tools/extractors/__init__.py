@@ -2,7 +2,7 @@
 from pathlib import Path
 
 from qe_tools.exceptions import PathIsNotAFile
-from qe_tools.parsers import CpInputFile, PwInputFile
+from qe_tools.parsers.inputs import CpInputFile, PwInputFile
 
 SUPPORTED_PARSERS = [
     'PW',

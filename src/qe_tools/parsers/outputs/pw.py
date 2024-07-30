@@ -5,18 +5,18 @@ from importlib.resources import files
 from pathlib import Path
 from xml.etree import ElementTree
 
-import numpy
+import numpy as np
 import pint
 from xmlschema import XMLSchema
 
-from qe_tools import CONSTANTS
-from qe_tools.parsers import schemas
+from qe_tools import CONSTANTS, ELEMENTS
+from qe_tools.parsers.outputs import schemas
 
 
 class PwParser:
     """Parser for the output of the Quantum ESPRESSO pw.x code."""
 
-    def __init__(self, raw_data: dict = None):
+    def __init__(self, raw_data: dict | None = None):
         self.raw_data = raw_data or {}
 
     def parse_xml(self, xml_file: str | Path):
@@ -25,19 +25,21 @@ class PwParser:
         xml_parsed = ElementTree.parse(xml_file)
 
         element_root = xml_parsed.getroot()
-        schema_filename = (
-            element_root.get('{http://www.w3.org/2001/XMLSchema-instance}schemaLocation').split()[1].split('/')[-1]
-        )
+        str_filename = element_root.get('{http://www.w3.org/2001/XMLSchema-instance}schemaLocation')
+        if str_filename is None:
+            raise ValueError('There was an error while reading the version of QE in the provided xml file.')
+        else:
+            schema_filename = str_filename.split()[1].split('/')[-1]
 
         # Fix a bug of QE v6.8: the output XML is not consistent with schema, see
         # https://github.com/aiidateam/aiida-quantumespresso/pull/717
         try:
-            if element_root.find('general_info').find('creator').get('VERSION') == '6.8':
+            if element_root.find('general_info').find('creator').get('VERSION') == '6.8':  # type: ignore
                 root = xml_parsed.getroot()
                 timing_info = root.find('./timing_info')
-                partial_pwscf = timing_info.find("partial[@label='PWSCF'][@calls='0']")
+                partial_pwscf = timing_info.find("partial[@label='PWSCF'][@calls='0']")  # type: ignore
                 try:
-                    timing_info.remove(partial_pwscf)
+                    timing_info.remove(partial_pwscf)  # type: ignore
                 except (TypeError, ValueError):
                     pass
         except AttributeError:
@@ -46,7 +48,7 @@ class PwParser:
         # Fix issue for QE v7.0: The scheme file name was not updated to `qes_211101.xsd` in the `xsi.schemaLocation`
         # element, see https://github.com/aiidateam/aiida-quantumespresso/pull/774
         try:
-            if element_root.find('general_info').find('creator').get('VERSION') == '7.0':
+            if element_root.find('general_info').find('creator').get('VERSION') == '7.0':  # type: ignore
                 schema_filename = 'qes_211101.xsd'
         except AttributeError:
             pass
@@ -72,12 +74,26 @@ class PwParser:
 
         try:
             cell = (
-                numpy.array([v for v in xml_dict['output']['atomic_structure']['cell'].values()])
-                * CONSTANTS.bohr_to_ang
+                np.array([v for v in xml_dict['output']['atomic_structure']['cell'].values()]) * CONSTANTS.bohr_to_ang  # type: ignore
             )
-            symbols = [el['@name'] for el in xml_dict['output']['atomic_structure']['atomic_positions']['atom']]
+            symbols = [el['@name'] for el in xml_dict['output']['atomic_structure']['atomic_positions']['atom']]  # type: ignore
+            # This is to handle the case where symbols are not only
+            # atom symbols (e.g., Ni1 and Ni2 in the case of an AFM computation).
+            symbols_new = []
+            for s in symbols:
+                s_low = s.lower()
+                s_elem = ''
+                for e in ELEMENTS:
+                    e_low = e.lower()
+                    if e_low in s_low and len(e_low) > len(s_elem):
+                        s_elem = e
+                if s_elem == '':
+                    s_elem = s
+                symbols_new.append(s_elem)
+            symbols = symbols_new
+
             positions = (
-                numpy.array([el['$'] for el in xml_dict['output']['atomic_structure']['atomic_positions']['atom']])
+                np.array([el['$'] for el in xml_dict['output']['atomic_structure']['atomic_positions']['atom']])  # type: ignore
                 * CONSTANTS.bohr_to_ang
             )
 
@@ -91,13 +107,13 @@ class PwParser:
             pass
 
         try:
-            converted_outputs['energy'] = xml_dict['output']['total_energy']['etot'] * CONSTANTS.ry_to_ev * ureg.eV
+            converted_outputs['energy'] = xml_dict['output']['total_energy']['etot'] * CONSTANTS.ry_to_ev * ureg.eV  # type: ignore
         except KeyError:
             pass
 
         try:
             converted_outputs['forces'] = (
-                numpy.array(xml_dict['output']['forces']['$']).reshape(xml_dict['output']['forces']['@dims'])
+                np.array(xml_dict['output']['forces']['$']).reshape(xml_dict['output']['forces']['@dims'])  # type: ignore
                 * 2
                 * CONSTANTS.ry_to_ev
                 / CONSTANTS.bohr_to_ang

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__all__ = ('ParsingError', 'InputValidationError')
+__all__ = ('ParsingError', 'InputValidationError', 'PathIsNotAFile')
 
 
 class ParsingError(Exception):
