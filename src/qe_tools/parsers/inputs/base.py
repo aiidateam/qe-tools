@@ -10,9 +10,9 @@ from typing import List
 
 import numpy as np
 
-from .. import CONSTANTS
-from .._qe_version import parse_version
-from ..exceptions import InputValidationError, ParsingError
+from qe_tools import CONSTANTS
+from qe_tools.exceptions import InputValidationError, ParsingError
+from qe_tools.parsers.inputs.utils import parse_version
 
 RE_FLAGS = re.MULTILINE | re.VERBOSE | re.IGNORECASE
 
@@ -33,7 +33,7 @@ NUMBER_PATTERN = r"""
 """
 
 
-class _BaseInputFile:
+class BaseInputFile:
     """
     Class used for parsing Quantum Espresso pw.x input files and using the info.
 
@@ -177,34 +177,34 @@ class _BaseInputFile:
         if not isinstance(content, str):
             raise TypeError(f"Unknown type for input 'content': {type(content)}")
 
-        self._input_txt = content
-        self._qe_version = parse_version(qe_version)
+        self.content = content
+        self.qe_version = parse_version(qe_version)
 
         # Check that content is not empty.
-        if len(self._input_txt.strip()) == 0:
+        if len(self.content.strip()) == 0:
             raise ParsingError('The content provided was empty!')
 
         # Convert all types of newlines to '\n'
-        self._input_txt = '\n'.join(self._input_txt.splitlines())
+        self.content = '\n'.join(self.content.splitlines())
         # Add a newline, as a partial fix to #15
-        self._input_txt += '\n'
+        self.content += '\n'
 
         # Parse the namelists.
-        self.namelists = _parse_namelists(self._input_txt)
+        self.namelists = parse_namelists(self.content)
         # Parse the ATOMIC_POSITIONS card.
-        self.atomic_positions = parse_atomic_positions(self._input_txt)
+        self.atomic_positions = parse_atomic_positions(self.content)
         # Parse the CELL_PARAMETERS card.
-        self.cell_parameters = _parse_cell_parameters(self._input_txt)
+        self.cell_parameters = parse_cell_parameters(self.content)
         # Parse the ATOMIC_SPECIES card.
-        self.atomic_species = _parse_atomic_species(self._input_txt, validate_species_names=validate_species_names)
+        self.atomic_species = parse_atomic_species(self.content, validate_species_names=validate_species_names)
 
-        self.structure = _parse_structure(
-            txt=self._input_txt,
+        self.structure = parse_structure(
+            txt=self.content,
             namelists=self.namelists,
             atomic_positions=self.atomic_positions,
             atomic_species=self.atomic_species,
             cell_parameters=self.cell_parameters,
-            qe_version=self._qe_version,
+            qe_version=self.qe_version,
         )
 
     def as_dict(self) -> dict:
@@ -267,7 +267,7 @@ def _str2val(valstr):
     return val
 
 
-def _parse_namelists(txt):
+def parse_namelists(txt):
     """
     Parse txt to extract a dictionary of the namelist info.
 
@@ -521,7 +521,7 @@ def parse_atomic_positions(txt):
     return info_dict
 
 
-def _parse_cell_parameters(txt):
+def parse_cell_parameters(txt):
     """
     Return dict containing info from the CELL_PARAMETERS card block in txt.
 
@@ -638,7 +638,7 @@ def _parse_cell_parameters(txt):
     return info_dict
 
 
-def _parse_atomic_species(txt, validate_species_names=True):
+def parse_atomic_species(txt, validate_species_names=True):
     """
     Return a dictionary containing info from the ATOMIC_SPECIES card block
     in txt.
@@ -748,12 +748,12 @@ def _parse_atomic_species(txt, validate_species_names=True):
     return info_dict
 
 
-def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-statements,too-many-branches
+def get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-statements,too-many-branches
     cell_parameters, system_dict, alat, using_celldm, *, qe_version=None
 ):
     """
     A function to get the cell from cell parameters and SYSTEM card dictionary as read by
-    _parse_namelists.
+    parse_namelists.
     :param cell_parameters: The parameters as returned by parse_cell_parameters
     :param system_dict: the dictionary for card SYSTEM
     :param alat: The value for alat
@@ -1081,7 +1081,7 @@ def _get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-state
     return cell
 
 
-def _parse_structure(  # pylint: disable=too-many-arguments,too-many-branches,too-many-locals
+def parse_structure(  # pylint: disable=too-many-arguments,too-many-branches,too-many-locals
     txt=None,
     namelists=None,
     atomic_species=None,
@@ -1120,11 +1120,11 @@ def _parse_structure(  # pylint: disable=too-many-arguments,too-many-branches,to
         }
     """
     if namelists is None:
-        namelists = _parse_namelists(txt)
+        namelists = parse_namelists(txt)
     if atomic_species is None:
-        atomic_species = _parse_atomic_species(txt)
+        atomic_species = parse_atomic_species(txt)
     if cell_parameters is None:
-        cell_parameters = _parse_cell_parameters(txt)
+        cell_parameters = parse_cell_parameters(txt)
     if atomic_positions is None:
         atomic_positions = parse_atomic_positions(txt)
 
@@ -1145,7 +1145,7 @@ def _parse_structure(  # pylint: disable=too-many-arguments,too-many-branches,to
         alat = None
         using_celldm = None
 
-    cell = _get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm, qe_version=qe_version)
+    cell = get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm, qe_version=qe_version)
 
     ################## POSITIONS #######################
     positions_units = atomic_positions['units']

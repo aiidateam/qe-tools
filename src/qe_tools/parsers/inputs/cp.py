@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from ._input_base import _BaseInputFile
+from qe_tools.parsers.inputs.base import BaseInputFile
 
 __all__ = ('CpInputFile',)
 
 
-class CpInputFile(_BaseInputFile):
+class CpInputFile(BaseInputFile):
     """
     Parse inputs's namelist and cards to create attributes of the info.
 

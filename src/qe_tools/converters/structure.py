@@ -7,8 +7,8 @@ from typing import Dict, Iterable, Optional
 import numpy as np
 import scipy.linalg as la
 
-from .. import CONSTANTS
-from ..parsers._input_base import _get_cell_from_parameters
+from qe_tools import CONSTANTS
+from qe_tools.parsers.inputs.base import get_cell_from_parameters
 
 CellT = Iterable[Iterable[float]]
 ParametersT = Dict[str, float]
@@ -153,7 +153,7 @@ def _check_parameters(
     Check that the parameters describe the given cell.
     """
     system_dict = {'ibrav': ibrav, **parameters}
-    cell_reconstructed = _get_cell_from_parameters(
+    cell_reconstructed = get_cell_from_parameters(
         cell_parameters=None,  # this is only used for ibrav=0
         system_dict=system_dict,
         alat=parameters['a'],
