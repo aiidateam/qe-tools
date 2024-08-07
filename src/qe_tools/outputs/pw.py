@@ -10,7 +10,7 @@ import pint
 from xmlschema import XMLSchema
 
 from qe_tools import CONSTANTS, ELEMENTS
-from qe_tools.parsers.outputs import schemas
+from qe_tools.outputs import schemas
 
 
 class PwParser:

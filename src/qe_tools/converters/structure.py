@@ -8,7 +8,7 @@ import numpy as np
 import scipy.linalg as la
 
 from qe_tools import CONSTANTS
-from qe_tools.parsers.inputs.base import get_cell_from_parameters
+from qe_tools.inputs.base import get_cell_from_parameters
 
 CellT = Iterable[Iterable[float]]
 ParametersT = Dict[str, float]
