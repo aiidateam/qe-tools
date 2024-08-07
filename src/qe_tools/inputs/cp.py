@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from qe_tools.parsers.inputs.base import BaseInputFile
+from qe_tools.inputs.base import BaseInputFile
 
 __all__ = ('CpInputFile',)
 

@@ -6,7 +6,7 @@ Tools for parsing QE PW input files
 import re
 
 from qe_tools.exceptions import ParsingError
-from qe_tools.parsers.inputs.base import RE_FLAGS, BaseInputFile
+from qe_tools.inputs.base import RE_FLAGS, BaseInputFile
 
 __all__ = ('PwInputFile',)
 

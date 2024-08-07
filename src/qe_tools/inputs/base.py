@@ -12,7 +12,7 @@ import numpy as np
 
 from qe_tools import CONSTANTS
 from qe_tools.exceptions import InputValidationError, ParsingError
-from qe_tools.parsers.inputs.utils import parse_version
+from qe_tools.inputs.utils import parse_version
 
 RE_FLAGS = re.MULTILINE | re.VERBOSE | re.IGNORECASE
 
