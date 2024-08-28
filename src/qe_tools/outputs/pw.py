@@ -2,7 +2,6 @@
 """Parser for the output of the Quantum ESPRESSO pw.x code."""
 
 from importlib.resources import files
-from pathlib import Path
 from xml.etree import ElementTree
 
 from xmlschema import XMLSchema
@@ -14,10 +13,10 @@ from qe_tools.outputs.base import BaseOutputFileParser
 class PwParser(BaseOutputFileParser):
     """Parser for the output of the Quantum ESPRESSO pw.x code."""
 
-    def __init__(self, raw_data: dict | None = None):
-        super().__init__(raw_data=raw_data)
+    def __init__(self, filename: str | list):
+        super().__init__(filename=filename, executable='pw.x')
 
-    def parse_xml(self, xml_file: str | Path):
+    def parse_xml(self, xml_file: str):
         """Parse the XML output of Quantum ESPRESSO pw.x."""
 
         xml_parsed = ElementTree.parse(xml_file)
@@ -51,11 +50,11 @@ class PwParser(BaseOutputFileParser):
         except AttributeError:
             pass
 
-        self.raw_data['xml'] = XMLSchema(str(files(schemas) / schema_filename)).to_dict(xml_parsed)
+        self.dict_out['xml'] = XMLSchema(str(files(schemas) / schema_filename)).to_dict(xml_parsed)
 
-    def parse_stdout(self, output_file: str | Path):
+    def parse_stdout(self, output_file: str):
         pass
 
     @classmethod
-    def from_dir(cls, directory: str | Path):
+    def from_dir(cls, directory: str):
         pass
