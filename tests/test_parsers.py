@@ -23,7 +23,6 @@ class CustomTestCase(unittest.TestCase):
     """
     Extension of the unittest TestCase to support also deep almost-equal
     comparisons of dicts
-    )
     """
 
     def assert_nested_almost_equal(self, expected, actual, *args, **kwargs):

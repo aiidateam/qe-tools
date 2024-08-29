@@ -16,12 +16,12 @@ class BaseOutputFileParser(abc.ABC):
         self.dict_out: dict = {}
 
     @abc.abstractmethod
-    def parse_stdout(self, output_file):
+    def parse_stdout(self, output_file, *args, **kwargs):
         """Parse the standard output of Quantum ESPRESSO."""
         pass
 
     @abc.abstractmethod
-    def parse_xml(self, xml_file):
+    def parse_xml(self, xml_file, *args, **kwargs):
         """Parse the XML output of Quantum ESPRESSO."""
         pass
 
