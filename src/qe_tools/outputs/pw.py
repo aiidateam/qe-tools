@@ -4,7 +4,7 @@
 from importlib.resources import files
 from xml.etree import ElementTree
 
-from xmlschema import XMLSchema
+from xmlschema import XMLSchema  # GB@Marnik: Could this be avoided?
 
 from qe_tools.outputs import schemas
 from qe_tools.outputs.base import BaseOutputFileParser
@@ -16,7 +16,7 @@ class PwParser(BaseOutputFileParser):
     def __init__(self, filename: str | list):
         super().__init__(filename=filename, executable='pw.x')
 
-    def parse_xml(self, xml_file: str):
+    def parse_xml(self, xml_file: str, *args, **kwargs):
         """Parse the XML output of Quantum ESPRESSO pw.x."""
 
         xml_parsed = ElementTree.parse(xml_file)
@@ -52,7 +52,7 @@ class PwParser(BaseOutputFileParser):
 
         self.dict_out['xml'] = XMLSchema(str(files(schemas) / schema_filename)).to_dict(xml_parsed)
 
-    def parse_stdout(self, output_file: str):
+    def parse_stdout(self, output_file: str, *args, **kwargs):
         pass
 
     @classmethod

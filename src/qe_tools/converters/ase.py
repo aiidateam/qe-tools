@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
 
+from importlib.util import find_spec
+
 import numpy as np
 import pint
 
 from qe_tools import CONSTANTS, ELEMENTS
 
+_has_ase = bool(find_spec('ase'))
+if not _has_ase:
+    raise ImportError('ASE should be properly installed to use the ASE converter.')
+else:
+    from ase.atoms import Atoms
+
 
 def get_output_ase(self):
     """Convert the parsed data to ASE objects."""
-    from ase import Atoms
 
     ureg = pint.UnitRegistry()
 
@@ -39,12 +46,13 @@ def get_output_ase(self):
             * CONSTANTS.bohr_to_ang
         )
 
-        converted_outputs['ase_structure'] = Atoms(
-            cell=cell,
-            positions=positions,
-            symbols=symbols,
-            pbc=True,
-        )
+        if _has_ase:
+            converted_outputs['ase_structure'] = Atoms(
+                cell=cell,
+                positions=positions,
+                symbols=symbols,
+                pbc=True,
+            )
     except KeyError:
         pass
 
