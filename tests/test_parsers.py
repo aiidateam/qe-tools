@@ -123,7 +123,9 @@ class PwTest(CustomTestCase):
         # that the parser properly copes with them
         with open(fname, 'rb') as in_file:
             res_obj = ParserClass(
-                in_file.read().decode('utf-8'), qe_version=qe_version, validate_species_names=validate_species_names
+                in_file.read().decode('utf-8'),
+                qe_version=qe_version,
+                validate_species_names=validate_species_names,
             )
 
         structure = res_obj.structure
@@ -317,7 +319,7 @@ class PwTest(CustomTestCase):
         mytest()
 
     ##Wyckoff position input (crystal_sg) not supported by this parser
-    #def test_lattice_wyckoff_sio2(self):
+    # def test_lattice_wyckoff_sio2(self):
     #   self.singletest(label='lattice_wyckoff_sio2')
 
 
@@ -377,7 +379,10 @@ if __name__ == '__main__':
             try:
                 label = sys.argv[2]
             except IndexError:
-                print('Pass as filename (and optionally pw or cp to specify a parser, default: pw)', file=sys.stderr)
+                print(
+                    'Pass as filename (and optionally pw or cp to specify a parser, default: pw)',
+                    file=sys.stderr,
+                )
                 sys.exit(1)
             try:
                 parser = sys.argv[3]
@@ -385,7 +390,10 @@ if __name__ == '__main__':
                 parser = 'pw'  # pylint: disable=invalid-name
             print_test_comparison(label, parser=parser, write=True)
         else:
-            print('If you pass additional parameters, they must be --write-ref <label> [pw/cp]', file=sys.stderr)
+            print(
+                'If you pass additional parameters, they must be --write-ref <label> [pw/cp]',
+                file=sys.stderr,
+            )
 
     else:
         unittest.main()

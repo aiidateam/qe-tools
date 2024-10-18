@@ -17,15 +17,14 @@ DEFAULT = SimpleNamespace(
     ## These have been put here from the one of QE, taken directly from
     ## those in aiida.common.constants
     bohr_to_ang=0.52917720859,
-    ang_to_m=1.e-10,
+    ang_to_m=1.0e-10,
     ry_to_ev=13.6056917253,
-    ry_si=4.35974394 / 2. * 10**(-18),
+    ry_si=4.35974394 / 2.0 * 10 ** (-18),
     timeau_to_sec=2.418884326155573e-17,
     invcm_to_THz=0.0299792458,
-
     ## Values taken from https://gitlab.com/QEF/q-e/-/blob/develop/Modules/constants.f90
-    ha_si=4.3597447222071e-18, # J
-    bohr_si=0.529177210903e-10, # m
+    ha_si=4.3597447222071e-18,  # J
+    bohr_si=0.529177210903e-10,  # m
     # From the definition of Quantum ESPRESSO, conversion from atomic mass
     # units to Rydberg units:
     #  REAL(DP), PARAMETER :: AMU_SI           = 1.660538782E-27_DP  ! Kg
@@ -35,6 +34,6 @@ DEFAULT = SimpleNamespace(
     amu_Ry=911.4442421323,
 )
 
-DEFAULT.hartree_to_ev = DEFAULT.ry_to_ev * 2.
+DEFAULT.hartree_to_ev = DEFAULT.ry_to_ev * 2.0
 DEFAULT.bohr_si = DEFAULT.bohr_to_ang * DEFAULT.ang_to_m
-DEFAULT.au_gpa = DEFAULT.ha_si / (DEFAULT.bohr_si**3.) / 1.0e9
+DEFAULT.au_gpa = DEFAULT.ha_si / (DEFAULT.bohr_si**3.0) / 1.0e9
