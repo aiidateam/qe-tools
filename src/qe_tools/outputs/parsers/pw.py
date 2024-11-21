@@ -5,7 +5,7 @@ from xml.etree import ElementTree
 from xmlschema import XMLSchema  # GB@Marnik: Could this be avoided?
 
 from qe_tools.outputs.parsers import schemas
-from qe_tools.outputs.parsers.base import BaseOutputFileParser
+from qe_tools.outputs.parsers.base import BaseOutputFileParser, BaseStdoutParser
 
 
 class PwXMLParser(BaseOutputFileParser):
@@ -19,7 +19,7 @@ class PwXMLParser(BaseOutputFileParser):
     def parse(self):
         """Parse the XML output of Quantum ESPRESSO pw.x."""
 
-        xml_parsed = ElementTree.ElementTree(ElementTree.fromstring(self.string))  # type: ignore
+        xml_parsed = ElementTree.ElementTree(ElementTree.fromstring(self.string))
         element_root = xml_parsed.getroot()
 
         str_filename = element_root.get('{http://www.w3.org/2001/XMLSchema-instance}schemaLocation')
@@ -53,7 +53,7 @@ class PwXMLParser(BaseOutputFileParser):
         self.dict_out['xml'] = XMLSchema(str(files(schemas) / schema_filename)).to_dict(xml_parsed)
 
 
-class PwStdoutParser(BaseOutputFileParser):
+class PwStdoutParser(BaseStdoutParser):
     """
     Class for parsing the standard output of pw.x.
     """
@@ -62,4 +62,4 @@ class PwStdoutParser(BaseOutputFileParser):
         super().__init__(string=string)
 
     def parse(self):
-        raise NotImplementedError('TODO.')
+        self.parse_stdout_base(self.string)

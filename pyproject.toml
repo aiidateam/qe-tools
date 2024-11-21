@@ -47,6 +47,7 @@ docs = [
     'Sphinx',
     'docutils',
     'sphinx_rtd_theme',
+    'myst-parser',
 ]
 
 [tool.flit.module]
