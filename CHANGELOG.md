@@ -1,3 +1,19 @@
+## `v2.3.0` - 2024-11-21
+
+### ✨ New features
+
+* ✨ Add conversion constants for a.u. to GPa [[cf00438](https://github.com/aiidateam/qe-tools/commit/cf0043865a7d3d64a9edb8aa11ac2e70c6c423ef)]
+
+### 👌 Improvements
+
+* 👌 `CHANGELOG.md`: remove superfluous title [[11f7a92](https://github.com/aiidateam/qe-tools/commit/11f7a9227ec5d4873375147a43fb107ad095a5e2)]
+
+### 🔧 Maintenance
+
+* 🔧 Add `update_changelog.py` script [[5d7f7f1](https://github.com/aiidateam/qe-tools/commit/5d7f7f11754434cba2565e9bb3c1dc0622822498)]
+* 🔧 Devops: Switch to `ruff` for linting/formatting [[f447512](https://github.com/aiidateam/qe-tools/commit/f4475124ac61684d090a3d7b70c8520cc376dff2)]
+
+
 ## `v2.2.0` - 2024-02-02
 
 ### Features
