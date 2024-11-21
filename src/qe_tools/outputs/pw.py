@@ -12,7 +12,7 @@ from qe_tools.outputs.parsers.pw import PwStdoutParser, PwXMLParser
 class PwOutput(BaseOutput):
     """Output of the Quantum ESPRESSO pw.x code."""
 
-    def __init__(self, outputs: dict | None = None):
+    def __init__(self, outputs: Union[dict, None] = None):
         super().__init__(outputs=outputs, executable='pw.x')
 
     @classmethod
@@ -42,7 +42,7 @@ class PwOutput(BaseOutput):
 
             if filetype in ['both', 'xml']:
                 if file.suffix == '.xml':
-                    parser_xml = PwXMLParser.from_file(filename=file)
+                    parser_xml = PwXMLParser.from_file(filename=file.as_posix())
                     parser_xml.parse()
                     d_out_xml = parser_xml.dict_out
 
