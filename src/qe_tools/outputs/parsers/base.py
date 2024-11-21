@@ -2,6 +2,8 @@
 """Base parser for the outputs of Quantum ESPRESSO."""
 
 import abc
+import re
+from qe_tools.converters.qe import convert_qe_time_to_sec
 
 
 class BaseOutputFileParser(abc.ABC):
@@ -12,7 +14,7 @@ class BaseOutputFileParser(abc.ABC):
     should therefore require multiple parsers.
     """
 
-    def __init__(self, string: str | None = None):
+    def __init__(self, string: str):
         self.string = string
         self.dict_out: dict = {}
 
@@ -36,3 +38,32 @@ class BaseOutputFileParser(abc.ABC):
             string = f.read()
 
         return cls(string=string)
+
+
+class BaseStdoutParser(BaseOutputFileParser):
+    """Abstract class for the parsing of stdout files of Quantum ESPRESSO."""
+
+    def parse_stdout_base(self, stdout: str) -> None:
+        """Parse the ``stdout`` content of a Quantum ESPRESSO calculation.
+
+        This function only checks for basic content like the code name and version,
+        as well as the wall time of the calculation.
+
+        :param stdout: the stdout content as a string.
+        :returns: dictionary of the parsed data.
+        """
+        parsed_data = {}
+
+        code_match = re.search(
+            r'Program\s(?P<code_name>[A-Z|a-z|\_|\d]+)\sv\.(?P<code_version>[\d\.|a-z|A-Z]+)\s', stdout
+        )
+        if code_match:
+            code_name = code_match.groupdict()['code_name']
+            parsed_data['code_version'] = code_match.groupdict()['code_version']
+
+            wall_match = re.search(rf'{code_name}\s+:[\s\S]+CPU\s+(?P<wall_time>[\s.\d|s|m|d|h]+)\sWALL', stdout)
+
+            if wall_match:
+                parsed_data['wall_time_seconds'] = convert_qe_time_to_sec(wall_match.groupdict()['wall_time'])
+
+        self.dict_out |= parsed_data
