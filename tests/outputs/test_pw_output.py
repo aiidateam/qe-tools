@@ -4,8 +4,7 @@
 import pytest
 
 from qe_tools.outputs.pw import PwOutput
-from importlib.resources import files
-from fixtures import pw
+from pathlib import Path
 
 
 @pytest.mark.parametrize(
@@ -26,7 +25,7 @@ def test_default_xml(data_regression, xml_format):
 
     name = f'default_xml_{xml_format}'
 
-    directory = files(pw).joinpath(name)
+    directory = Path(__file__).parent / 'fixtures' / 'pw' / name
 
     pw_out = PwOutput.from_dir(directory)
     pw_out.outputs
