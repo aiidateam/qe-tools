@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Output of the Quantum ESPRESSO pw.x code."""
 
-from typing import Union
+from __future__ import annotations
 
 from pathlib import Path
 
@@ -12,11 +12,11 @@ from qe_tools.outputs.parsers.pw import PwStdoutParser, PwXMLParser
 class PwOutput(BaseOutput):
     """Output of the Quantum ESPRESSO pw.x code."""
 
-    def __init__(self, outputs: Union[dict, None] = None):
+    def __init__(self, outputs: dict | None = None):
         super().__init__(outputs=outputs, executable='pw.x')
 
     @classmethod
-    def from_dir(cls, directory: Union[str, Path], filetype: str = 'both'):
+    def from_dir(cls, directory: str | Path, filetype: str = 'both'):
         """
         From a directory, locates the standard output and XML files and
         parses them.
