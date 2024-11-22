@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import annotations
+
 from importlib.util import find_spec
 
 import numpy as np

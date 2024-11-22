@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """Base parser for the outputs of Quantum ESPRESSO."""
 
+from __future__ import annotations
+
 import abc
 import re
-from qe_tools.converters.qe import convert_qe_time_to_sec
+from qe_tools.utils import convert_qe_time_to_sec
 
 
 class BaseOutputFileParser(abc.ABC):
@@ -19,7 +21,7 @@ class BaseOutputFileParser(abc.ABC):
         self.dict_out: dict = {}
 
     @abc.abstractmethod
-    def parse(self, *args, **kwargs):
+    def parse(self):
         """
         Parse the output of Quantum ESPRESSO.
         This should be implemented for XML and standard output,
@@ -43,25 +45,24 @@ class BaseOutputFileParser(abc.ABC):
 class BaseStdoutParser(BaseOutputFileParser):
     """Abstract class for the parsing of stdout files of Quantum ESPRESSO."""
 
-    def parse_stdout_base(self, stdout: str) -> None:
+    def parse(self):
         """Parse the ``stdout`` content of a Quantum ESPRESSO calculation.
 
         This function only checks for basic content like the code name and version,
         as well as the wall time of the calculation.
 
-        :param stdout: the stdout content as a string.
         :returns: dictionary of the parsed data.
         """
         parsed_data = {}
 
         code_match = re.search(
-            r'Program\s(?P<code_name>[A-Z|a-z|\_|\d]+)\sv\.(?P<code_version>[\d\.|a-z|A-Z]+)\s', stdout
+            r'Program\s(?P<code_name>[A-Z|a-z|\_|\d]+)\sv\.(?P<code_version>[\d\.|a-z|A-Z]+)\s', self.string
         )
         if code_match:
             code_name = code_match.groupdict()['code_name']
             parsed_data['code_version'] = code_match.groupdict()['code_version']
 
-            wall_match = re.search(rf'{code_name}\s+:[\s\S]+CPU\s+(?P<wall_time>[\s.\d|s|m|d|h]+)\sWALL', stdout)
+            wall_match = re.search(rf'{code_name}\s+:[\s\S]+CPU\s+(?P<wall_time>[\s.\d|s|m|d|h]+)\sWALL', self.string)
 
             if wall_match:
                 parsed_data['wall_time_seconds'] = convert_qe_time_to_sec(wall_match.groupdict()['wall_time'])

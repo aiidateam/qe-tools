@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import annotations
+
 from qe_tools.inputs.base import BaseInputFile
 
 __all__ = ('CpInputFile',)

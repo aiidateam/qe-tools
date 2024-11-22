@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
 from importlib.resources import files
 from xml.etree import ElementTree
 
@@ -60,6 +62,3 @@ class PwStdoutParser(BaseStdoutParser):
 
     def __init__(self, string: str):
         super().__init__(string=string)
-
-    def parse(self):
-        self.parse_stdout_base(self.string)
