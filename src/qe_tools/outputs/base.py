@@ -11,9 +11,8 @@ class BaseOutput(abc.ABC):
     Abstract class for the outputs of Quantum ESPRESSO.
     """
 
-    def __init__(self, outputs: dict | None = None, executable: str | None = None):
+    def __init__(self, outputs: dict | None = None):
         self.outputs = outputs
-        self.executable = executable
 
     @classmethod
     @abc.abstractmethod

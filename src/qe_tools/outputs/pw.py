@@ -13,7 +13,7 @@ class PwOutput(BaseOutput):
     """Output of the Quantum ESPRESSO pw.x code."""
 
     def __init__(self, outputs: dict | None = None):
-        super().__init__(outputs=outputs, executable='pw.x')
+        super().__init__(outputs=outputs)
 
     @classmethod
     def from_dir(cls, directory: str | Path, filetype: str = 'both'):
