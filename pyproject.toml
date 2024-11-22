@@ -26,6 +26,7 @@ dependencies = [
     'numpy',
     'scipy',
     'packaging',
+    'xmlschema',
 ]
 
 [project.urls]
@@ -41,12 +42,14 @@ dev = [
     'pytest~=7.0',
     'pytest-cov',
     'pytest-cases~=3.2',
+    'pytest-regressions',
     'ruamel.yaml',
 ]
 docs = [
     'Sphinx',
     'docutils',
     'sphinx_rtd_theme',
+    'myst-parser',
 ]
 
 [tool.flit.module]

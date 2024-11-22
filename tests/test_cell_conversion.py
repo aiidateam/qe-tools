@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 from pytest_cases import parametrize, parametrize_with_cases
 
-from qe_tools.converters import get_parameters_from_cell
+from qe_tools.inputs.base import get_parameters_from_cell
 
 CASES_DATA_DIR = pathlib.Path(__file__).resolve().parent / 'data' / 'ref'
 
