@@ -1,5 +1,8 @@
-# qe-tools
-This repository contains a set of useful tools for Quantum ESPRESSO, in particular
+[![Templated from python-copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mbercx/python-copier/refs/heads/main/docs/img/badge.json)](https://github.com/mbercx/python-copier)
+
+# `qe-tools`
+
+Tools for running and parsing Quantum ESPRESSO calculations, in particular
 
  * a parser for pw.x input files
  * a parser for cp.x input files

@@ -1,27 +1,30 @@
 [build-system]
-requires = ['flit_core >=3.4,<4']
-build-backend = 'flit_core.buildapi'
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
-name = 'qe-tools'
-dynamic = ['version', 'description']
-authors = [{name = 'The AiiDA team', email = 'developers@aiida.net'}]
-readme = 'README.md'
-license = {file = 'LICENSE.txt'}
+name = "qe-tools"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+keywords = []
+authors = []
 classifiers = [
     'License :: OSI Approved :: MIT License',
-    'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.9',
-    'Programming Language :: Python :: 3.10',
-    'Programming Language :: Python :: 3.11',
-    'Programming Language :: Python :: 3.12',
-    'Programming Language :: Python :: 3.13',
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
     'Operating System :: OS Independent',
     'Topic :: Scientific/Engineering :: Physics',
     'Topic :: Scientific/Engineering :: Chemistry',
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
-requires-python = '>=3.9'
 dependencies = [
     'numpy',
     'scipy',
@@ -33,77 +36,20 @@ dependencies = [
 Home = 'https://github.com/aiidateam/qe-tools'
 Source = 'https://github.com/aiidateam/qe-tools'
 
-[project.optional-dependencies]
-dev = [
-    'codecov',
-    'mypy~=1.11',
-    'pre-commit',
-    'timeout-decorator',
-    'pytest~=7.0',
-    'pytest-cov',
-    'pytest-cases~=3.2',
-    'pytest-regressions',
-    'ruamel.yaml',
+[tool.hatch.version]
+path = "src/qe_tools/__about__.py"
+
+[tool.hatch.envs.docs]
+dependencies = [
+  "mkdocs",
+  "mkdocs-material"
 ]
-docs = [
-    'Sphinx',
-    'docutils',
-    'sphinx_rtd_theme',
-    'myst-parser',
-]
+scripts.build = "mkdocs build --clean --strict"
+scripts.serve = "mkdocs serve --dev-addr localhost:8000"
+scripts.deploy = "mkdocs gh-deploy --force"
 
-[tool.flit.module]
-name = 'qe_tools'
+[tool.hatch.envs.precommit]
+dependencies = ["pre-commit"]
+scripts.install = "pre-commit install"
+scripts.run = "pre-commit run {args:--all-files}"
 
-[tool.flit.sdist]
-exclude = [
-    '.github/',
-    'tests/',
-    '.gitignore',
-    '.pre-commit-config.yaml',
-]
-
-[tool.isort]
-force_sort_within_sections = true
-include_trailing_comma = true
-line_length = 120
-multi_line_output = 3
-
-[tool.mypy]
-show_error_codes = true
-check_untyped_defs = true
-scripts_are_modules = true
-warn_unused_ignores = true
-warn_redundant_casts = true
-no_warn_no_return = true
-show_traceback = true
-follow_imports = 'skip'
-
-[[tool.mypy.overrides]]
-module = [
-    'scipy.*',
-    'numpy.*'
-]
-ignore_errors = true
-ignore_missing_imports = true
-
-[tool.ruff]
-line-length = 120
-indent-width = 4
-target-version = "py38"
-
-[tool.ruff.lint]
-ignore = [
-    'E731'
-]
-
-[tool.ruff.format]
-quote-style = 'single'
-
-[tool.pytest.ini_options]
-testpaths = [
-    'tests',
-]
-filterwarnings = [
-    'ignore:WARNING the new order is not taken into account !!:UserWarning',
-]

@@ -1,26 +1,13 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.2.0
-    hooks:
-    -   id: double-quote-string-fixer
-    -   id: end-of-file-fixer
-    -   id: fix-encoding-pragma
-    -   id: mixed-line-ending
-    -   id: trailing-whitespace
-
--   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.5
-    hooks:
-    - id: ruff
-      args: [ --fix ]
-    - id: ruff-format
-
--   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.11.0'
-    hooks:
-      - id: mypy
-        types: [python]
-        files: >-
-            (?x)^(
-                src/.*py|
-            )$
+- repo: local
+  hooks:
+  - id: format
+    name: Format with Ruff
+    entry: hatch fmt -f
+    language: system
+    types: [python]
+  - id: Lint with Ruff
+    name: lint
+    entry: hatch fmt -l
+    language: system
+    types: [python]
