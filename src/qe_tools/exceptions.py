@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-__all__ = ('ParsingError', 'InputValidationError', 'PathIsNotAFile')
+__all__ = ("ParsingError", "InputValidationError", "PathIsNotAFileError")
 
 
 class ParsingError(Exception):
@@ -16,7 +14,7 @@ class InputValidationError(Exception):
     """
 
 
-class PathIsNotAFile(OSError):
+class PathIsNotAFileError(OSError):
     """
     The path is pointing to an object that is not a valid file.
     """

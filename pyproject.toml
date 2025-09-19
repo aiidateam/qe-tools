@@ -53,3 +53,14 @@ dependencies = ["pre-commit"]
 scripts.install = "pre-commit install"
 scripts.run = "pre-commit run {args:--all-files}"
 
+[tool.ruff]
+lint.ignore = [
+    "TRY003",  # https://docs.astral.sh/ruff/rules/raise-vanilla-args/
+    "EM101",   # https://docs.astral.sh/ruff/rules/raw-string-in-exception
+    "EM102",   # https://docs.astral.sh/ruff/rules/f-string-in-exception/
+    "PLR2004", # https://docs.astral.sh/ruff/rules/magic-value-comparison/ 
+    "FBT002",  # https://docs.astral.sh/ruff/rules/boolean-default-value-positional-argument/
+    "TID252",  # https://docs.astral.sh/ruff/rules/relative-imports/       
+]
+exclude = ["tests"]
+force-exclude = true

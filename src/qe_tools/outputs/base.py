@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Base parser for the outputs of Quantum ESPRESSO."""
 
 from __future__ import annotations

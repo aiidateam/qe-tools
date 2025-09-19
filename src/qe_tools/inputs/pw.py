@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tools for parsing QE PW input files
 """
@@ -10,7 +9,7 @@ import re
 from qe_tools.exceptions import ParsingError
 from qe_tools.inputs.base import RE_FLAGS, BaseInputFile
 
-__all__ = ('PwInputFile',)
+__all__ = ("PwInputFile",)
 
 
 class PwInputFile(BaseInputFile):
@@ -26,17 +25,22 @@ class PwInputFile(BaseInputFile):
 
         For example::
 
-            {"CONTROL": {"calculation": "bands",
-                         "prefix": "al",
-                         "pseudo_dir": "./pseudo",
-                         "outdir": "./out"},
-             "ELECTRONS": {"diagonalization": "cg"},
-             "SYSTEM": {"nbnd": 8,
-                        "ecutwfc": 15.0,
-                        "celldm(1)": 7.5,
-                        "ibrav": 2,
-                        "nat": 1,
-                        "ntyp": 1}
+            {
+                "CONTROL": {
+                    "calculation": "bands",
+                    "prefix": "al",
+                    "pseudo_dir": "./pseudo",
+                    "outdir": "./out",
+                },
+                "ELECTRONS": {"diagonalization": "cg"},
+                "SYSTEM": {
+                    "nbnd": 8,
+                    "ecutwfc": 15.0,
+                    "celldm(1)": 7.5,
+                    "ibrav": 2,
+                    "nat": 1,
+                    "ntyp": 1,
+                },
             }
 
     * ``atomic_positions``:
@@ -68,10 +72,10 @@ class PwInputFile(BaseInputFile):
 
         For example::
 
-            {'units': 'angstrom',
-             'cell': [[16.9, 0.0, 0.0],
-                      [-2.6, 8.0, 0.0],
-                      [-2.6, -3.5, 7.2]]}
+            {
+                "units": "angstrom",
+                "cell": [[16.9, 0.0, 0.0], [-2.6, 8.0, 0.0], [-2.6, -3.5, 7.2]],
+            }
 
     * ``k_points``:
         A dictionary containing
@@ -96,17 +100,15 @@ class PwInputFile(BaseInputFile):
 
         Examples::
 
-            {'type': 'crystal',
-             'points': [[0.125,  0.125,  0.0],
-                        [0.125,  0.375,  0.0],
-                        [0.375,  0.375,  0.0]],
-             'weights': [1.0, 2.0, 1.0]}
+            {
+                "type": "crystal",
+                "points": [[0.125, 0.125, 0.0], [0.125, 0.375, 0.0], [0.375, 0.375, 0.0]],
+                "weights": [1.0, 2.0, 1.0],
+            }
 
-            {'type': 'automatic',
-             'points': [8, 8, 8],
-             'offset': [0.0, 0.5, 0.0]}
+            {"type": "automatic", "points": [8, 8, 8], "offset": [0.0, 0.5, 0.0]}
 
-            {'type': 'gamma'}
+            {"type": "gamma"}
 
     * ``atomic_species``:
         A dictionary with
@@ -171,7 +173,7 @@ class PwInputFile(BaseInputFile):
         dictionary = super().as_dict()
         dictionary.update(
             {
-                'k-points': self.k_points,
+                "k-points": self.k_points,
             }
         )
         return dictionary
@@ -210,17 +212,15 @@ def parse_k_points(txt):
 
         Examples::
 
-            {'type': 'crystal',
-             'points': [[0.125,  0.125,  0.0],
-                        [0.125,  0.375,  0.0],
-                        [0.375,  0.375,  0.0]],
-             'weights': [1.0, 2.0, 1.0]}
+            {
+                "type": "crystal",
+                "points": [[0.125, 0.125, 0.0], [0.125, 0.375, 0.0], [0.375, 0.375, 0.0]],
+                "weights": [1.0, 2.0, 1.0],
+            }
 
-            {'type': 'automatic',
-             'points': [8, 8, 8],
-             'offset': [0.0, 0.5, 0.0]}
+            {"type": "automatic", "points": [8, 8, 8], "offset": [0.0, 0.5, 0.0]}
 
-            {'type': 'gamma'}
+            {"type": "gamma"}
 
     :raises qe_tools.utils.exceptions.ParsingError: if there are issues
         parsing the input.
@@ -266,28 +266,28 @@ def parse_k_points(txt):
     info_dict = {}
     match = k_points_special_block_re.search(txt)
     if match:
-        if match.group('type') is not None:
-            info_dict['type'] = match.group('type').lower()
+        if match.group("type") is not None:
+            info_dict["type"] = match.group("type").lower()
         else:
-            info_dict['type'] = 'tpiba'
-        blockstr = match.group('block')
+            info_dict["type"] = "tpiba"
+        blockstr = match.group("block")
         points = []
         weights = []
         for match in k_points_special_re.finditer(blockstr):
             points.append(list(map(float, match.group(1, 2, 3))))
             weights.append(float(match.group(4)))
-        info_dict['points'] = points
-        info_dict['weights'] = weights
+        info_dict["points"] = points
+        info_dict["weights"] = weights
     else:
         match = k_points_automatic_block_re.search(txt)
         if match:
-            info_dict['type'] = 'automatic'
-            info_dict['points'] = list(map(int, match.group(1, 2, 3)))
-            info_dict['offset'] = [0.0 if x == 0 else 0.5 for x in map(int, match.group(4, 5, 6))]
+            info_dict["type"] = "automatic"
+            info_dict["points"] = list(map(int, match.group(1, 2, 3)))
+            info_dict["offset"] = [0.0 if x == 0 else 0.5 for x in map(int, match.group(4, 5, 6))]
         else:
             match = k_points_gamma_block_re.search(txt)
             if match:
-                info_dict['type'] = 'gamma'
+                info_dict["type"] = "gamma"
             else:
-                raise ParsingError('K_POINTS card not found in\n' + txt)
+                raise ParsingError("K_POINTS card not found in\n" + txt)
     return info_dict

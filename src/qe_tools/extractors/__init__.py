@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 from pathlib import Path
 
 from qe_tools.exceptions import PathIsNotAFile
 from qe_tools.inputs import CpInputFile, PwInputFile
 
 SUPPORTED_PARSERS = [
-    'PW',
-    'CP',
+    "PW",
+    "CP",
 ]
 
 
@@ -43,13 +42,13 @@ def extract(filepath: str, parser: str) -> dict:
     if not path.is_file():
         raise PathIsNotAFile(f"'{filepath}' is not a valid file.")
 
-    input_str = path.read_text(encoding='utf-8')
+    input_str = path.read_text(encoding="utf-8")
     parser = parser.upper()
 
-    if parser == 'PW':
+    if parser == "PW":
         return PwInputFile(input_str).as_dict()
 
-    if parser == 'CP':
+    if parser == "CP":
         return CpInputFile(input_str).as_dict()
 
     raise ValueError(f"Supported parsers: {SUPPORTED_PARSERS}; given: '{parser}'")
