@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Tests for the version parsing helper.
 """
@@ -7,7 +6,7 @@ import pytest
 
 from qe_tools.utils import _LatestVersionImpl, parse_version
 
-VERSION_INPUT_SORTED = ['2.3', '6.4.1', '6.4.2a1', '6.4.2', None]
+VERSION_INPUT_SORTED = ["2.3", "6.4.1", "6.4.2a1", "6.4.2", None]
 
 
 def test_sorting():
@@ -18,7 +17,7 @@ def test_sorting():
     assert sorted(versions_parsed) == versions_parsed
 
 
-@pytest.mark.parametrize('input_', VERSION_INPUT_SORTED)
+@pytest.mark.parametrize("input_", VERSION_INPUT_SORTED)
 def test_idempotent(input_):
     """
     Check that the parsing function is idempotent (returns the same
@@ -29,7 +28,7 @@ def test_idempotent(input_):
     assert parsed is parsed_twice
 
 
-@pytest.mark.parametrize('input_', VERSION_INPUT_SORTED)
+@pytest.mark.parametrize("input_", VERSION_INPUT_SORTED)
 def test_equal(input_):
     """
     Test that two objects created from the same input compare equal.

@@ -1,14 +1,14 @@
-# -*- coding: utf-8 -*-
 """
 Helper module for managing the QuantumESPRESSO version.
 """
 
+from __future__ import annotations
+
 from functools import total_ordering
-from typing import Optional, Union
 
 from packaging.version import Version
 
-__all__ = ('parse_version',)
+__all__ = ("parse_version",)
 
 
 @total_ordering
@@ -26,10 +26,10 @@ class _LatestVersionImpl:
     def __init__(self):
         super().__init__()
         if self.__instance_count > 0:
-            raise TypeError('Cannot instantiate the singleton more than once.')
+            raise TypeError("Cannot instantiate the singleton more than once.")
         # Needs to be set at type(self) explicitly, otherwise we just
         # create an instance attribute.
-        type(self).__instance_count += 1
+        type(self).__instance_count += 1  # noqa: SLF001
 
     def __gt__(self, other):
         if self is other:
@@ -41,8 +41,8 @@ _LATEST_VERSION = _LatestVersionImpl()
 
 
 def parse_version(
-    qe_version: Optional[Union[str, _LatestVersionImpl, Version]] = None,
-) -> Union[_LatestVersionImpl, Version]:
+    qe_version: str | _LatestVersionImpl | Version | None = None,
+) -> _LatestVersionImpl | Version:
     """Parse the QE version string to a comparable object.
 
     Parses the QE version string into a packaging.version.Version
@@ -69,29 +69,27 @@ def convert_qe_time_to_sec(timestr):
     """Given the walltime string of Quantum Espresso, converts it in a number of seconds (float)."""
     rest = timestr.strip()
 
-    if 'd' in rest:
-        days, rest = rest.split('d')
+    if "d" in rest:
+        days, rest = rest.split("d")
     else:
-        days = '0'
+        days = "0"
 
-    if 'h' in rest:
-        hours, rest = rest.split('h')
+    if "h" in rest:
+        hours, rest = rest.split("h")
     else:
-        hours = '0'
+        hours = "0"
 
-    if 'm' in rest:
-        minutes, rest = rest.split('m')
+    if "m" in rest:
+        minutes, rest = rest.split("m")
     else:
-        minutes = '0'
+        minutes = "0"
 
-    if 's' in rest:
-        seconds, rest = rest.split('s')
+    if "s" in rest:
+        seconds, rest = rest.split("s")
     else:
-        seconds = '0.'
+        seconds = "0."
 
     if rest.strip():
         raise ValueError(f"Something remained at the end of the string '{timestr}': '{rest}'")
 
-    num_seconds = float(seconds) + float(minutes) * 60.0 + float(hours) * 3600.0 + float(days) * 86400.0
-
-    return num_seconds
+    return float(seconds) + float(minutes) * 60.0 + float(hours) * 3600.0 + float(days) * 86400.0

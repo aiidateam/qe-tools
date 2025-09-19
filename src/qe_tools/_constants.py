@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Physical or mathematical constants.
 Since every code has its own conversion units, this module defines what
@@ -11,7 +10,7 @@ the constants in this file.
 
 from types import SimpleNamespace
 
-__all__ = ('DEFAULT',)
+__all__ = ("DEFAULT",)
 
 DEFAULT = SimpleNamespace(
     ## These have been put here from the one of QE, taken directly from
