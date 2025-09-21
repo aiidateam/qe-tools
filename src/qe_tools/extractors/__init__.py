@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from qe_tools.exceptions import PathIsNotAFile
+from qe_tools.exceptions import PathIsNotAFileError
 from qe_tools.inputs import CpInputFile, PwInputFile
 
 SUPPORTED_PARSERS = [
@@ -40,7 +40,7 @@ def extract(filepath: str, parser: str) -> dict:
         raise FileNotFoundError(f"'{filepath}' does not exist")
 
     if not path.is_file():
-        raise PathIsNotAFile(f"'{filepath}' is not a valid file.")
+        raise PathIsNotAFileError(f"'{filepath}' is not a valid file.")
 
     input_str = path.read_text(encoding="utf-8")
     parser = parser.upper()

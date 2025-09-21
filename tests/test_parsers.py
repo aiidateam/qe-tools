@@ -6,7 +6,7 @@ import json
 import os
 import unittest
 
-import numpy
+import numpy as np
 
 from qe_tools.exceptions import InputValidationError
 from qe_tools.inputs import CpInputFile, PwInputFile
@@ -36,7 +36,7 @@ class CustomTestCase(unittest.TestCase):
         try:
             if isinstance(expected, (int, float, complex)):
                 self.assertAlmostEqual(expected, actual, *args, **kwargs)
-            elif isinstance(expected, (list, tuple, numpy.ndarray)):
+            elif isinstance(expected, (list, tuple, np.ndarray)):
                 self.assertEqual(len(expected), len(actual))
                 for index, _ in enumerate(expected):
                     v1, v2 = expected[index], actual[index]  # pylint: disable=unnecessary-list-index-lookup
@@ -52,7 +52,7 @@ class CustomTestCase(unittest.TestCase):
             if is_root:
                 trace = " -> ".join(reversed(exc.traces))  # pylint: disable=no-member
                 exc = AssertionError(f"{exc!s}\nTRACE: {trace}")
-            raise exc
+            raise
 
     def assert_nested_almost_equal_only_keys_in_first(self, expected, actual, *args, **kwargs):
         """
@@ -70,7 +70,7 @@ class CustomTestCase(unittest.TestCase):
         try:
             if isinstance(expected, (int, float, complex)):
                 self.assertAlmostEqual(expected, actual, *args, **kwargs)
-            elif isinstance(expected, (list, tuple, numpy.ndarray)):
+            elif isinstance(expected, (list, tuple, np.ndarray)):
                 self.assertEqual(len(expected), len(actual))
                 for index, _ in enumerate(expected):
                     v1, v2 = expected[index], actual[index]  # pylint: disable=unnecessary-list-index-lookup
@@ -88,7 +88,7 @@ class CustomTestCase(unittest.TestCase):
             if is_root:
                 trace = " -> ".join(reversed(exc.traces))  # pylint: disable=no-member
                 exc = AssertionError(f"{exc!s}\nTRACE: {trace}")
-            raise exc
+            raise
 
 
 class PwTest(CustomTestCase):
@@ -110,16 +110,16 @@ class PwTest(CustomTestCase):
         if not os.path.isfile(fname):
             raise ValueError(f"File {fname} not found")
         if parser == "pw":
-            ParserClass = PwInputFile
+            parser_class = PwInputFile
         elif parser == "cp":
-            ParserClass = CpInputFile
+            parser_class = CpInputFile
         else:
             raise ValueError(f"Invalid valude for 'parser': '{parser}'")
 
         # Open in binary mode so I get also '\r\n' from Windows and I check
         # that the parser properly copes with them
         with open(fname, "rb") as in_file:
-            res_obj = ParserClass(
+            res_obj = parser_class(
                 in_file.read().decode("utf-8"),
                 qe_version=qe_version,
                 validate_species_names=validate_species_names,
@@ -142,10 +142,7 @@ class PwTest(CustomTestCase):
         if parser != "cp":
             result["k_points"] = res_obj.k_points
 
-        if qe_version is None:
-            reflabel = label
-        else:
-            reflabel = f"{label}-{qe_version}"
+        reflabel = label if qe_version is None else f"{label}-{qe_version}"
         ref_fname = os.path.join(reference_folder, f"{reflabel}.json")
         try:
             with open(ref_fname, encoding="utf-8") as f:
@@ -332,14 +329,14 @@ def print_test_comparison(label, parser="pw", write=False):
     if not os.path.isfile(fname):
         raise ValueError(f"File {fname} not found")
     if parser == "pw":
-        ParserClass = PwInputFile
+        parser_class = PwInputFile
     elif parser == "cp":
-        ParserClass = CpInputFile
+        parser_class = CpInputFile
     else:
         raise ValueError(f"Invalid valude for 'parser': '{parser}'")
 
     with open(fname, "rb") as in_f:
-        parsed = ParserClass(in_f.read().decode("utf-8"), validate_species_names=False)
+        parsed = parser_class(in_f.read().decode("utf-8"), validate_species_names=False)
     structure = parsed.structure
 
     result = {
