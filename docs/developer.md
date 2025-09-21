@@ -28,7 +28,7 @@ Or run them via:
 
     hatch run precommit:install
 
-From the extensive [Ruff ruleset](https://docs.astral.sh/ruff/rules/) that Hatch uses, we ignore the following:
+From the extensive [Ruff ruleset](https://docs.astral.sh/ruff/rules/) that Hatch uses, we ignore the following globally:
 
 | Code      | Rule                                                                                                                      | Rationale / Note                                                                                                                    |
 | --------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
@@ -38,3 +38,17 @@ From the extensive [Ruff ruleset](https://docs.astral.sh/ruff/rules/) that Hatch
 | `PLR2004` | [magic-value-comparison](https://docs.astral.sh/ruff/rules/magic-value-comparison/)                                       | We have a lot of “magic values” to compare with in scientific code; naming them all would reduce readability for little benefit.    |
 | `FBT002`  | [boolean-default-value-positional-argument](https://docs.astral.sh/ruff/rules/boolean-default-value-positional-argument/) | We understand the concept, but adhering to this rule is not a small change in syntax; disable for now.                              |
 | `TID252`  | [relative-imports](https://docs.astral.sh/ruff/rules/relative-imports/)                                                   | We don’t mind relative imports; as long as you don’t go up a level, they’re more readable (less verbose).                           |
+
+And the following rules for the files in the `tests` directory:
+
+| Code      | Rule                                                                                                                      | Rationale / Note                                                                                                                    |
+| --------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `INP001`  | [implicit-namespace-package](https://docs.astral.sh/ruff/rules/implicit-namespace-package/)                               | When tests are not part of the package, there is no need for `__init__.py` files.                                                   |
+| `S101`    | [assert](https://docs.astral.sh/ruff/rules/assert/)                                                                       | Asserts should not be used in production environments, but are fine for tests.                                                      |
+
+### Tests
+
+Tests are written using the [`pytest` package](https://docs.pytest.org/en/stable/index.html).
+They can be run using:
+
+    hatch run tests:run

@@ -53,6 +53,10 @@ dependencies = ["pre-commit"]
 scripts.install = "pre-commit install"
 scripts.run = "pre-commit run {args:--all-files}"
 
+[tool.hatch.envs.tests]
+dependencies = ["pytest", "pytest_cases", "timeout_decorator", "pytest-regressions"]
+scripts.run = "pytest {args}"
+
 [tool.ruff]
 lint.ignore = [
     "TRY003",  # https://docs.astral.sh/ruff/rules/raise-vanilla-args/
@@ -61,6 +65,7 @@ lint.ignore = [
     "PLR2004", # https://docs.astral.sh/ruff/rules/magic-value-comparison/ 
     "FBT002",  # https://docs.astral.sh/ruff/rules/boolean-default-value-positional-argument/
     "TID252",  # https://docs.astral.sh/ruff/rules/relative-imports/       
+    "S314",    # https://docs.astral.sh/ruff/rules/suspicious-xml-element-tree-usage/
 ]
-exclude = ["tests"]
-force-exclude = true
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["INP001", "S101", "PT009", "B026", "PT027", "T201"]

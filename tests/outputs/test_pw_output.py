@@ -28,7 +28,6 @@ def test_default_xml(data_regression, xml_format):
     directory = Path(__file__).parent / "fixtures" / "pw" / name
 
     pw_out = PwOutput.from_dir(directory)
-    pw_out.outputs
 
     data_regression.check(
         {

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import contextlib
 from importlib.resources import files
+from xml.etree import ElementTree
 
-from defusedxml import ElementTree
 from xmlschema import XMLSchema  # GB@Marnik: Could this be avoided?
 
 from qe_tools.outputs.parsers import schemas
@@ -21,8 +21,8 @@ class PwXMLParser(BaseOutputFileParser):
     def parse(self):
         """Parse the XML output of Quantum ESPRESSO pw.x."""
 
-        xml_parsed = ElementTree.fromstring(self.string)
-        element_root = xml_parsed.getroot()
+        element_root = ElementTree.fromstring(self.string)
+        # element_root = xml_parsed.getroot()
 
         str_filename = element_root.get("{http://www.w3.org/2001/XMLSchema-instance}schemaLocation")
         if str_filename is None:
@@ -34,8 +34,8 @@ class PwXMLParser(BaseOutputFileParser):
         # https://github.com/aiidateam/aiida-quantumespresso/pull/717
         try:
             if element_root.find("general_info").find("creator").get("VERSION") == "6.8":  # type: ignore
-                root = xml_parsed.getroot()
-                timing_info = root.find("./timing_info")
+                # root = xml_parsed.getroot()
+                timing_info = element_root.find("./timing_info")
                 partial_pwscf = timing_info.find("partial[@label='PWSCF'][@calls='0']")  # type: ignore
                 with contextlib.suppress((TypeError, ValueError)):
                     timing_info.remove(partial_pwscf)
@@ -51,7 +51,7 @@ class PwXMLParser(BaseOutputFileParser):
         except AttributeError:
             pass
 
-        self.dict_out["xml"] = XMLSchema(str(files(schemas) / schema_filename)).to_dict(xml_parsed)
+        self.dict_out["xml"] = XMLSchema(str(files(schemas) / schema_filename)).to_dict(element_root)
 
 
 class PwStdoutParser(BaseStdoutParser):
