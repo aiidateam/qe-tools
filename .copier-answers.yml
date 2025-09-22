@@ -1,7 +1,7 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: v0.9.0
+_commit: v0.10.0
 _src_path: https://github.com/mbercx/python-copier
 description: Tools for running and parsing Quantum ESPRESSO calculations
-doc_deploy: nowhere
+doc_deploy: rtd
 docs: mkdocs
 package_name: qe-tools
