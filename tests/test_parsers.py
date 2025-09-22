@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-
-# pylint: disable=redefined-outer-name
-
 import json
 import os
 import unittest
@@ -39,7 +36,7 @@ class CustomTestCase(unittest.TestCase):
             elif isinstance(expected, (list, tuple, np.ndarray)):
                 self.assertEqual(len(expected), len(actual))
                 for index, _ in enumerate(expected):
-                    v1, v2 = expected[index], actual[index]  # pylint: disable=unnecessary-list-index-lookup
+                    v1, v2 = expected[index], actual[index]
                     self.assert_nested_almost_equal(v1, v2, __trace=repr(index), *args, **kwargs)
             elif isinstance(expected, dict):
                 self.assertEqual(set(expected), set(actual))
@@ -50,7 +47,7 @@ class CustomTestCase(unittest.TestCase):
         except AssertionError as exc:
             exc.__dict__.setdefault("traces", []).append(trace)
             if is_root:
-                trace = " -> ".join(reversed(exc.traces))  # pylint: disable=no-member
+                trace = " -> ".join(reversed(exc.traces))
                 exc = AssertionError(f"{exc!s}\nTRACE: {trace}")
             raise
 
@@ -73,7 +70,7 @@ class CustomTestCase(unittest.TestCase):
             elif isinstance(expected, (list, tuple, np.ndarray)):
                 self.assertEqual(len(expected), len(actual))
                 for index, _ in enumerate(expected):
-                    v1, v2 = expected[index], actual[index]  # pylint: disable=unnecessary-list-index-lookup
+                    v1, v2 = expected[index], actual[index]
                     self.assert_nested_almost_equal(v1, v2, __trace=repr(index), *args, **kwargs)
             elif isinstance(expected, dict):
                 self.assertEqual(set(expected), set(actual).intersection(set(expected)))
@@ -86,7 +83,7 @@ class CustomTestCase(unittest.TestCase):
         except AssertionError as exc:
             exc.__dict__.setdefault("traces", []).append(trace)
             if is_root:
-                trace = " -> ".join(reversed(exc.traces))  # pylint: disable=no-member
+                trace = " -> ".join(reversed(exc.traces))
                 exc = AssertionError(f"{exc!s}\nTRACE: {trace}")
             raise
 
@@ -301,7 +298,7 @@ class PwTest(CustomTestCase):
         This tries to avoid a regression of #15
         (too slow parsing of specific output)
         """
-        import timeout_decorator  # pylint: disable=import-outside-toplevel
+        import timeout_decorator
 
         # Should not run in more than 2 seconds
         # (it should be actually much faster!)
@@ -381,7 +378,7 @@ if __name__ == "__main__":
             try:
                 parser = sys.argv[3]
             except IndexError:
-                parser = "pw"  # pylint: disable=invalid-name
+                parser = "pw"
             print_test_comparison(label, parser=parser, write=True)
         else:
             print(

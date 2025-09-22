@@ -1,4 +1,3 @@
-# pylint: disable=too-many-lines
 """
 Tools for parsing QE PW input files.
 """
@@ -766,9 +765,7 @@ def parse_atomic_species(txt, validate_species_names=True):
     return {"names": names, "masses": masses, "pseudo_file_names": pseudo_fnms}
 
 
-def get_cell_from_parameters(  # pylint: disable=too-many-locals,too-many-statements,too-many-branches
-    cell_parameters, system_dict, alat, using_celldm, *, qe_version=None
-):
+def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm, *, qe_version=None):
     """
     A function to get the cell from cell parameters and SYSTEM card dictionary as read by
     parse_namelists.
@@ -1144,15 +1141,12 @@ def get_parameters_from_cell(
     return parameters
 
 
-def _get_parameters_from_cell_bare(  # pylint: disable=too-many-branches
-    *, ibrav: int, cell: CellT
-) -> ParametersT:
+def _get_parameters_from_cell_bare(*, ibrav: int, cell: CellT) -> ParametersT:
     """
     Implementation of the conversion from cell to parameters, without
     checks. This function always returns the parameters in the
     A, B, C, cosAB, cosAC, cosBC form.
     """
-    # pylint: disable=invalid-name
     v1, v2, v3 = (np.array(v) for v in cell)
 
     cell_a, cell_b, cell_c = ("a", "b", "c")
@@ -1263,7 +1257,7 @@ def _convert_to_celldm(parameters: ParametersT, ibrav: int) -> ParametersT:
     return res_parameters
 
 
-def parse_structure(  # pylint: disable=too-many-arguments,too-many-branches,too-many-locals
+def parse_structure(
     txt=None,
     namelists=None,
     atomic_species=None,

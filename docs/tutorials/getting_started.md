@@ -1,14 +1,36 @@
+---
+jupyter:
+  jupytext:
+    cell_metadata_filter: -all
+    formats: .jupytext-sync-ipynb//ipynb,md
+    text_representation:
+      extension: .md
+      format_name: markdown
+      format_version: '1.3'
+      jupytext_version: 1.17.3
+  kernelspec:
+    display_name: QE
+    language: python
+    name: python3
+---
+
 # Getting started
 
 ## Parsing `pw.x` outputs
 
 Say we have just run a `pw.x` calculation in the `qe_dir` directory:
 
-```
+```python
 from qe_tools.outputs.pw import PwOutput
 
 pw_out = PwOutput.from_dir("qe_dir")
 pw_out.outputs
+```
+
+<!-- #region -->
+
+```python
+
 ```
 
 ## Parsing a single output file
@@ -32,3 +54,6 @@ pw_input = PwInputFile(Path('qe_dir/pw.in').read_text())
 ```
 
 This will also only really parse the structure and k-points.
+<!-- #endregion -->
+
+
