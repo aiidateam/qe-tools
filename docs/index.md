@@ -1,4 +1,4 @@
-# Welcome to `qe-tools`'s documentation!
+# Introduction
 
 ## 💾 Installation
 

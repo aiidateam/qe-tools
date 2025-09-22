@@ -5,3 +5,12 @@ theme:
 
 markdown_extensions:
   - admonition
+
+nav:
+  - index.md
+  - getting_started.md
+  - developer.md
+  - Design: 
+    - design/quicknotes.md
+    - design/outputs_desired_usage.md
+    - design/inputs_desired_usage.md

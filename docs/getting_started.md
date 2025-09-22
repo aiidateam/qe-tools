@@ -3,15 +3,12 @@ jupyter:
   jupytext:
     cell_metadata_filter: -all
     formats: .jupytext-sync-ipynb//ipynb,md
+    main_language: python
     text_representation:
       extension: .md
       format_name: markdown
       format_version: '1.3'
       jupytext_version: 1.17.3
-  kernelspec:
-    display_name: QE
-    language: python
-    name: python3
 ---
 
 # Getting started
@@ -27,17 +24,11 @@ pw_out = PwOutput.from_dir("qe_dir")
 pw_out.outputs
 ```
 
-<!-- #region -->
-
-```python
-
-```
-
 ## Parsing a single output file
 
 If you only want to parse the `stdout` of the `pw.x` calculation, you can load the parser class directly:
 
-```
+```python
 from qe_tools.outputs.parsers.pw import PwStdoutParser
 pw_out = PwStdoutParser.from_file('qe_dir/pw.out')
 ```
@@ -45,15 +36,12 @@ pw_out = PwStdoutParser.from_file('qe_dir/pw.out')
 ## Parsing an already existing input file
 
 Currently the input class `PwInputFile` only supports parsing an already existing input file:
-
-```
+```python
 from qe_tools.inputs.pw import PwInputFile
 from pathlib import Path
 
 pw_input = PwInputFile(Path('qe_dir/pw.in').read_text())
 ```
 
+
 This will also only really parse the structure and k-points.
-<!-- #endregion -->
-
-
