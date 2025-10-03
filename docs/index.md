@@ -20,3 +20,13 @@ To install the latest `main` branch
 To install latest stable release (v2.3.0) from the [PyPI](https://pypi.org/), simply use `pip`:
 
     pip install qe-tools
+
+## 📋 Road map
+
+The basic features we want to offer, in order of priority:
+
+1. Output parsing.
+2. Input file parsing / generation / validation.
+3. Interfaces with other tools (AiiDA, `pymatgen`, ASE, ...).
+4. Definitions and explanations of failure modes (i.e. exit codes/status).
+5. (tbd) Error handling approaches.
