@@ -36,26 +36,51 @@ dependencies = [
 Home = 'https://github.com/aiidateam/qe-tools'
 Source = 'https://github.com/aiidateam/qe-tools'
 
+[project.optional-dependencies]
+docs = [
+"mkdocs",
+  "mkdocs-material"
+]
+tests = [
+  "pytest",
+  "pytest_cases",
+  "timeout_decorator",
+  "pytest-regressions"
+]
+pre-commit = [
+  "pre-commit"
+]
+
+[dependency-groups]
+dev = [
+  "qe-tools[docs,tests,pre-commit]",
+]
+
 [tool.hatch.version]
 path = "src/qe_tools/__about__.py"
 
+[tool.hatch.envs.default]
+installer = 'uv'
+
 [tool.hatch.envs.docs]
-dependencies = [
-  "mkdocs",
-  "mkdocs-material"
-]
+features = ["docs"]
 scripts.build = "mkdocs build --clean --strict"
 scripts.serve = "mkdocs serve --dev-addr localhost:8000"
 scripts.deploy = "mkdocs gh-deploy --force"
 
-[tool.hatch.envs.precommit]
-dependencies = ["pre-commit"]
+[tool.hatch.envs.pre-commit]
+features = ["pre-commit"]
 scripts.install = "pre-commit install"
-scripts.run = "pre-commit run {args:--all-files}"
+scripts.run = "pre-commit run {args}"
 
-[tool.hatch.envs.tests]
-dependencies = ["pytest", "pytest_cases", "timeout_decorator", "pytest-regressions"]
-scripts.run = "pytest {args}"
+[tool.hatch.envs.hatch-test]
+features = ["tests"]
+randomize = false
+parallel = false
+run = "pytest {args}"
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
 [tool.ruff]
 lint.ignore = [
