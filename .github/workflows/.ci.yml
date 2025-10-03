@@ -17,7 +17,7 @@ jobs:
         run: pip install click==8.2.1 hatch
           
       - name: Run pre-commit
-        run: hatch run precommit:run
+        run: hatch run pre-commit:run
 
   tests:
     runs-on: ubuntu-latest
@@ -31,4 +31,4 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install click==8.1.8 hatch
-      - run: hatch run tests:run
+      - run: hatch test
