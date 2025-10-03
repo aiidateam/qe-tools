@@ -33,14 +33,13 @@ pw_out.outputs
 
 ## Parsing a single output file
 
-If you only want to parse the `stdout` of the `pw.x` calculation, you can load the parser class directly:
+If you only want to parse the `stdout` of the `pw.x` calculation, you can use the `from_files` method:
 
 ```python
-from pathlib import Path
-from qe_tools.outputs.parsers.pw import PwStdoutParser
+from qe_tools.outputs import PwOutput
 
-pw_out = PwStdoutParser.from_file(Path(qe_dir) / 'pw.out')
-pw_out.dict_out
+pw_out = PwOutput.from_files(stdout='/Users/mbercx/project/qetools/data/qe_dir/pw.out')
+pw_out.outputs
 ```
 
 ## Parsing an already existing input file
