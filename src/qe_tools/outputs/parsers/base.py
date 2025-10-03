@@ -64,15 +64,21 @@ class BaseStdoutParser(BaseOutputFileParser):
         parsed_data = {}
 
         code_match = re.search(
-            r"Program\s(?P<code_name>[A-Z|a-z|\_|\d]+)\sv\.(?P<code_version>[\d\.|a-z|A-Z]+)\s", self.string
+            r"Program\s(?P<code_name>[A-Za-z\_\d]+)\sv\.(?P<code_version>[\d\.a-zA-Z]+)\s",
+            self.string,
         )
         if code_match:
             code_name = code_match.groupdict()["code_name"]
             parsed_data["code_version"] = code_match.groupdict()["code_version"]
 
-            wall_match = re.search(rf"{code_name}\s+:[\s\S]+CPU\s+(?P<wall_time>[\s.\d|s|m|d|h]+)\sWALL", self.string)
+            wall_match = re.search(
+                rf"{code_name}\s+:[\s\S]+CPU\s+(?P<wall_time>[\s.\dsmdh]+)\sWALL",
+                self.string,
+            )
 
             if wall_match:
-                parsed_data["wall_time_seconds"] = convert_qe_time_to_sec(wall_match.groupdict()["wall_time"])
+                parsed_data["wall_time_seconds"] = convert_qe_time_to_sec(
+                    wall_match.groupdict()["wall_time"]
+                )
 
         self.dict_out |= parsed_data
