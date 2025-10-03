@@ -2,9 +2,8 @@
 
 # `qe-tools`
 
-Tools for running and parsing Quantum ESPRESSO calculations, in particular
+Python tools for working with [Quantum ESPRESSO](https://www.quantum-espresso.org/).
 
- * a parser for pw.x input files
- * a parser for cp.x input files
-
-The code is developed and maintained by the AiiDA Team and is licensed under the MIT license (see LICENSE file).
+>[!WARNING]
+> The `qe-tools` is being redesigned significantly for the next major release (v3.0).
+> Expect the API on `main` to be _very_ unstable until the alpha release, and even then there could be breaking changes.

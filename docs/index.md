@@ -1,23 +1,22 @@
 # Introduction
 
+!!! warning
+
+    `qe-tools` is being redesigned significantly for the next major release (v3.0).
+    The previous version did not have any documentation, this one corresponds to the "latest" state of the package on the `main` branch.
+
 ## 💾 Installation
 
-To install the package from the [PyPI](https://pypi.org/), simply use `pip`:
+To install the latest `main` branch
 
-```
-pip install qe-tools
-```
+    git clone git@github.com:aiidateam/qe-tools.git
+    pip install -e qe-tools
 
-## 💡 Tutorials
+!!! warning
 
-```{toctree}
-tutorials/getting_started.md
-tutorials/inputs_desired_usage.md
-tutorials/outputs_desired_usage.md
-```
+    The latest `main` will be very unstable until we get to a major release.
+    Here be dragons! 🐉
 
-## 🤔 Design Documents
+To install latest stable release (v2.3.0) from the [PyPI](https://pypi.org/), simply use `pip`:
 
-```{toctree}
-design/quicknotes.md
-```
+    pip install qe-tools
