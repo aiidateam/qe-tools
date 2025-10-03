@@ -23,7 +23,7 @@ jupyter:
 Say we have just run a `pw.x` calculation in the `qe_dir` directory:
 
 ```python
-from qe_tools.outputs.pw import PwOutput
+from qe_tools.outputs import PwOutput
 
 qe_dir = '/Users/mbercx/project/qetools/data/qe_dir'
 
