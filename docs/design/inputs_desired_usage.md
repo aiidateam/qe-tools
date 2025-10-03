@@ -18,7 +18,7 @@ It will definitely be challenging to define a complete API that doesn't get over
 
 Another approach for constructing a class that defines the inputs of a Quantum ESPRESSO calculation can be found in:
 
-[https://github.com/elinscott/qe_input_prototype](https://github.com/elinscott/qe_input_prototype)
+[https://github.com/elinscott/pydantic-espresso](https://github.com/elinscott/pydantic-espresso)
 
 This defines the inputs files as `pydantic` models, and allows you to complete the namelists with tab-completion, also offers validation features based on the Quantum ESPRESSO files that define the inputs.
 However, at first glance it requires a lot of Quantum ESPRESSO knowledge to populate the inputs.
