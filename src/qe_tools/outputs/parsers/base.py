@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+from io import TextIOBase
+from pathlib import Path
+
 import abc
 import re
+from typing import TextIO
 
 from qe_tools.utils import convert_qe_time_to_sec
 
@@ -30,15 +34,20 @@ class BaseOutputFileParser(abc.ABC):
         """
 
     @classmethod
-    def from_file(cls, filename: str):
+    def from_file(cls, file: str | Path | TextIO):
         """
         Helper function to generate a BaseOutputFileParser object
         from a file instead of its string.
         """
-        with open(filename) as f:
-            string = f.read()
+        if isinstance(file, (str, Path)):
+            with Path(file).open("r") as handle:
+                contents = handle.read()
+        elif isinstance(file, TextIOBase):
+            contents = file.read()
+        else:
+            raise TypeError(f"Unsupported type: {type(file)}")
 
-        return cls(string=string)
+        return cls(string=contents)
 
 
 class BaseStdoutParser(BaseOutputFileParser):
