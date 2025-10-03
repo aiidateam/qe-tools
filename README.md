@@ -7,3 +7,13 @@ Python tools for working with [Quantum ESPRESSO](https://www.quantum-espresso.or
 >[!WARNING]
 > The `qe-tools` is being redesigned significantly for the next major release (v3.0).
 > Expect the API on `main` to be _very_ unstable until the alpha release, and even then there could be breaking changes.
+
+## 📋 Road map
+
+The basic features we want to offer, in order of priority:
+
+1. Output parsing.
+2. Input file parsing / generation / validation.
+3. Interfaces with other tools (AiiDA, `pymatgen`, ASE, ...).
+4. Definitions and explanations of failure modes (i.e. exit codes/status).
+5. (tbd) Error handling approaches.
