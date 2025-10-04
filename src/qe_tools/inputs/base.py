@@ -8,7 +8,6 @@ import re
 from collections.abc import Iterable
 
 import numpy as np
-import scipy.linalg as la
 
 from qe_tools import CONSTANTS
 from qe_tools.exceptions import InputValidationError, ParsingError
@@ -202,7 +201,9 @@ class BaseInputFile:
         # Parse the CELL_PARAMETERS card.
         self.cell_parameters = parse_cell_parameters(self.content)
         # Parse the ATOMIC_SPECIES card.
-        self.atomic_species = parse_atomic_species(self.content, validate_species_names=validate_species_names)
+        self.atomic_species = parse_atomic_species(
+            self.content, validate_species_names=validate_species_names
+        )
 
         self.structure = parse_structure(
             txt=self.content,
@@ -346,14 +347,18 @@ def parse_namelists(txt):
         for blockline in blocklines:
             for key, valstr in key_value_re.findall(blockline):
                 if key.lower() in nmlst_dict:
-                    raise ValueError(f"Key {key.lower()} found more than once in namelist {nmlst}")
+                    raise ValueError(
+                        f"Key {key.lower()} found more than once in namelist {nmlst}"
+                    )
                 nmlst_dict[key.lower()] = _str2val(valstr)
         # ...and, store nmlst_dict as a value in params_dict with the namelist
         # as the key.
         if len(nmlst_dict.keys()) > 0:
             params_dict[nmlst.upper()] = nmlst_dict
     if len(params_dict) == 0:
-        raise ParsingError("No data was found while parsing the namelist in the following text\n" + txt)
+        raise ParsingError(
+            "No data was found while parsing the namelist in the following text\n" + txt
+        )
     # TODO: uppercase correct
     return params_dict
 
@@ -492,7 +497,9 @@ def parse_atomic_positions(txt):
         units = units.lower()
     # Get the string containing the lines of the block.
     if match.group("block") is None:
-        raise ParsingError("The ATOMIC_POSITIONS card block was parsed as empty in\n" + txt)
+        raise ParsingError(
+            "The ATOMIC_POSITIONS card block was parsed as empty in\n" + txt
+        )
 
     blockstr = match.group("block")
 
@@ -516,7 +523,9 @@ def parse_atomic_positions(txt):
     # Next, try using the re for lines with force modifications.
     for match in atomic_positions_w_constraints_re.finditer(blockstr):
         positions.append(list(map(fortfloat, match.group("x", "y", "z"))))
-        fixed_coords_this_pos = [f or "1" for f in match.group("fx", "fy", "fz")]  # False <--> not fixed (the default)
+        fixed_coords_this_pos = [
+            f or "1" for f in match.group("fx", "fy", "fz")
+        ]  # False <--> not fixed (the default)
         fixed_coords.append(list(map(str01_to_bool, fixed_coords_this_pos)))
         names.append(match.group("name"))
 
@@ -530,7 +539,12 @@ def parse_atomic_positions(txt):
     # ~ 'ATOMIC_POSITIONS card block:\n{}'.format(len(names), n_lines,
     # ~ blockstr)
     # ~ )
-    return {"units": units, "names": names, "positions": positions, "fixed_coords": fixed_coords}
+    return {
+        "units": units,
+        "names": names,
+        "positions": positions,
+        "fixed_coords": fixed_coords,
+    }
 
 
 def parse_cell_parameters(txt):
@@ -638,7 +652,9 @@ def parse_cell_parameters(txt):
         units = units.lower()
     # Get the string containing the lines of the block.
     if match.group("block") is None:
-        raise ParsingError("The CELL_PARAMETER card block was parsed as empty in\n" + txt)
+        raise ParsingError(
+            "The CELL_PARAMETER card block was parsed as empty in\n" + txt
+        )
     blockstr = match.group("block")
 
     # Define a small helper function to convert strings of fortran-type floats.
@@ -741,11 +757,15 @@ def parse_atomic_species(txt, validate_species_names=True):
     try:
         match = atomic_species_block_re.search(txt)
     except AttributeError as exc:
-        raise ParsingError("The ATOMIC_SPECIES card block was not found in\n" + txt) from exc
+        raise ParsingError(
+            "The ATOMIC_SPECIES card block was not found in\n" + txt
+        ) from exc
     # Make sure the card block lines were extracted. If they were, store the
     # string of lines as blockstr.
     if match.group("block") is None:  # type: ignore[union-attr]
-        raise ParsingError("The ATOMIC_POSITIONS card block was parse as empty in\n" + txt)
+        raise ParsingError(
+            "The ATOMIC_POSITIONS card block was parse as empty in\n" + txt
+        )
 
     blockstr = match.group("block")  # type: ignore[union-attr]
 
@@ -765,7 +785,9 @@ def parse_atomic_species(txt, validate_species_names=True):
     return {"names": names, "masses": masses, "pseudo_file_names": pseudo_fnms}
 
 
-def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm, *, qe_version=None):
+def get_cell_from_parameters(
+    cell_parameters, system_dict, alat, using_celldm, *, qe_version=None
+):
     """
     A function to get the cell from cell parameters and SYSTEM card dictionary as read by
     parse_namelists.
@@ -802,7 +824,9 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm, *
         # I am only going to this for the important first lattice vector
 
         if alat is None:
-            raise InputValidationError("You have to define lattice vector celldm(1) or A")
+            raise InputValidationError(
+                "You have to define lattice vector celldm(1) or A"
+            )
         # So, depending on what is defined for the first lattice vector,
         # I define the keys that I will look for to find the other
         # geometry definitions
@@ -811,11 +835,21 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm, *
             # but some are necessary depending on ibrav
             # and will be matched here:
             if abs(ibrav) > 7:
-                b = alat * system_dict["celldm(2)"] if using_celldm else system_dict["b"]
+                b = (
+                    alat * system_dict["celldm(2)"]
+                    if using_celldm
+                    else system_dict["b"]
+                )
             if abs(ibrav) > 3 and ibrav not in (-5, 5):
-                c = alat * system_dict["celldm(3)"] if using_celldm else system_dict["c"]
+                c = (
+                    alat * system_dict["celldm(3)"]
+                    if using_celldm
+                    else system_dict["c"]
+                )
             if ibrav in (5, -5, 12, 13):
-                cosg = system_dict["celldm(4)"] if using_celldm else system_dict["cosab"]
+                cosg = (
+                    system_dict["celldm(4)"] if using_celldm else system_dict["cosab"]
+                )
                 sing = np.sqrt(1.0 - cosg**2)
             if ibrav in (
                 5,
@@ -824,11 +858,17 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm, *
                 # They are the same in trigonal R
                 cosa = cosg
             if ibrav in (-12, -13, 14):
-                cosb = system_dict["celldm(5)"] if using_celldm else system_dict["cosac"]
+                cosb = (
+                    system_dict["celldm(5)"] if using_celldm else system_dict["cosac"]
+                )
                 sinb = np.sqrt(1.0 - cosb**2)
             if ibrav in (14,):
-                cosa = system_dict["celldm(4)"] if using_celldm else system_dict["cosbc"]
-                cosg = system_dict["celldm(6)"] if using_celldm else system_dict["cosab"]
+                cosa = (
+                    system_dict["celldm(4)"] if using_celldm else system_dict["cosbc"]
+                )
+                cosg = (
+                    system_dict["celldm(6)"] if using_celldm else system_dict["cosab"]
+                )
                 sing = np.sqrt(1.0 - cosg**2)
         except Exception as e:
             raise InputValidationError(
@@ -851,7 +891,8 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm, *
         elif cell_unit == "alat":
             if alat is None:
                 raise InputValidationError(
-                    "You have specified units of alat for the cell, \n" "but you have not provided a value for alat"
+                    "You have specified units of alat for the cell, \n"
+                    "but you have not provided a value for alat"
                 )
             cell = alat * cell
         elif cell_unit == "":
@@ -911,7 +952,9 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm, *
     elif ibrav == 4:
         # 4          Hexagonal and Trigonal P        celldm(3)=c/a
         # v1 = a(1,0,0),  v2 = a(-1/2,sqrt(3)/2,0),  v3 = a(0,0,c/a)
-        cell = alat * np.array([[1.0, 0.0, 0.0], [-0.5, 0.5 * np.sqrt(3.0), 0.0], [0.0, 0.0, c / alat]])
+        cell = alat * np.array(
+            [[1.0, 0.0, 0.0], [-0.5, 0.5 * np.sqrt(3.0), 0.0], [0.0, 0.0, c / alat]]
+        )
     elif ibrav == 5:
         # 5          Trigonal R, 3fold axis c        celldm(4)=cos(alpha)
         # The crystallographic vectors form a three-fold star around
@@ -948,7 +991,13 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm, *
     elif ibrav == 7:
         # 7          Tetragonal I (bct)              celldm(3)=c/a
         # v1=(a/2)(1,-1,c/a),  v2=(a/2)(1,1,c/a),  v3=(a/2)(-1,-1,c/a)
-        cell = 0.5 * alat * np.array([[1.0, -1.0, c / alat], [1.0, 1.0, c / alat], [-1.0, -1.0, c / alat]])
+        cell = (
+            0.5
+            * alat
+            * np.array(
+                [[1.0, -1.0, c / alat], [1.0, 1.0, c / alat], [-1.0, -1.0, c / alat]]
+            )
+        )
     elif ibrav == 8:
         # 8  Orthorhombic P       celldm(2)=b/a
         #                         celldm(3)=c/a
@@ -958,11 +1007,15 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm, *
         #   9   Orthorhombic base-centered(bco) celldm(2)=b/a
         #                                         celldm(3)=c/a
         #  v1 = (a/2, b/2,0),  v2 = (-a/2,b/2,0),  v3 = (0,0,c)
-        cell = np.array([[0.5 * alat, 0.5 * b, 0.0], [-0.5 * alat, 0.5 * b, 0.0], [0.0, 0.0, c]])
+        cell = np.array(
+            [[0.5 * alat, 0.5 * b, 0.0], [-0.5 * alat, 0.5 * b, 0.0], [0.0, 0.0, c]]
+        )
     elif ibrav == -9:
         # -9          as 9, alternate description
         #  v1 = (a/2,-b/2,0),  v2 = (a/2,-b/2,0),  v3 = (0,0,c)
-        cell = np.array([[0.5 * alat, 0.5 * b, 0.0], [0.5 * alat, -0.5 * b, 0.0], [0.0, 0.0, c]])
+        cell = np.array(
+            [[0.5 * alat, 0.5 * b, 0.0], [0.5 * alat, -0.5 * b, 0.0], [0.0, 0.0, c]]
+        )
     elif ibrav == 91:
         # 91          Orthorhombic one-face base-centered A-type
         #                                             celldm(2)=b/a
@@ -1067,7 +1120,11 @@ def get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm, *
                 [
                     c * cosb,
                     c * (cosa - cosb * cosg) / sing,
-                    c * np.sqrt(1.0 + 2.0 * cosa * cosb * cosg - cosa**2 - cosb**2 - cosg**2) / sing,
+                    c
+                    * np.sqrt(
+                        1.0 + 2.0 * cosa * cosb * cosg - cosa**2 - cosb**2 - cosg**2
+                    )
+                    / sing,
                 ],
             ]
         )
@@ -1153,44 +1210,74 @@ def _get_parameters_from_cell_bare(*, ibrav: int, cell: CellT) -> ParametersT:
     cos_ab, cos_ac, cos_bc = ("cosab", "cosac", "cosbc")
 
     if ibrav == 1:
-        parameters = {cell_a: la.norm(v1)}
+        parameters = {cell_a: np.linalg.norm(v1)}
     elif ibrav == 2:
-        parameters = {cell_a: np.sqrt(2) * la.norm(v1)}
+        parameters = {cell_a: np.sqrt(2) * np.linalg.norm(v1)}
     elif ibrav in [-3, 3]:
-        parameters = {cell_a: 2 * la.norm(v1) / np.sqrt(3)}
+        parameters = {cell_a: 2 * np.linalg.norm(v1) / np.sqrt(3)}
     elif ibrav == 4:
-        parameters = {cell_a: la.norm(v1), cell_c: la.norm(v3)}
+        parameters = {cell_a: np.linalg.norm(v1), cell_c: np.linalg.norm(v3)}
     elif ibrav in [5, -5]:
-        parameters = {cell_a: la.norm(v1)}
+        parameters = {cell_a: np.linalg.norm(v1)}
         parameters[cos_ab] = np.dot(v1, v2) / parameters[cell_a] ** 2
     elif ibrav == 6:
-        parameters = {cell_a: la.norm(v1), cell_c: la.norm(v3)}
+        parameters = {cell_a: np.linalg.norm(v1), cell_c: np.linalg.norm(v3)}
     elif ibrav == 7:
-        parameters = {cell_a: np.sqrt(2) * la.norm(v1[:2]), cell_c: 2 * v1[-1]}
+        parameters = {cell_a: np.sqrt(2) * np.linalg.norm(v1[:2]), cell_c: 2 * v1[-1]}
     elif ibrav == 8:
-        parameters = {cell_a: la.norm(v1), cell_b: la.norm(v2), cell_c: la.norm(v3)}
+        parameters = {
+            cell_a: np.linalg.norm(v1),
+            cell_b: np.linalg.norm(v2),
+            cell_c: np.linalg.norm(v3),
+        }
     elif ibrav in [9, -9]:
-        parameters = {cell_a: 2 * abs(v1[0]), cell_b: 2 * abs(v1[1]), cell_c: la.norm(v3)}
+        parameters = {
+            cell_a: 2 * abs(v1[0]),
+            cell_b: 2 * abs(v1[1]),
+            cell_c: np.linalg.norm(v3),
+        }
     elif ibrav == 91:
-        parameters = {cell_a: la.norm(v1), cell_b: la.norm(v2 + v3), cell_c: la.norm(v3 - v2)}
+        parameters = {
+            cell_a: np.linalg.norm(v1),
+            cell_b: np.linalg.norm(v2 + v3),
+            cell_c: np.linalg.norm(v3 - v2),
+        }
     elif ibrav == 10:
         parameters = {cell_a: 2 * v1[0], cell_b: 2 * v2[1], cell_c: 2 * v1[2]}
     elif ibrav == 11:
         parameters = {cell_a: 2 * v1[0], cell_b: 2 * v1[1], cell_c: 2 * v1[2]}
     elif ibrav == 12:
-        parameters = {cell_a: la.norm(v1), cell_b: la.norm(v2), cell_c: la.norm(v3)}
+        parameters = {
+            cell_a: np.linalg.norm(v1),
+            cell_b: np.linalg.norm(v2),
+            cell_c: np.linalg.norm(v3),
+        }
         parameters[cos_ab] = np.dot(v1, v2) / (parameters[cell_a] * parameters[cell_b])
     elif ibrav == -12:
-        parameters = {cell_a: la.norm(v1), cell_b: la.norm(v2), cell_c: la.norm(v3)}
+        parameters = {
+            cell_a: np.linalg.norm(v1),
+            cell_b: np.linalg.norm(v2),
+            cell_c: np.linalg.norm(v3),
+        }
         parameters[cos_ac] = np.dot(v1, v3) / (parameters[cell_a] * parameters[cell_c])
     elif ibrav == 13:
-        parameters = {cell_a: 2 * v1[0], cell_b: la.norm(v2), cell_c: 2 * v3[2]}
-        parameters[cos_ab] = 2 * np.dot(v1, v2) / (parameters[cell_a] * parameters[cell_b])
+        parameters = {cell_a: 2 * v1[0], cell_b: np.linalg.norm(v2), cell_c: 2 * v3[2]}
+        parameters[cos_ab] = (
+            2 * np.dot(v1, v2) / (parameters[cell_a] * parameters[cell_b])
+        )
     elif ibrav == -13:
-        parameters = {cell_a: 2 * abs(v1[0]), cell_b: 2 * abs(v1[1]), cell_c: la.norm(v3)}
-        parameters[cos_ac] = v3[0] / la.norm(v3)
+        parameters = {
+            cell_a: 2 * abs(v1[0]),
+            cell_b: 2 * abs(v1[1]),
+            cell_c: np.linalg.norm(v3),
+        }
+        parameters[cos_ac] = v3[0] / np.linalg.norm(v3)
     elif ibrav == 14:
-        parameters = {cell_a: la.norm(v1), cell_b: la.norm(v2), cell_c: la.norm(v3)}
+        parameters = {
+            cell_a: np.linalg.norm(v1),
+            cell_b: np.linalg.norm(v2),
+            cell_c: np.linalg.norm(v3),
+        }
         parameters[cos_ab] = np.dot(v1, v2) / (parameters[cell_a] * parameters[cell_b])
         parameters[cos_ac] = np.dot(v1, v3) / (parameters[cell_a] * parameters[cell_c])
         parameters[cos_bc] = np.dot(v2, v3) / (parameters[cell_b] * parameters[cell_c])
@@ -1318,11 +1405,15 @@ def parse_structure(
         using_celldm = True
     else:
         if system_dict["ibrav"] != 0:
-            raise ValueError("Neither a nor celldm(1) are specified, and you are not using ibrav=0!")
+            raise ValueError(
+                "Neither a nor celldm(1) are specified, and you are not using ibrav=0!"
+            )
         alat = None
         using_celldm = None
 
-    cell = get_cell_from_parameters(cell_parameters, system_dict, alat, using_celldm, qe_version=qe_version)
+    cell = get_cell_from_parameters(
+        cell_parameters, system_dict, alat, using_celldm, qe_version=qe_version
+    )
 
     ################## POSITIONS #######################
     positions_units = atomic_positions["units"]
@@ -1341,7 +1432,9 @@ def parse_structure(
     elif positions_units == "crystal":
         positions = np.dot(positions, cell)
     elif positions_units == "alat":
-        positions = np.linalg.norm(cell[0]) * positions if alat is None else alat * positions  # ibrav = 0
+        positions = (
+            np.linalg.norm(cell[0]) * positions if alat is None else alat * positions
+        )  # ibrav = 0
     elif positions_units == "crystal_sg":
         raise NotImplementedError("crystal_sg is not implemented")
     else:
@@ -1401,6 +1494,8 @@ def _strip_comment(string, comment_characters=("!",), quote_characters=('"', "'"
 
     # If we are here, no comments where found
     if in_string:
-        raise ValueError(f"String >>{string}<< is not closed, it was open with the {string_quote} char")
+        raise ValueError(
+            f"String >>{string}<< is not closed, it was open with the {string_quote} char"
+        )
     # I just return the same string, even if this would be equivalent to "".join(new_string)
     return string
