@@ -1,5 +1,10 @@
 # Developer Guide
 
+!!! warning
+
+    `qe-tools` is being redesigned significantly for the next major release (v3.0).
+    Before contributing, please [open an issue](https://github.com/aiidateam/qe-tools/issues) with your desired change/feature.
+
 ## Quick start
 
 Thanks for contributing! 🙏
@@ -7,7 +12,7 @@ Below you can find an overview of the commands to get you up and running quickly
 
 First clone the repository from GitHub
 
-    git clone <GITHUB-REPO>
+    git clone https://github.com/aiidateam/qe-tools
 
 and install the package locally in **editable** mode (`-e`):
 
