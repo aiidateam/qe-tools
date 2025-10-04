@@ -4,7 +4,7 @@ import contextlib
 from importlib.resources import files
 from xml.etree import ElementTree
 
-from xmlschema import XMLSchema  # GB@Marnik: Could this be avoided?
+from xmlschema import XMLSchema
 
 from qe_tools.outputs.parsers import schemas
 from qe_tools.outputs.parsers.base import BaseOutputFileParser, BaseStdoutParser
@@ -22,18 +22,24 @@ class PwXMLParser(BaseOutputFileParser):
         """Parse the XML output of Quantum ESPRESSO pw.x."""
 
         element_root = ElementTree.fromstring(self.string)
-        # element_root = xml_parsed.getroot()
 
-        str_filename = element_root.get("{http://www.w3.org/2001/XMLSchema-instance}schemaLocation")
+        str_filename = element_root.get(
+            "{http://www.w3.org/2001/XMLSchema-instance}schemaLocation"
+        )
         if str_filename is None:
-            raise ValueError("There was an error while reading the version of QE in the provided xml file.")
+            raise ValueError(
+                "There was an error while reading the version of QE in the provided xml file."
+            )
 
         schema_filename = str_filename.split()[1].split("/")[-1]
 
         # Fix a bug of QE v6.8: the output XML is not consistent with schema, see
         # https://github.com/aiidateam/aiida-quantumespresso/pull/717
         try:
-            if element_root.find("general_info").find("creator").get("VERSION") == "6.8":  # type: ignore
+            if (
+                element_root.find("general_info").find("creator").get("VERSION")
+                == "6.8"
+            ):  # type: ignore
                 # root = xml_parsed.getroot()
                 timing_info = element_root.find("./timing_info")
                 partial_pwscf = timing_info.find("partial[@label='PWSCF'][@calls='0']")  # type: ignore
@@ -46,12 +52,17 @@ class PwXMLParser(BaseOutputFileParser):
         # Fix issue for QE v7.0: The scheme file name was not updated to `qes_211101.xsd` in the `xsi.schemaLocation`
         # element, see https://github.com/aiidateam/aiida-quantumespresso/pull/774
         try:
-            if element_root.find("general_info").find("creator").get("VERSION") == "7.0":  # type: ignore
+            if (
+                element_root.find("general_info").find("creator").get("VERSION")
+                == "7.0"
+            ):  # type: ignore
                 schema_filename = "qes_211101.xsd"
         except AttributeError:
             pass
 
-        self.dict_out["xml"] = XMLSchema(str(files(schemas) / schema_filename)).to_dict(element_root)
+        self.dict_out["xml"] = XMLSchema(str(files(schemas) / schema_filename)).to_dict(
+            element_root
+        )
 
 
 class PwStdoutParser(BaseStdoutParser):
