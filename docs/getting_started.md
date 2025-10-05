@@ -28,7 +28,7 @@ from qe_tools.outputs import PwOutput
 qe_dir = '/Users/mbercx/project/qetools/data/qe_dir'
 
 pw_out = PwOutput.from_dir(qe_dir)
-pw_out.outputs
+pw_out.raw_outputs
 ```
 
 ## Parsing a single output file

@@ -31,6 +31,6 @@ def test_default_xml(data_regression, xml_format):
 
     data_regression.check(
         {
-            "outputs": pw_out.outputs,
+            "outputs": pw_out.raw_outputs,
         }
     )
