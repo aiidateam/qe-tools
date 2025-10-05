@@ -14,6 +14,7 @@ nav:
   - getting_started.md
   - developer.md
   - Design: 
+    - design/scope.md
     - design/quicknotes.md
     - design/public_api.md
     - design/outputs_desired_usage.md

@@ -2,20 +2,6 @@
 
 A place to write down quick notes on the design decisions made for the `qe-tools` package.
 
-## Main goal
-
-The main goal of this package should be to develop *easy to use* tools to deal with Quantum ESPRESSO that *just work*.
-
-* **Easy to use**: Tools should be easy to find, intuitive and require as few steps as possible to get the desired outcome.
-* **Just work**: Tools should be robust and clever, working as the user intends with a variety of input options without having to understand their functionality in too much detail.
-
-The basic features we want to offer, in order of priority:
-
-1. Output parsing.
-2. Input file parsing / generation / validation.
-3. Interfaces with other tools (AiiDA, `pymatgen`, ASE, ...).
-4. Definitions and explanations of failure modes.
-
 ## Parsing
 
 ![](img/class_structure.png)
