@@ -12,9 +12,6 @@ from qe_tools.outputs.parsers.pw import PwStdoutParser, PwXMLParser
 class PwOutput(BaseOutput):
     """Output of the Quantum ESPRESSO pw.x code."""
 
-    def __init__(self, outputs: dict | None = None):
-        super().__init__(outputs=outputs)
-
     @classmethod
     def from_dir(cls, directory: str | Path):
         """
@@ -46,16 +43,16 @@ class PwOutput(BaseOutput):
         stdout: None | str | Path | TextIO = None,
     ):
         """Parse the outputs directly from the provided files."""
-        outputs = {}
+        raw_outputs = {}
 
         if stdout is not None:
             parser_std = PwStdoutParser.from_file(stdout)
             parser_std.parse()
-            outputs |= parser_std.dict_out
+            raw_outputs |= parser_std.dict_out
 
         if xml is not None:
             parser_xml = PwXMLParser.from_file(xml)
             parser_xml.parse()
-            outputs |= parser_xml.dict_out
+            raw_outputs |= parser_xml.dict_out
 
-        return cls(outputs=outputs)
+        return cls(raw_outputs=raw_outputs)
