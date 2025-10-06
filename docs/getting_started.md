@@ -28,7 +28,25 @@ from qe_tools.outputs import PwOutput
 qe_dir = '/Users/mbercx/project/qetools/data/qe_dir'
 
 pw_out = PwOutput.from_dir(qe_dir)
-pw_out.raw_outputs
+```
+
+You can then obtain the Fermi energy from:
+
+```python
+pw_out.get_output('fermi_energy')
+```
+
+Another property you might be interested in is the structure:
+
+```python
+pw_out.get_output('structure')
+```
+
+But likely, you'll want the structure in the flavor of your favorite Python package.
+You can also do this:
+
+```python
+pw_out.get_output('structure', fmt='ase')
 ```
 
 ## Parsing a single output file
@@ -39,7 +57,7 @@ If you only want to parse the `stdout` of the `pw.x` calculation, you can use th
 from qe_tools.outputs import PwOutput
 
 pw_out = PwOutput.from_files(stdout='/Users/mbercx/project/qetools/data/qe_dir/pw.out')
-pw_out.outputs
+pw_out.raw_outputs
 ```
 
 ## Parsing an already existing input file
@@ -54,7 +72,10 @@ pw_input.as_dict()
 ```
 
 
-This will also only really parse the structure and k-points.
+This will also only really parse the structure and k-points at the moment, so not very useful. 😅
+
+
+
 
 
 
