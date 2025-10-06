@@ -92,3 +92,13 @@ parser.inputs['structure']
 ```
 
 (Maybe this should not be a "parser", but a "calculation". E.g. `PwCalc` that has `inputs` and `outputs`.)
+
+## Units
+
+Make separate module with chosen units in one place: consistent throughout package.
+Add units with `pint`: make optional dependency?
+We have to check how heavy the package is, and how complicated the code would be to make it optional.
+
+## Specific notes
+
+* Kind names have to be element + digits for parsing to work. In principle you can name a kind _anything_, but we don't want to support that...
