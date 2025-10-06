@@ -1,7 +1,4 @@
 from glom import glom
-
-import numpy as np
-
 from qe_tools import CONSTANTS
 
 
@@ -16,12 +13,19 @@ class BaseConverter:
                 ),
                 "cell": (
                     "xml.output.atomic_structure.cell",
-                    lambda cell: CONSTANTS.bohr_to_ang
-                    * np.array([cell["a1"], cell["a2"], cell["a3"]]),
+                    lambda cell: [
+                        [coord * CONSTANTS.bohr_to_ang for coord in cell["a1"]],
+                        [coord * CONSTANTS.bohr_to_ang for coord in cell["a2"]],
+                        [coord * CONSTANTS.bohr_to_ang for coord in cell["a3"]],
+                    ],
                 ),
                 "positions": (
                     "xml.output.atomic_structure.atomic_positions.atom",
-                    [lambda atom: CONSTANTS.bohr_to_ang * np.array(atom["$"])],
+                    [
+                        lambda atom: [
+                            CONSTANTS.bohr_to_ang * position for position in atom["$"]
+                        ]
+                    ],
                 ),
             },
         ),
