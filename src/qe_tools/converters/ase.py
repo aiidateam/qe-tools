@@ -1,18 +1,44 @@
 from __future__ import annotations
 
 import contextlib
+import re
 from importlib.util import find_spec
 
 import numpy as np
 import pint
+from ase import Atoms
 
 from qe_tools import CONSTANTS, ELEMENTS
+from qe_tools.converters.base import BaseConverter
 
 _has_ase = bool(find_spec("ase"))
 if not _has_ase:
     raise ImportError("ASE should be properly installed to use the ASE converter.")
 else:
     from ase.atoms import Atoms
+
+
+class ASEConverter(BaseConverter):
+    output_mapping = BaseConverter.output_mapping | {
+        "structure": (
+            Atoms,
+            {
+                "symbols": (
+                    "xml.output.atomic_species.species",
+                    [lambda species: re.sub(r"\d+", "", species["@name"][:2])],
+                ),
+                "cell": (
+                    "xml.output.atomic_structure.cell",
+                    lambda cell: CONSTANTS.bohr_to_ang
+                    * np.array([cell["a1"], cell["a2"], cell["a3"]]),
+                ),
+                "positions": (
+                    "xml.output.atomic_structure.atomic_positions.atom",
+                    [lambda atom: CONSTANTS.bohr_to_ang * np.array(atom["$"])],
+                ),
+            },
+        ),
+    }
 
 
 def get_output_ase(self):

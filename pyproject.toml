@@ -29,6 +29,7 @@ dependencies = [
     'numpy',
     'packaging',
     'xmlschema',
+    'glom~=24.11'
 ]
 
 [project.urls]

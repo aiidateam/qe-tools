@@ -56,3 +56,26 @@ class PwOutput(BaseOutput):
             raw_outputs |= parser_xml.dict_out
 
         return cls(raw_outputs=raw_outputs)
+
+    def get_output(self, output: str, fmt="basic"):
+        if fmt == "basic":
+            from qe_tools.converters.base import BaseConverter
+
+            return BaseConverter().get_output(output, self.raw_outputs)
+
+        if fmt == "aiida":
+            from qe_tools.converters.aiida import AiiDAConverter
+
+            return AiiDAConverter().get_output(output, self.raw_outputs)
+
+        if fmt == "ase":
+            from qe_tools.converters.ase import ASEConverter
+
+            return ASEConverter().get_output(output, self.raw_outputs)
+
+        if fmt == "pymatgen":
+            from qe_tools.converters.pymatgen import PymatgenConverter
+
+            return PymatgenConverter().get_output(output, self.raw_outputs)
+
+        raise ValueError(f"Format '{fmt}' is not supported.")

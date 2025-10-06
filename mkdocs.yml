@@ -17,5 +17,5 @@ nav:
     - design/scope.md
     - design/quicknotes.md
     - design/public_api.md
-    - design/outputs_desired_usage.md
+    - design/outputs.md
     - design/inputs_desired_usage.md
