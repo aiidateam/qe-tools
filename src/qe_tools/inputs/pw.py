@@ -283,7 +283,9 @@ def parse_k_points(txt):
         if match:
             info_dict["type"] = "automatic"
             info_dict["points"] = list(map(int, match.group(1, 2, 3)))
-            info_dict["offset"] = [0.0 if x == 0 else 0.5 for x in map(int, match.group(4, 5, 6))]
+            info_dict["offset"] = [
+                0.0 if x == 0 else 0.5 for x in map(int, match.group(4, 5, 6))
+            ]
         else:
             match = k_points_gamma_block_re.search(txt)
             if match:

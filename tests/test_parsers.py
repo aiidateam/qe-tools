@@ -37,11 +37,15 @@ class CustomTestCase(unittest.TestCase):
                 self.assertEqual(len(expected), len(actual))
                 for index, _ in enumerate(expected):
                     v1, v2 = expected[index], actual[index]
-                    self.assert_nested_almost_equal(v1, v2, __trace=repr(index), *args, **kwargs)
+                    self.assert_nested_almost_equal(
+                        v1, v2, __trace=repr(index), *args, **kwargs
+                    )
             elif isinstance(expected, dict):
                 self.assertEqual(set(expected), set(actual))
                 for key in expected:
-                    self.assert_nested_almost_equal(expected[key], actual[key], __trace=repr(key), *args, **kwargs)
+                    self.assert_nested_almost_equal(
+                        expected[key], actual[key], __trace=repr(key), *args, **kwargs
+                    )
             else:
                 self.assertEqual(expected, actual)
         except AssertionError as exc:
@@ -51,7 +55,9 @@ class CustomTestCase(unittest.TestCase):
                 exc = AssertionError(f"{exc!s}\nTRACE: {trace}")
             raise
 
-    def assert_nested_almost_equal_only_keys_in_first(self, expected, actual, *args, **kwargs):
+    def assert_nested_almost_equal_only_keys_in_first(
+        self, expected, actual, *args, **kwargs
+    ):
         """
         Check that dict have almost equal content, for float content.
 
@@ -71,7 +77,9 @@ class CustomTestCase(unittest.TestCase):
                 self.assertEqual(len(expected), len(actual))
                 for index, _ in enumerate(expected):
                     v1, v2 = expected[index], actual[index]
-                    self.assert_nested_almost_equal(v1, v2, __trace=repr(index), *args, **kwargs)
+                    self.assert_nested_almost_equal(
+                        v1, v2, __trace=repr(index), *args, **kwargs
+                    )
             elif isinstance(expected, dict):
                 self.assertEqual(set(expected), set(actual).intersection(set(expected)))
                 for key in expected:
@@ -91,7 +99,9 @@ class CustomTestCase(unittest.TestCase):
 class PwTest(CustomTestCase):
     """Test class for the PW input parser."""
 
-    def singletest(self, label, parser="pw", qe_version=None, validate_species_names=True):
+    def singletest(
+        self, label, parser="pw", qe_version=None, validate_species_names=True
+    ):
         """
         Run a single test.
 
@@ -356,7 +366,9 @@ def print_test_comparison(label, parser="pw", write=False):
     if write:
         ref_fname = os.path.join(reference_folder, f"{label}.json")
         with open(ref_fname, "w", encoding="utf-8") as f:
-            f.write(str(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False)))
+            f.write(
+                str(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False))
+            )
             print(f"File '{ref_fname}' written.")
     else:
         print(json.dumps(result, indent=2, sort_keys=True))
