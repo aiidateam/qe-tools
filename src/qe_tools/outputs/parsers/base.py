@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from io import TextIOBase
-from pathlib import Path
-
 import abc
 import re
+from io import TextIOBase
+from pathlib import Path
 from typing import TextIO
 
 from qe_tools.utils import convert_qe_time_to_sec
