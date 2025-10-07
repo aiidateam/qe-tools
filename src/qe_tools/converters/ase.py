@@ -24,7 +24,7 @@ class ASEConverter(BaseConverter):
             Atoms,
             {
                 "symbols": (
-                    "xml.output.atomic_species.species",
+                    "xml.output.atomic_structure.atomic_positions.atom",
                     [lambda species: re.sub(r"\d+", "", species["@name"][:2])],
                 ),
                 "cell": (
