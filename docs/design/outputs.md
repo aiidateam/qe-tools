@@ -11,7 +11,39 @@ Below is a rough schematic of how the current implementation works:
 
 ## One file, one parser class
 
-All the logic related to parsing (or generating) a file should be stored on one class, with possibly some generic utility methods shared between parser classes.
+All the logic related to parsing (or generating) a file should be stored on one class, with generic utility methods shared between parser classes.
+The parser classes are implemented as stateless objects, which have to implement a single `parse`
+method with the following signature:
+
+```python
+def parse(content: str):
+
+    parsed_data: dict = ...
+    return parsed_data
+```
+
+This make their usage and implementation very transparent. Moreover, it means we can
+obtain the parsed data in a single step, e.g.:
+
+```python
+parsed_data = PwXMLParser.parse(content)
+```
+
+The abstract base class `BaseOutputFileParser` also implements a `parse_from_file` method that all parser classes can use:
+
+```python
+parsed_data = PwXMLParser.parse_from_file('qe_dir/pwscf.xml')
+```
+
+!!! note
+
+    One motivation for having a stateful class might be performance: by storing the raw content on the class and only parsing it later, we can selectively parse what is needed.
+    However, parsing the XML is most likely the most expensive operation we'll have to do here, in part because of the validation done by `xmlschema`.
+    We're not sure if partially parsing the XML is an option, or we would lose the validation.
+    There is also no performance bottleneck at this stage, even for larger XML files the parsing only takes 50 ms.
+
+    Since the parser classes are not part of the public API at this point (see below), we can still come back on this point at a later date.
+    Moreover, we can still keep the static methods in place, i.e. make changes to support partial parsing in a backwards-compatible manner.
 
 !!! question "Should the file parser classes be part of the public API?"
 
