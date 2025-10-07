@@ -1,6 +1,7 @@
 """Base parser for the outputs of Quantum ESPRESSO."""
 
 from __future__ import annotations
+from glom import glom
 
 import abc
 
@@ -17,3 +18,7 @@ class BaseOutput(abc.ABC):
     @abc.abstractmethod
     def from_dir(cls, directory: str):
         pass
+
+    def get_output_from_spec(self, spec):
+        """Extract data from the "raw" outputs using a `glom` specification."""
+        return glom(self.raw_outputs, spec)
