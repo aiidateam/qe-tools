@@ -10,6 +10,7 @@ from qe_tools.outputs.pw import PwOutput
 
 @pytest.fixture
 def raw_outputs():
+    """Simple `raw_outputs` for transparent testing."""
     return yaml.safe_load(
         dedent(
             """

@@ -5,6 +5,8 @@ from numpy import ndarray
 
 @pytest.fixture()
 def robust_data_regression_check(data_regression, json_serializer):
+    """Run a `data_regression.check` call, after converting the data with `json_serializer`."""
+
     def factory(input):
         return data_regression.check(json_serializer(input))
 
@@ -17,8 +19,8 @@ def json_serializer():
 
     Supported conversions:
 
-        * numpy.ndarray; converted into list with `.tolist()`.
-        * float/int: convert into float rounded to 5 digits.
+        * `numpy.ndarray`; converted into list with `.tolist()`.
+        * `float`/`int`: convert into float rounded to 5 digits.
     """
 
     def factory(item):

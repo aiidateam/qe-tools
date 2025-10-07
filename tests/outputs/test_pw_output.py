@@ -1,5 +1,3 @@
-"""Tests for the ``PwOutput``."""
-
 from pathlib import Path
 
 import pytest
