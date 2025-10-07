@@ -130,6 +130,25 @@ Having a string as an input is not the most user-friendly:
 
 These issues will be addressed in future work.
 
+## Custom spec
+
+In order to give users more power and freedom to users, we want them to be able to write their own custom spec to get the outputs they are interested in.
+Note that they could already do this quite easily:
+
+```
+from glom import glom
+
+glom(pw_out.raw_outputs, 'xml.output.magnetization.absolute')
+```
+
+But in order to make this _even more_ accessible, we add a `BaseOutput.get_output_from_spec()` method:
+
+```
+pw_out.get_output_from_spec('xml.output.magnetization.absolute')
+```
+
+Which does _exactly_ the same thing.
+
 ## Other codes than `pw.x`:
 
 How to support multiple "raw" outputs? (i.e. for the various codes?)
