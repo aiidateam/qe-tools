@@ -37,6 +37,16 @@ Home = 'https://github.com/aiidateam/qe-tools'
 Source = 'https://github.com/aiidateam/qe-tools'
 
 [project.optional-dependencies]
+ase = [
+  "ase",
+  "pint"
+]
+pymatgen = [
+  "pymatgen"
+]
+aiida = [
+  "aiida-core"
+]
 docs = [
 "mkdocs",
   "mkdocs-material"
@@ -53,7 +63,7 @@ pre-commit = [
 
 [dependency-groups]
 dev = [
-  "qe-tools[docs,tests,pre-commit]",
+  "qe-tools[docs,tests,pre-commit, ase, pymatgen]",
 ]
 
 [tool.hatch.version]
@@ -74,7 +84,7 @@ scripts.install = "pre-commit install"
 scripts.run = "pre-commit run {args}"
 
 [tool.hatch.envs.hatch-test]
-features = ["tests"]
+features = ["tests", "ase", "pymatgen"]
 randomize = false
 parallel = false
 run = "pytest {args}"
