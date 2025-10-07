@@ -34,27 +34,23 @@ def test_default_xml(data_regression, xml_format):
     )
 
 
-def test_ase_outputs(data_regression, json_serializer):
+def test_ase_outputs(robust_data_regression_check):
     pw_directory = Path(__file__).parent / "fixtures" / "pw" / "default_xml_240411"
 
     pw_out = PwOutput.from_dir(pw_directory)
 
-    data_regression.check(
-        {
-            "structure": json_serializer(
-                pw_out.get_output("structure", fmt="ase").todict()
-            ),
-        }
+    robust_data_regression_check(
+        {"structure": pw_out.get_output("structure", fmt="ase").todict()}
     )
 
 
-def test_pymatgen_outputs(data_regression):
+def test_pymatgen_outputs(robust_data_regression_check):
     pw_directory = Path(__file__).parent / "fixtures" / "pw" / "default_xml_240411"
 
     pw_out = PwOutput.from_dir(pw_directory)
 
-    data_regression.check(
+    robust_data_regression_check(
         {
             "structure": pw_out.get_output("structure", fmt="pymatgen").as_dict(),
-        }
+        },
     )
