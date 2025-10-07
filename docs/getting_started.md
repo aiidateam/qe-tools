@@ -20,17 +20,16 @@ jupyter:
 
 ## Parsing `pw.x` outputs
 
-Say we have just run a `pw.x` calculation in the `qe_dir` directory:
+Say you have just run a `pw.x` calculation in the `qe_dir` directory.
+You can parse the outputs from this directory using:
 
 ```python
 from qe_tools.outputs import PwOutput
 
-qe_dir = '/Users/mbercx/project/qetools/data/qe_dir'
-
-pw_out = PwOutput.from_dir(qe_dir)
+pw_out = PwOutput.from_dir('qe_dir')
 ```
 
-You can then obtain the Fermi energy from:
+You can then obtain e.g. the Fermi energy from:
 
 ```python
 pw_out.get_output('fermi_energy')
@@ -43,7 +42,7 @@ pw_out.get_output('structure')
 ```
 
 But likely, you'll want the structure in the flavor of your favorite Python package.
-You can also do this:
+You can also do this using the `fmt` input:
 
 ```python
 pw_out.get_output('structure', fmt='ase')
@@ -51,14 +50,20 @@ pw_out.get_output('structure', fmt='ase')
 
 ## Parsing a single output file
 
-If you only want to parse the `stdout` of the `pw.x` calculation, you can use the `from_files` method:
+If you want to parse the contents of a single output file of the `pw.x` calculation, you can use the `from_files` method:
 
 ```python
 from qe_tools.outputs import PwOutput
 
-pw_out = PwOutput.from_files(stdout='/Users/mbercx/project/qetools/data/qe_dir/pw.out')
-pw_out.raw_outputs
+pw_out = PwOutput.from_files(xml='qe_dir/pwscf.xml')
+pw_out.get_output('fermi_energy')
 ```
+
+!!! warning "Important"
+
+    For the `pw.x` calculation, we retrieve most of the final outputs from the XML file.
+    Parsing _only_ from the `stdout` file will lead to limited results.
+
 
 ## Parsing an already existing input file
 
@@ -67,15 +72,8 @@ Currently the input class `PwInputFile` only supports parsing an already existin
 from qe_tools.inputs.pw import PwInputFile
 from pathlib import Path
 
-pw_input = PwInputFile((Path(qe_dir) / 'pw.in').read_text())
+pw_input = PwInputFile((Path('qe_dir') / 'pw.in').read_text())
 pw_input.as_dict()
 ```
 
-
 This will also only really parse the structure and k-points at the moment, so not very useful. 😅
-
-
-
-
-
-
