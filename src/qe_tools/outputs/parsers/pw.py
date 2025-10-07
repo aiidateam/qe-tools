@@ -18,7 +18,13 @@ class PwXMLParser(BaseOutputFileParser):
     def parse(content):
         """Parse the XML output of Quantum ESPRESSO pw.x."""
 
-        element_root = ElementTree.fromstring(content)
+        try:
+            element_root = ElementTree.fromstring(content)
+        except ElementTree.ParseError:
+            raise ValueError(
+                "Unable to parse the XML file!\n"
+                "Double-check that the file is the correct one, and is not incomplete/corrupted."
+            ) from None
 
         str_filename = element_root.get(
             "{http://www.w3.org/2001/XMLSchema-instance}schemaLocation"
