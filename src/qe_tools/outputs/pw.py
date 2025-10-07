@@ -46,7 +46,7 @@ class PwOutput(BaseOutput):
         raw_outputs = {}
 
         if stdout is not None:
-            raw_outputs = PwStdoutParser.parse_from_file(stdout)
+            raw_outputs["stdout"] = PwStdoutParser.parse_from_file(stdout)
 
         if xml is not None:
             raw_outputs["xml"] = PwXMLParser.parse_from_file(xml)

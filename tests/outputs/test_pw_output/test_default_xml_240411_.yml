@@ -1,7 +1,8 @@
 fermi_energy: 0.2382326174337512
 outputs:
-  code_version: 7.3.1
-  wall_time_seconds: 2.51
+  stdout:
+    code_version: 7.3.1
+    wall_time_seconds: 2.51
   xml:
     '@Units': Hartree atomic units
     '@{http://www.w3.org/2001/XMLSchema-instance}schemaLocation': http://www.quantum-espresso.org/ns/qes/qes-1.0
