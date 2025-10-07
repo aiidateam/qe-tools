@@ -7,6 +7,16 @@ The main goal of this package should be to develop *easy to use* tools to deal w
 
 We want to target both conventional Quantum ESPRESSO users that run calculations manually, but also offer an API that other tools can use to interface with Quantum ESPRESSO more easily.
 
+## Quantum ESPRESSO versions
+
+Providing and maintaining support for _all_ Quantum ESPRESSO versions is not sustainable.
+Hence, starting from `qe-tools==3.0`, we implement the following support conventions:
+
+* Provide support for the five latest minor versions of Quantum ESPRESSO.
+* Older versions are supported up to a maximum of four years.
+
+In line with these conventions, we aim to support Quantum ESPRESSO v7.0 and above for the release of `qe-tools` v3.0.
+
 ## Road map
 
 The basic features we want to offer, in order of priority:

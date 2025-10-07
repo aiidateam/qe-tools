@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 from importlib.resources import files
 from xml.etree import ElementTree
 
@@ -32,22 +31,6 @@ class PwXMLParser(BaseOutputFileParser):
             )
 
         schema_filename = str_filename.split()[1].split("/")[-1]
-
-        # Fix a bug of QE v6.8: the output XML is not consistent with schema, see
-        # https://github.com/aiidateam/aiida-quantumespresso/pull/717
-        try:
-            if (
-                element_root.find("general_info").find("creator").get("VERSION")
-                == "6.8"
-            ):  # type: ignore
-                # root = xml_parsed.getroot()
-                timing_info = element_root.find("./timing_info")
-                partial_pwscf = timing_info.find("partial[@label='PWSCF'][@calls='0']")  # type: ignore
-                with contextlib.suppress((TypeError, ValueError)):
-                    timing_info.remove(partial_pwscf)
-
-        except AttributeError:
-            pass
 
         # Fix issue for QE v7.0: The scheme file name was not updated to `qes_211101.xsd` in the `xsi.schemaLocation`
         # element, see https://github.com/aiidateam/aiida-quantumespresso/pull/774

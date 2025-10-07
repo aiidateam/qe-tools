@@ -10,10 +10,6 @@ from qe_tools.outputs.pw import PwOutput
 @pytest.mark.parametrize(
     "xml_format",
     [
-        "190304",
-        "191206",
-        "200420",
-        "210716",
         "211101",
         "220603",
         "230310",
