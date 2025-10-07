@@ -21,13 +21,15 @@ def test_default_xml(data_regression, xml_format):
 
     name = f"default_xml_{xml_format}"
 
-    directory = Path(__file__).parent / "fixtures" / "pw" / name
+    pw_directory = Path(__file__).parent / "fixtures" / "pw" / name
 
-    pw_out = PwOutput.from_dir(directory)
+    pw_out = PwOutput.from_dir(pw_directory)
 
     data_regression.check(
         {
             "outputs": pw_out.raw_outputs,
+            "structure": pw_out.get_output("structure"),
+            "fermi_energy": pw_out.get_output("fermi_energy"),
         }
     )
 
