@@ -1,7 +1,40 @@
 # Outputs
 
 The main purpose of this package is to parse and convert the outputs of Quantum ESPRESSO calculations into Python types.
-For any data in the XML, that _seems_ easy.
+On this page we discuss the design of the parser functionality.
+
+## Schematic
+
+Below is a rough schematic of how the current implementation works:
+
+![](img/output_parsing.png)
+
+## One file, one parser class
+
+All the logic related to parsing (or generating) a file should be stored on one class, with possibly some generic utility methods shared between parser classes.
+
+!!! question "Should the file parser classes be part of the public API?"
+
+    At first, I would have answered "yes" to this question.
+    However, if a user can easily find the `pw.x` `stdout` parser, they might use it and then be rather disappointed with the result, since we _want_ to parse most outputs from the XML.
+
+## One output object for each calculation
+
+Parsing one file is typically not enough to get all the outputs of a calculation.
+It would be useful to gather all of these into a single "output" object from which the user can access all data they are interested in.
+
+```python
+from qe_tools.outputs import PwOutput
+
+qe_dir = '/Users/mbercx/project/qetools/data/qe_dir'
+
+pw_out = PwOutput.from_dir(qe_dir)
+pw_out.outputs
+```
+
+## Raw output
+
+For any data in the XML, writing a parsers seems _easy_.
 Use the `xmlschema` package to parse (and validate) the data, get a dictionary, and done!
 
 However, the "raw" outputs of the XML are perhaps not the most user friendly.
@@ -20,11 +53,11 @@ The `raw_outputs` are massive, and in a format that most users won't understand.
 
 ## Querying JSON
 
-So we want to extract and present the outputs that most users care about: structure, Fermi energy, forces, etc.
+Instead, we want to extract and present the outputs that most users care about: structure, Fermi energy, forces, etc.
 However, we want to make sure that:
 
 1. it is very clear from which raw output data the final output is parsed.
-2. the logic of how a final output is parsed as isolated as possible.
+2. the logic of how a final output is parsed as _localized_ as possible (to borrow a phrase from quantum mechanics).
 3. we avoid having to guard against the absence of certain keys with massive `get(value, {})` links.
 
 In order to do this, we decided to look for a "JSON querying" tool, that allows us to quickly, robustly and with a few lines of code extract the data we are interested in.
@@ -58,15 +91,15 @@ output_mapping = {
 ## Extending to other tools
 
 Another goal is to be able to convert the outputs into formats of well-known packages in the community (AiiDA, ASE, pymatgen, ...).
-Some thoughts here:
+Some goals here:
 
-- We want to be able to specify tool-agnostic defaults and then override them
-- Again: we want all the parser logic of one output to be as isolated as possible.
-
+- We want to be able to specify tool-agnostic defaults and then override them.
+- Again: we want all the parser logic of one output to be as localized as possible.
+- All tools should be optional dependencies defined as extras.
 
 For this we need several steps:
 
-1. Extraction from the (complicated) QE XML.
+1. Extraction from the (complicated) `raw_outputs`.
 2. Conversion into the right units (bonus: ability to add units with `pint`).
 3. Conversion into the object corresponding to the output in each tool.
 
@@ -76,7 +109,7 @@ For this, we implement a `BaseConverter` class that:
 2. Organizes these defaults in a `output_mapping` class variable.
 3. Implements basic methods for extracting outputs shared by all converter classes.
 
-For each supported tool, we then provide a child class that inherits from `BaseConverter` (e.g. `AiiDACoverter`).
+For each supported tool, we then provide a child class that inherits from `BaseConverter` (e.g. `AiiDAConverter`).
 This class can define its own `output_mapping`, and _should_ merge that with the parent one.
 
 For classes that can be entirely constructed via their constructor (`__init__` method), we can define the corresponding `output_mapping` value as a `(<output_class>, <glom_spec>)` tuple.
@@ -122,15 +155,19 @@ pw_out = PwOutput.from_dir('/path/to/qe_dir')
 pw_out.get_output('fermi_energy')
 ```
 
-Having a string as an input is not the most user-friendly:
+!!! note
+    Having a string as an input is not the most user-friendly, as it suffers from the following issues:
 
-1. How to know which properties there are?
-2. No tab-completion makes me a sad panda.
-3. What if I want more outputs?
+    1. How to know which properties there are?
+    2. No tab-completion makes me a sad panda.
 
-These issues will be addressed in future work.
+    These issues will be addressed in future work.
 
 ## Custom spec
+
+!!! question
+
+    What if the user wants more outputs?
 
 In order to give users more power and freedom to users, we want them to be able to write their own custom spec to get the outputs they are interested in.
 Note that they could already do this quite easily:
@@ -151,5 +188,9 @@ Which does _exactly_ the same thing.
 
 ## Other codes than `pw.x`:
 
-How to support multiple "raw" outputs? (i.e. for the various codes?)
--> I think separate converter classes may be necessary? They should have different outputs in any case.
+!!! question
+
+    How to support multiple "raw" outputs, i.e. for the various codes (`projwfc.x`, `ph.x`, ...)?
+
+I think separate converter classes may be necessary?
+They should have different outputs in any case.

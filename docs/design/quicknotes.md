@@ -12,29 +12,9 @@ The currently envisioned class structure is shown in the sketch below, for the `
 
 ![](img/class_structure.png)
 
-### One file, one parser class
+## Outputs
 
-This just makes the most sense.
-All the logic related to parsing (or generating) a file should be stored on one class, with possibly some generic utility methods shared between parser classes.
-
-!!! question "Should the file parser classes be part of the public API?"
-
-    At first, I would have answered "yes" to this question.
-    However, if a user can easily find the `pw.x` `stdout` parser, they might use it and then be rather disappointed with the result, since we _want_ to parse most outputs from the XML.
-
-### One output object for each calculation
-
-Parsing one file is typically not enough to get all the outputs of a calculation.
-It would be useful to gather all of these into a single "output" object from which the user can access all data they are interested in.
-
-```python
-from qe_tools.outputs import PwOutput
-
-qe_dir = '/Users/mbercx/project/qetools/data/qe_dir'
-
-pw_out = PwOutput.from_dir(qe_dir)
-pw_out.outputs
-```
+The notes on this topic have been moved to [a separate page](outputs.md).
 
 ## One input per code
 
