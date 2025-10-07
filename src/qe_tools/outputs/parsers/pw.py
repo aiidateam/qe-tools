@@ -14,13 +14,11 @@ class PwXMLParser(BaseOutputFileParser):
     Class for parsing the XML output of pw.x.
     """
 
-    def __init__(self, string: str):
-        super().__init__(string=string)
-
-    def parse(self):
+    @staticmethod
+    def parse(content):
         """Parse the XML output of Quantum ESPRESSO pw.x."""
 
-        element_root = ElementTree.fromstring(self.string)
+        element_root = ElementTree.fromstring(content)
 
         str_filename = element_root.get(
             "{http://www.w3.org/2001/XMLSchema-instance}schemaLocation"
@@ -43,15 +41,10 @@ class PwXMLParser(BaseOutputFileParser):
         except AttributeError:
             pass
 
-        self.dict_out["xml"] = XMLSchema(str(files(schemas) / schema_filename)).to_dict(
-            element_root
-        )
+        return XMLSchema(str(files(schemas) / schema_filename)).to_dict(element_root)
 
 
 class PwStdoutParser(BaseStdoutParser):
     """
     Class for parsing the standard output of pw.x.
     """
-
-    def __init__(self, string: str):
-        super().__init__(string=string)

@@ -46,14 +46,10 @@ class PwOutput(BaseOutput):
         raw_outputs = {}
 
         if stdout is not None:
-            parser_std = PwStdoutParser.from_file(stdout)
-            parser_std.parse()
-            raw_outputs |= parser_std.dict_out
+            raw_outputs = PwStdoutParser.parse_from_file(stdout)
 
         if xml is not None:
-            parser_xml = PwXMLParser.from_file(xml)
-            parser_xml.parse()
-            raw_outputs |= parser_xml.dict_out
+            raw_outputs["xml"] = PwXMLParser.parse_from_file(xml)
 
         return cls(raw_outputs=raw_outputs)
 
