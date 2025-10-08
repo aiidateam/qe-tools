@@ -118,6 +118,12 @@ output_mapping = {
 }
 ```
 
+!!! warning "Important"
+
+    In our current design, we have a `BaseOutput` class that defines several "data retrieval" methods.
+    Some of these rely on the fact that the child classes (e.g. `PwOutput`) cannot have state changes after construction.
+    This _should_ be the case, and no mutating methods should be allowed on `BaseOutput` classes.
+
 ## Conversion to other libraries
 
 ![Output extraction](img/output_conversion.png)

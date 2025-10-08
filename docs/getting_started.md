@@ -54,6 +54,19 @@ You can list all available outputs:
 pw_out.list_outputs()
 ```
 
+Alternatively, you can also find the **available** outputs in the `outputs` namespace:
+
+```python
+pw_out.outputs.fermi_energy
+```
+
+!!! warning
+
+    The `outputs` namespace is designed for interactive access.
+    If an output is not available, it will not be in the namespace.
+    For programmatic access, use the `get_output` method.
+
+
 ## Parsing a single output file
 
 If you want to parse the contents of a single output file of the `pw.x` calculation, you can use the `from_files` method:

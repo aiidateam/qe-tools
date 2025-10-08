@@ -1,7 +1,9 @@
 """Base parser for the outputs of Quantum ESPRESSO."""
 
 from __future__ import annotations
-from glom import glom
+from functools import cached_property
+from types import SimpleNamespace
+from glom import glom, GlomError
 
 import abc
 
@@ -22,11 +24,6 @@ class BaseOutput(abc.ABC):
     def get_output_from_spec(self, spec):
         """Extract data from the "raw" outputs using a `glom` specification."""
         return glom(self.raw_outputs, spec)
-
-    @classmethod
-    def list_outputs(cls) -> list[str]:
-        """List the available outputs."""
-        return list(cls._output_spec_mapping.keys())
 
     def get_output(self, name: str, to=None):
         """Return a parsed output by key, optionally converted to a library object.
@@ -56,3 +53,23 @@ class BaseOutput(abc.ABC):
             raise ValueError(f"Library '{to}' is not supported.")
 
         return Converter().convert(name, output_data)
+
+    @classmethod
+    def list_outputs(cls) -> list[str]:
+        """List the available outputs."""
+        return list(cls._output_spec_mapping.keys())
+
+    @cached_property
+    def outputs(self) -> SimpleNamespace:
+        """Namespace with successfully retrievable outputs."""
+        namespace = SimpleNamespace()
+
+        for name in self.list_outputs():
+            try:
+                value = self.get_output(name)
+            except GlomError:
+                continue
+
+            setattr(namespace, name, value)
+
+        return namespace
