@@ -12,8 +12,8 @@ Python tools for working with [Quantum ESPRESSO](https://www.quantum-espresso.or
 
 The basic features we want to offer, in order of priority:
 
-1. Output parsing.
-2. Input file parsing / generation / validation.
-3. Interfaces with other tools (AiiDA, `pymatgen`, ASE, ...).
-4. Definitions and explanations of failure modes (i.e. exit codes/status).
-5. (tbd) Error handling approaches.
+1. Output parsing: see [current design](https://qe-tools.readthedocs.io/en/latest/design/outputs/).
+1. Interoperability with other tools ([AiiDA](https://aiida.net/), [`pymatgen`](https://pymatgen.org/), [ASE](https://ase-lib.org/), [MaRDA extractors](https://github.com/marda-alliance/metadata_extractors), ...).
+1. Input file parsing / generation / validation.
+1. Definitions and explanations of failure modes.
+1. (tbd) Error handling approaches.
