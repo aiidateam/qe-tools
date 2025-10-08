@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-from importlib.util import find_spec
-
 import numpy as np
-from pymatgen.core.structure import Structure
 
 from qe_tools.converters.base import BaseConverter
 
-_has_pmg = bool(find_spec("pymatgen"))
-if not _has_pmg:
-    raise ImportError(
-        "pymatgen should be properly installed to use the pymatgen converter."
-    )
+try:
+    from pymatgen.core.structure import Structure
+except ImportError:
+    raise ModuleNotFoundError(
+        "Unable to import from the 'pymatgen' library.\n"
+        "Consider (re)installing 'qe-tools` with the 'pymatgen' extra:\n\n"
+        "  pip install qe-tools[pymatgen]"
+    ) from None
 
 
 class PymatgenConverter(BaseConverter):

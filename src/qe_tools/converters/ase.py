@@ -1,20 +1,21 @@
 from __future__ import annotations
 
 import contextlib
-from importlib.util import find_spec
 
 import numpy as np
 import pint
-from ase import Atoms
 
 from qe_tools import CONSTANTS, ELEMENTS
 from qe_tools.converters.base import BaseConverter
 
-_has_ase = bool(find_spec("ase"))
-if not _has_ase:
-    raise ImportError("ASE should be properly installed to use the ASE converter.")
-else:
-    from ase.atoms import Atoms
+try:
+    from ase import Atoms
+except ImportError:
+    raise ModuleNotFoundError(
+        "Unable to import from the 'ase' library.\n"
+        "Consider (re)installing 'qe-tools` with the 'ase' extra:\n\n"
+        "  pip install qe-tools[ase]"
+    ) from None
 
 
 class ASEConverter(BaseConverter):
@@ -74,14 +75,12 @@ def get_output_ase(self):
             )
             * CONSTANTS.bohr_to_ang
         )
-
-        if _has_ase:
-            converted_outputs["ase_structure"] = Atoms(
-                cell=cell,
-                positions=positions,
-                symbols=symbols,
-                pbc=True,
-            )
+        converted_outputs["ase_structure"] = Atoms(
+            cell=cell,
+            positions=positions,
+            symbols=symbols,
+            pbc=True,
+        )
 
     with contextlib.suppress(KeyError):
         converted_outputs["energy"] = (

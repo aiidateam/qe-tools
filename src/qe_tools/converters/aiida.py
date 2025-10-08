@@ -1,9 +1,17 @@
 from __future__ import annotations
 
 import numpy as np
-from aiida import orm
 
 from qe_tools.converters.base import BaseConverter
+
+try:
+    from aiida import orm
+except ImportError:
+    raise ModuleNotFoundError(
+        "Unable to import the 'aiida.orm' module.\n"
+        "Consider (re)installing 'qe-tools` with the 'aiida' extra:\n\n"
+        "  pip install qe-tools[aiida]"
+    ) from None
 
 
 def _convert_structure_data(cell, symbols, positions):
