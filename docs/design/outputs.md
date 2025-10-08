@@ -3,13 +3,11 @@
 The main purpose of this package is to parse and convert the outputs of Quantum ESPRESSO calculations into Python types.
 On this page we discuss the design of the parser functionality.
 
-## Schematic
+## Parsing
+<br>
+![Output extraction](img/output_extraction.png)
 
-Below is a rough schematic of how the current implementation works:
-
-![](img/output_parsing.png)
-
-## One file, one parser class
+### One file, one parser class
 
 All the logic related to parsing (or generating) a file should be stored on one class, with generic utility methods shared between parser classes.
 The parser classes are implemented as stateless objects, which have to implement a single `parse`
@@ -50,7 +48,7 @@ parsed_data = PwXMLParser.parse_from_file('qe_dir/pwscf.xml')
     At first, I would have answered "yes" to this question.
     However, if a user can easily find the `pw.x` `stdout` parser, they might use it and then be rather disappointed with the result, since we _want_ to parse most outputs from the XML.
 
-## One output object for each calculation
+### One output object for each calculation
 
 Parsing one file is typically not enough to get all the outputs of a calculation.
 It would be useful to gather all of these into a single "output" object from which the user can access all data they are interested in.
@@ -64,7 +62,7 @@ pw_out = PwOutput.from_dir(qe_dir)
 pw_out.outputs
 ```
 
-## Raw output
+### Raw output
 
 For any data in the XML, writing a parsers seems _easy_.
 Use the `xmlschema` package to parse (and validate) the data, get a dictionary, and done!
@@ -83,14 +81,14 @@ pw_out.raw_outputs
 
 The `raw_outputs` are massive, and in a format that most users won't understand.
 
-## Querying JSON
+### Querying JSON
 
-Instead, we want to extract and present the outputs that most users care about: structure, Fermi energy, forces, etc.
+Instead, we want to query for or "extract" the outputs that most users care about: structure, Fermi energy, forces, etc.
 However, we want to make sure that:
 
-1. it is very clear from which raw output data the final output is parsed.
-2. the logic of how a final output is parsed as _localized_ as possible (to borrow a phrase from quantum mechanics).
-3. we avoid having to guard against the absence of certain keys with massive `get(value, {})` links.
+1. it is very clear from which raw output data the final output is extracted.
+2. the logic of how a final output is extracted is as _localized_ as possible (to borrow a phrase from quantum mechanics).
+3. we avoid having to guard against the absence of certain keys with massive `get(value, {})` chains.
 
 In order to do this, we decided to look for a "JSON querying" tool, that allows us to quickly, robustly and with a few lines of code extract the data we are interested in.
 After doing a bit of research, we decided to give [`glom`](https://glom.readthedocs.io/en/latest/index.html) a try.
@@ -103,11 +101,11 @@ glom(pw_out.raw_outputs, {'fermi_energy': 'xml.output.band_structure.fermi_energ
 ```
 
 This will return a dictionary: `{'fermi_energy': 0.04425026484437661}`.
-The idea is that every output has one key-value pair in an `output_mapping` dictionary:
+The idea is that every base output has one key-value pair in an `_output_spec_mapping` dictionary defined on each output class:
 
 ```python
-output_mapping = {
-    <output_name: str>: (<output_class>, <glom_spec>),
+_output_spec_mapping = {
+    <output_name: str>: <glom_spec>,
     ...
 }
 ```
@@ -116,59 +114,46 @@ For example:
 
 ```python
 output_mapping = {
-    'fermi_energy': (float, 'xml.output.band_structure.fermi_energy')
+    'fermi_energy': 'xml.output.band_structure.fermi_energy'
 }
 ```
 
-## Extending to other tools
+## Conversion to other libraries
 
-Another goal is to be able to convert the outputs into formats of well-known packages in the community (AiiDA, ASE, pymatgen, ...).
-Some goals here:
+![Output extraction](img/output_conversion.png)
 
-- We want to be able to specify tool-agnostic defaults and then override them.
-- Again: we want all the parser logic of one output to be as localized as possible.
-- All tools should be optional dependencies defined as extras.
+Another goal is to be able to convert the base outputs into formats of well-known packages in the community (AiiDA, ASE, pymatgen, ...).
+Some deliverables here:
 
-For this we need several steps:
+- Outputs that need to be converted should be done so on the fly, and they should be available in the same way as base outputs that don't require conversion.
+- We want all the converter logic of one output/library to be as localized as possible.
+- All libraries should be optional dependencies defined as extras.
+  When the user tries to convert to a certain library, we should check if it is available.
 
-1. Extraction from the (complicated) `raw_outputs`.
-2. Conversion into the right units (bonus: ability to add units with `pint`).
-3. Conversion into the object corresponding to the output in each tool.
+We implement a `BaseConverter` class that implements the basic methods for converting outputs shared by all converter classes:
 
-For this, we implement a `BaseConverter` class that:
+- `convert`: converts the `base_output` into the `output` in the converted format of the corresponding class library.
 
-1. Specifies defaults for _all_ supported outputs, which are _basic Python types_.
-2. Organizes these defaults in a `output_mapping` class variable.
-3. Implements basic methods for extracting outputs shared by all converter classes.
-
-For each supported tool, we then provide a child class that inherits from `BaseConverter` (e.g. `AiiDAConverter`).
-This class can define its own `output_mapping`, and _should_ merge that with the parent one.
+For each supported library, we then provide a child class that inherits from `BaseConverter` (e.g. `PymatgenConverter`).
+This class can define a `conversion_mapping`, which again uses `glom` to convert the (much simpler) base output dictionary into the required format.
 
 For classes that can be entirely constructed via their constructor (`__init__` method), we can define the corresponding `output_mapping` value as a `(<output_class>, <glom_spec>)` tuple.
 For example:
 
 ```python
 class PymatgenConverter(BaseConverter):
-    output_mapping = BaseConverter.output_mapping | {
+
+    conversion_mapping = {
         "structure": (
             Structure,
             {
-                "species": (
-                    "xml.output.atomic_species.species",
-                    [lambda species: re.sub(r"\d+", "", species["@name"][:2])],
-                ),
-                "lattice": (
-                    "xml.output.atomic_structure.cell",
-                    lambda cell: CONSTANTS.bohr_to_ang
-                    * np.array([cell["a1"], cell["a2"], cell["a3"]]),
-                ),
-                "coords": (
-                    "xml.output.atomic_structure.atomic_positions.atom",
-                    [lambda atom: CONSTANTS.bohr_to_ang * np.array(atom["$"])],
-                ),
+                "species": "symbols",
+                "lattice": ("cell", lambda cell: np.array(cell)),
+                "coords": ("positions", lambda positions: np.array(positions)),
             },
         ),
     }
+
 ```
 
 However, if this is not the case, the output cannot be directly constructed with this approach.
@@ -224,5 +209,5 @@ Which does _exactly_ the same thing.
 
     How to support multiple "raw" outputs, i.e. for the various codes (`projwfc.x`, `ph.x`, ...)?
 
-I think separate converter classes may be necessary?
-They should have different outputs in any case.
+The "extraction" specs of the base outputs for each code should be defined on the corresponding output class (e.g. `ProjwfcOutput`).
+The "conversion" specs of _all_ outputs should be defined on a single library converter class (e.g. `PymatgenConverter`).
