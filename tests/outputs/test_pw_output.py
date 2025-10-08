@@ -38,7 +38,7 @@ def test_ase_outputs(robust_data_regression_check):
     pw_out = PwOutput.from_dir(pw_directory)
 
     robust_data_regression_check(
-        {"structure": pw_out.get_output("structure", fmt="ase").todict()}
+        {"structure": pw_out.get_output("structure", to="ase").todict()}
     )
 
 
@@ -49,6 +49,6 @@ def test_pymatgen_outputs(robust_data_regression_check):
 
     robust_data_regression_check(
         {
-            "structure": pw_out.get_output("structure", fmt="pymatgen").as_dict(),
+            "structure": pw_out.get_output("structure", to="pymatgen").as_dict(),
         },
     )
