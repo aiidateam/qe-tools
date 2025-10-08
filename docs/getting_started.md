@@ -45,7 +45,7 @@ But likely, you'll want the structure in the flavor of your favorite Python pack
 You can also do this using the `fmt` input:
 
 ```python
-pw_out.get_output('structure', fmt='ase')
+pw_out.get_output('structure', to='ase')
 ```
 
 You can list all available outputs:
