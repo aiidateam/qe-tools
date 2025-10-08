@@ -5,12 +5,46 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TextIO
 
+from glom import glom
+
 from qe_tools.outputs.base import BaseOutput
 from qe_tools.outputs.parsers.pw import PwStdoutParser, PwXMLParser
+
+from qe_tools import CONSTANTS
 
 
 class PwOutput(BaseOutput):
     """Output of the Quantum ESPRESSO pw.x code."""
+
+    _output_spec_mapping = {
+        "structure": {
+            "atomic_species": (
+                "xml.output.atomic_species.species",
+                [lambda species: species["@name"]],
+            ),
+            "cell": (
+                "xml.output.atomic_structure.cell",
+                lambda cell: [
+                    [coord * CONSTANTS.bohr_to_ang for coord in cell["a1"]],
+                    [coord * CONSTANTS.bohr_to_ang for coord in cell["a2"]],
+                    [coord * CONSTANTS.bohr_to_ang for coord in cell["a3"]],
+                ],
+            ),
+            "symbols": (
+                "xml.output.atomic_structure.atomic_positions.atom",
+                [lambda atom: atom["@name"]],
+            ),
+            "positions": (
+                "xml.output.atomic_structure.atomic_positions.atom",
+                [
+                    lambda atom: [
+                        CONSTANTS.bohr_to_ang * position for position in atom["$"]
+                    ]
+                ],
+            ),
+        },
+        "fermi_energy": "xml.output.band_structure.fermi_energy",
+    }
 
     @classmethod
     def from_dir(cls, directory: str | Path):
@@ -54,24 +88,24 @@ class PwOutput(BaseOutput):
         return cls(raw_outputs=raw_outputs)
 
     def get_output(self, output: str, fmt="basic"):
-        if fmt == "basic":
-            from qe_tools.converters.base import BaseConverter
+        output_data = glom(self.raw_outputs, self._output_spec_mapping[output])
 
-            return BaseConverter().get_output(output, self.raw_outputs)
+        if fmt == "basic":
+            return output_data
 
         if fmt == "aiida":
             from qe_tools.converters.aiida import AiiDAConverter
 
-            return AiiDAConverter().get_output(output, self.raw_outputs)
+            return AiiDAConverter().convert(output, output_data)
 
         if fmt == "ase":
             from qe_tools.converters.ase import ASEConverter
 
-            return ASEConverter().get_output(output, self.raw_outputs)
+            return ASEConverter().convert(output, output_data)
 
         if fmt == "pymatgen":
             from qe_tools.converters.pymatgen import PymatgenConverter
 
-            return PymatgenConverter().get_output(output, self.raw_outputs)
+            return PymatgenConverter().convert(output, output_data)
 
         raise ValueError(f"Format '{fmt}' is not supported.")

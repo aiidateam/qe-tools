@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import contextlib
-import re
 from importlib.util import find_spec
 
 import numpy as np
@@ -19,23 +18,13 @@ else:
 
 
 class ASEConverter(BaseConverter):
-    output_mapping = BaseConverter.output_mapping | {
+    conversion_mapping = {
         "structure": (
             Atoms,
             {
-                "symbols": (
-                    "xml.output.atomic_structure.atomic_positions.atom",
-                    [lambda species: re.sub(r"\d+", "", species["@name"][:2])],
-                ),
-                "cell": (
-                    "xml.output.atomic_structure.cell",
-                    lambda cell: CONSTANTS.bohr_to_ang
-                    * np.array([cell["a1"], cell["a2"], cell["a3"]]),
-                ),
-                "positions": (
-                    "xml.output.atomic_structure.atomic_positions.atom",
-                    [lambda atom: CONSTANTS.bohr_to_ang * np.array(atom["$"])],
-                ),
+                "symbols": "symbols",
+                "cell": ("cell", lambda cell: np.array(cell)),
+                "positions": ("positions", lambda positions: np.array(positions)),
             },
         ),
     }
