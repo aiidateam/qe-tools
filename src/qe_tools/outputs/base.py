@@ -5,6 +5,8 @@ from glom import glom
 
 import abc
 
+from qe_tools.converters.base import BaseConverter
+
 
 class BaseOutput(abc.ABC):
     """
@@ -22,3 +24,7 @@ class BaseOutput(abc.ABC):
     def get_output_from_spec(self, spec):
         """Extract data from the "raw" outputs using a `glom` specification."""
         return glom(self.raw_outputs, spec)
+
+    def list_outputs(self) -> list[str]:
+        """List the available outputs."""
+        return list(BaseConverter.output_mapping.keys())

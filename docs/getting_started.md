@@ -48,6 +48,12 @@ You can also do this using the `fmt` input:
 pw_out.get_output('structure', fmt='ase')
 ```
 
+You can list all available outputs:
+
+```python
+pw_out.list_outputs()
+```
+
 ## Parsing a single output file
 
 If you want to parse the contents of a single output file of the `pw.x` calculation, you can use the `from_files` method:
