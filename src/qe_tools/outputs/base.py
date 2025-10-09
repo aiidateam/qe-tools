@@ -52,7 +52,11 @@ class BaseOutput(abc.ABC):
         else:
             raise ValueError(f"Library '{to}' is not supported.")
 
-        return Converter().convert(name, output_data)
+        return (
+            Converter().convert(name, output_data)
+            if name in Converter.conversion_mapping
+            else output_data
+        )
 
     @classmethod
     def list_outputs(cls) -> list[str]:

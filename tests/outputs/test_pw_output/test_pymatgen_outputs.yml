@@ -1,3 +1,4 @@
+fermi_energy: 0.23823
 structure:
   '@class': Structure
   '@module': pymatgen.core.structure
