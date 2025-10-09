@@ -18,4 +18,5 @@ nav:
     - design/outputs.md
     - design/public_api.md
     - design/inputs_desired_usage.md
+    - design/units.md
     - design/quicknotes.md
