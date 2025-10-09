@@ -15,8 +15,8 @@ nav:
   - developer.md
   - Design: 
     - design/scope.md
-    - design/outputs.md
     - design/public_api.md
+    - design/outputs.md
     - design/inputs_desired_usage.md
     - design/units.md
     - design/quicknotes.md
