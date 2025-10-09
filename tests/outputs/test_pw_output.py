@@ -25,11 +25,13 @@ def test_default_xml(data_regression, xml_format):
 
     data_regression.check(
         {
-            "outputs": pw_out.raw_outputs,
-            "structure": pw_out.get_output("structure"),
-            "fermi_energy": pw_out.get_output("fermi_energy"),
-            "forces": pw_out.get_output("forces"),
-            "stress": pw_out.get_output("stress"),
+            "base_outputs": {
+                "structure": pw_out.get_output("structure"),
+                "fermi_energy": pw_out.get_output("fermi_energy"),
+                "forces": pw_out.get_output("forces"),
+                "stress": pw_out.get_output("stress"),
+            },
+            "raw_outputs": pw_out.raw_outputs,
         }
     )
 
