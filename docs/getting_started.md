@@ -81,7 +81,24 @@ pw_out.get_output('fermi_energy')
 !!! warning "Important"
 
     For the `pw.x` calculation, we retrieve most of the final outputs from the XML file.
-    Parsing _only_ from the `stdout` file will lead to limited results.
+
+
+### Parsing other outputs
+
+We don't only provide output parsing for `pw.x`!
+Below you can find and example where we plot the DOS output of a `dos.x` calculation:
+
+```python
+from qe_tools.outputs import DosOutput
+
+dos_out = DosOutput.from_dir('dos_dir')
+```
+
+```python
+import matplotlib.pyplot as plt
+
+plt.plot(dos_out.outputs.energy, dos_out.outputs.dos)
+```
 
 
 ## Parsing an already existing input file
