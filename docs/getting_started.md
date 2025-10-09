@@ -18,7 +18,7 @@ jupyter:
     `qe-tools` is being redesigned significantly for the next major release (v3.0).
     The usage below is expected to break as we improve the API.
 
-## Parsing `pw.x` outputs
+## Parsing outputs
 
 Say you have just run a `pw.x` calculation in the `qe_dir` directory.
 You can parse the outputs from this directory using:
@@ -42,7 +42,7 @@ pw_out.get_output('structure')
 ```
 
 But likely, you'll want the structure in the flavor of your favorite Python package.
-You can also do this using the `fmt` input:
+You can also do this using the `to` input:
 
 ```python
 pw_out.get_output('structure', to='ase')
@@ -66,8 +66,13 @@ pw_out.outputs.fermi_energy
     If an output is not available, it will not be in the namespace.
     For programmatic access, use the `get_output` method.
 
+!!! note
 
-## Parsing a single output file
+    Currently, the `outputs` namespace can only output the "base outputs", without conversion to e.g. ASE.
+    We're exploring ways to change the default output format [in this issue](https://github.com/aiidateam/qe-tools/issues/113)
+
+
+### Parsing a single output file
 
 If you want to parse the contents of a single output file of the `pw.x` calculation, you can use the `from_files` method:
 
@@ -75,12 +80,12 @@ If you want to parse the contents of a single output file of the `pw.x` calculat
 from qe_tools.outputs import PwOutput
 
 pw_out = PwOutput.from_files(xml='qe_dir/pwscf.xml')
-pw_out.get_output('fermi_energy')
 ```
 
 !!! warning "Important"
 
     For the `pw.x` calculation, we retrieve most of the final outputs from the XML file.
+    Parsing _only_ from the `stdout` file will lead to very limited results.
 
 
 ### Parsing other outputs
@@ -103,7 +108,13 @@ plt.plot(dos_out.outputs.energy, dos_out.outputs.dos)
 
 ## Parsing an already existing input file
 
+!!! warning
+
+    The section below is a description of the "old" `qe-tools` approach, and so the features are still quite limited.
+    Parsing and generating input files is further down [our road map](design/scope.md#road-map).
+
 Currently the input class `PwInputFile` only supports parsing an already existing input file:
+
 ```python
 from qe_tools.inputs.pw import PwInputFile
 from pathlib import Path
