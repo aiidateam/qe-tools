@@ -41,6 +41,26 @@ class PwOutput(BaseOutput):
                 ],
             ),
         },
+        "forces": (
+            "xml.output.forces",
+            lambda forces: [
+                [
+                    value * (CONSTANTS.ry_to_ev * 2) / CONSTANTS.bohr_to_ang
+                    for value in forces["$"][atom_index * 3 : (atom_index + 1) * 3]
+                ]
+                for atom_index in range(forces["@dims"][1])
+            ],
+        ),
+        "stress": (
+            "xml.output.stress",
+            lambda stress: [
+                [
+                    value * CONSTANTS.au_gpa
+                    for value in stress["$"][row_number * 3 : (row_number + 1) * 3]
+                ]
+                for row_number in range(3)
+            ],
+        ),
         "fermi_energy": "xml.output.band_structure.fermi_energy",
     }
 
