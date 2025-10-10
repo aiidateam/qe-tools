@@ -37,7 +37,7 @@ parsed_data = PwXMLParser.parse_from_file('qe_dir/pwscf.xml')
 
     One motivation for having a stateful class might be performance: by storing the raw content on the class and only parsing it later, we can selectively parse what is needed.
     However, parsing the XML is most likely the most expensive operation we'll have to do here, in part because of the validation done by `xmlschema`.
-    We're not sure if partially parsing the XML is an option, or we would lose the validation.
+    We're not sure if partially parsing the XML is an option, or we would accept losing the validation.
     There is also no performance bottleneck at this stage, even for larger XML files the parsing only takes 50 ms.
 
     Since the parser classes are not part of the public API at this point (see below), we can still come back on this point at a later date.
@@ -192,13 +192,38 @@ pw_out = PwOutput.from_dir('/path/to/qe_dir')
 pw_out.get_output('fermi_energy')
 ```
 
+However, having a string as an input is not the most user-friendly, as it suffers from the following issues:
+
+1. How to know which properties there are?
+2. No tab-completion.
+
+To solve [1], we added a `list_outputs` method:
+
+```python
+pw_out.list_outputs()
+```
+
 !!! note
-    Having a string as an input is not the most user-friendly, as it suffers from the following issues:
 
-    1. How to know which properties there are?
-    2. No tab-completion makes me a sad panda.
+    Currently, the `list_outputs()` method returns _all_ outputs defined on the `_output_spec_mapping`, which may always be available.
+    We could consider adding a `available_only` input that is set to `True`/`False` by default.
 
-    These issues will be addressed in future work.
+For [2] (and also [1]), we created an `outputs` namespace:
+
+```python
+pw_out.outputs.fermi_energy
+```
+
+Whose attributes are populated on the fly, based on the **available** outputs.
+
+!!! note
+
+    There are currently two "issues" with the `outputs` namespace.
+
+    1. Since an attribute cannot be populated in case the corresponding output isn't there, the output `name` will be missing from the namespace.
+       Hence, the `outputs` namespace only has available outputs.
+    2. The `outputs` namespace can only output the "base outputs", without conversion to e.g. ASE.
+       We're exploring ways to change the default output format [in this issue](https://github.com/aiidateam/qe-tools/issues/113)
 
 ## Custom spec
 
@@ -222,6 +247,14 @@ pw_out.get_output_from_spec('xml.output.magnetization.absolute')
 ```
 
 Which does _exactly_ the same thing.
+
+!!! question
+
+    Currently the `raw_outputs` are a part of the public API, along with the `get_output_from_spec` method that allows users to extract data from the raw outputs.
+    Should this be the case?
+    
+    1. Do we expect a need to change the underlying `raw_outputs` structure?
+    2. If so, is giving users access to the raw outputs worth the need to keep backwards-compatibility?
 
 ## Other codes than `pw.x`:
 

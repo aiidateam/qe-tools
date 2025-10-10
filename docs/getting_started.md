@@ -66,12 +66,6 @@ pw_out.outputs.fermi_energy
     If an output is not available, it will not be in the namespace.
     For programmatic access, use the `get_output` method.
 
-!!! note
-
-    Currently, the `outputs` namespace can only output the "base outputs", without conversion to e.g. ASE.
-    We're exploring ways to change the default output format [in this issue](https://github.com/aiidateam/qe-tools/issues/113)
-
-
 ### Parsing a single output file
 
 If you want to parse the contents of a single output file of the `pw.x` calculation, you can use the `from_files` method:
