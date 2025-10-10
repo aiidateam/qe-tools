@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from glom import T
 from qe_tools.converters.base import BaseConverter
 
 try:
@@ -23,6 +24,21 @@ def _convert_structure_data(cell, symbols, positions):
     return structure
 
 
+def _convert_dos(energy: list, dos: list | dict):
+    xy_data = orm.XyData()
+    xy_data.set_x(np.array(energy), "energy", "eV")
+    if isinstance(dos, dict):
+        xy_data.set_y(
+            [np.array(dos["dos_down"]), np.array(dos["dos_up"])],
+            ["dos_spin_down", "dos_spin_down"],
+            ["states/eV", "states/eV"],
+        )
+    else:
+        xy_data.set_y(np.array(dos), "dos", "states/eV")
+
+    return xy_data
+
+
 class AiiDAConverter(BaseConverter):
     conversion_mapping = {
         "structure": (
@@ -31,6 +47,21 @@ class AiiDAConverter(BaseConverter):
                 "symbols": "atomic_species",
                 "cell": ("cell", lambda cell: np.array(cell)),
                 "positions": ("positions", lambda positions: np.array(positions)),
+            },
+        ),
+        "full_dos": (
+            _convert_dos,
+            {
+                "energy": "energy",
+                "dos": (
+                    T,
+                    lambda full_dos: full_dos["dos"]
+                    if "dos" in full_dos
+                    else {
+                        "dos_down": full_dos["dos_down"],
+                        "dos_up": full_dos["dos_up"],
+                    },
+                ),
             },
         ),
     }

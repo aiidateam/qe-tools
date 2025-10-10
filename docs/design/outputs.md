@@ -159,12 +159,26 @@ class PymatgenConverter(BaseConverter):
             },
         ),
     }
-
 ```
 
 However, if this is not the case, the output cannot be directly constructed with this approach.
 An example here is AiiDA's `StructureData`.
 This points to poor design of this class' constructor, but we can still support the class by allowing the first element in the now `(<output_converter>, <glom_spec>)` tuple to be a function.
+
+!!! note
+
+    This approach requires careful syncing the `_output_spec_mapping` of the output classes to the `conversion_mapping` of the converter classes, and hence the code logic for obtaining is not fully localized.
+    To make things worse, in some cases it also requires understanding the raw outputs (but this can be prevented with clear schemas for the base outputs).
+    We're not fully converged on the design here, but some considerations below:
+
+    1. If we want the code for converting to a certain library to be isolated, we will always have to accept some delocalization.
+       We could consider directly extracting the data required from the raw outputs, but then a developer still has to go check the corresponding output class for the keys it uses to store the raw output, as well as the raw output itself.
+       Moreover: it could lead to a lot of code duplication; right now the base outputs are already in the default units.
+
+    2. One other issue could be name conflicts: in case there are multiple outputs from different output classes that have the same name but different content, you cannot define conversion (or lack thereof) for both of them.
+       However, it seems clear that we should try to have consistent and distinct names for each output.
+
+    At this stage, we think clearly structured and defined "base outputs" are a better approach than direct extraction.
 
 ## User interface
 
