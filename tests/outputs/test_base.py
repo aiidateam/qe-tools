@@ -46,3 +46,18 @@ def test_list_outputs(raw_outputs):
         "A",
         "not-parsed",
     ]
+
+
+def test_get_output_dict(raw_outputs):
+    assert TestBaseOutput(raw_outputs).get_output_dict() == {"A": 1}
+    assert TestBaseOutput(raw_outputs).get_output_dict(
+        [
+            "A",
+        ]
+    ) == {"A": 1}
+    with pytest.raises(KeyError):
+        TestBaseOutput(raw_outputs).get_output_dict(
+            [
+                "B",
+            ]
+        )

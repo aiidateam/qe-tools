@@ -75,6 +75,14 @@ pw_out.outputs.fermi_energy
     If an output is not available, it will not be in the namespace.
     For programmatic access, use the `get_output` method.
 
+
+Finally, you can obtain a dictionary of all **available** outputs in your preferred library:
+
+```python
+pw_out.get_output_dict(to='ase')
+```
+
+
 ### Parsing a single output file
 
 If you want to parse the contents of a single output file of the `pw.x` calculation, you can use the `from_files` method:

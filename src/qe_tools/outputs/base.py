@@ -58,6 +58,22 @@ class BaseOutput(abc.ABC):
             else output_data
         )
 
+    def get_output_dict(
+        self, names: None | list[str] = None, to: None | str = None
+    ) -> dict:
+        """Return a dictionary of (selected) outputs.
+
+        Args:
+            names (list[str]): Output names to include.
+            to (str): Convert each output to a target library (e.g., "aiida", "ase",
+                "pymatgen").
+
+        Returns:
+            dict: Mapping from output name to value.
+        """
+        names = names or self.list_outputs()
+        return {name: self.get_output(name, to=to) for name in names}
+
     def list_outputs(self, only_available: bool = True) -> list[str]:
         """List the output names.
 
