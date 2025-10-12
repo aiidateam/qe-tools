@@ -73,10 +73,9 @@ pw_out.outputs.fermi_energy
 
     The `outputs` namespace is designed for interactive access.
     If an output is not available, it will not be in the namespace.
-    For programmatic access, use the `get_output` method.
 
 
-Finally, you can obtain a dictionary of all **available** outputs in your preferred library:
+Finally, you can obtain a dictionary of all available outputs in your preferred library:
 
 ```python
 pw_out.get_output_dict(to='ase')
@@ -116,22 +115,3 @@ import matplotlib.pyplot as plt
 plt.plot(dos_out.outputs.energy, dos_out.outputs.dos)
 ```
 
-
-## Parsing an already existing input file
-
-!!! warning
-
-    The section below is a description of the "old" `qe-tools` approach, and so the features are still quite limited.
-    Parsing and generating input files is further down [our road map](design/scope.md#road-map).
-
-Currently the input class `PwInputFile` only supports parsing an already existing input file:
-
-```python
-from qe_tools.inputs.pw import PwInputFile
-from pathlib import Path
-
-pw_input = PwInputFile((Path('qe_dir') / 'pw.in').read_text())
-pw_input.as_dict()
-```
-
-This will also only really parse the structure and k-points at the moment, so not very useful. 😅
