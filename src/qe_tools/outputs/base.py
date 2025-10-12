@@ -58,22 +58,38 @@ class BaseOutput(abc.ABC):
             else output_data
         )
 
-    @classmethod
-    def list_outputs(cls) -> list[str]:
-        """List the available outputs."""
-        return list(cls._output_spec_mapping.keys())
+    def list_outputs(self, only_available: bool = True) -> list[str]:
+        """List the output names.
+
+        Args:
+            only_available (bool, default True): Include only outputs that are
+                available, i.e. produced by the calculation and successfully parsed. If
+                False, list all outputs that this parser supports.
+
+        Returns:
+            list[str]: A list of output names.
+        """
+        if not only_available:
+            return list(self._output_spec_mapping.keys())
+
+        output_names = []
+
+        for name in self._output_spec_mapping.keys():
+            try:
+                self.get_output(name)
+            except GlomError:
+                continue
+            else:
+                output_names.append(name)
+
+        return output_names
 
     @cached_property
     def outputs(self) -> SimpleNamespace:
         """Namespace with successfully retrievable outputs."""
         namespace = SimpleNamespace()
 
-        for name in self.list_outputs():
-            try:
-                value = self.get_output(name)
-            except GlomError:
-                continue
-
-            setattr(namespace, name, value)
+        for name in self.list_outputs(only_available=True):
+            setattr(namespace, name, self.get_output(name))
 
         return namespace

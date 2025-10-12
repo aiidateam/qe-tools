@@ -7,6 +7,8 @@ from qe_tools.outputs.base import BaseOutput
 
 
 class TestBaseOutput(BaseOutput):
+    _output_spec_mapping = {"A": "a", "not-parsed": "e"}
+
     def from_dir(cls, _: str):
         pass
 
@@ -36,3 +38,11 @@ def raw_outputs():
 )
 def test_get_output_from_spec(raw_outputs, spec, result):
     assert result == TestBaseOutput(raw_outputs).get_output_from_spec(spec)
+
+
+def test_list_outputs(raw_outputs):
+    assert TestBaseOutput(raw_outputs).list_outputs() == ["A"]
+    assert TestBaseOutput(raw_outputs).list_outputs(only_available=False) == [
+        "A",
+        "not-parsed",
+    ]

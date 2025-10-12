@@ -54,6 +54,15 @@ You can list all available outputs:
 pw_out.list_outputs()
 ```
 
+!!! note
+
+    By default, the `list_outputs` method will only return the list of available outputs, i.e. that can be parsed from the output files.
+    To see all **supported** outputs, run:
+
+    ```python
+    pw_out.list_outputs(only_available=False)
+    ```
+
 Alternatively, you can also find the **available** outputs in the `outputs` namespace:
 
 ```python
