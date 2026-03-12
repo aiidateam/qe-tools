@@ -1,4 +1,4 @@
-"""Output of the Quantum ESPRESSO pw.x code."""
+"""Output of the Quantum ESPRESSO dos.x code."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ def _determine_spin_type(spin: dict) -> str:
 
 
 class DosOutput(BaseOutput):
-    """Output of the Quantum ESPRESSO pw.x code."""
+    """Output of the Quantum ESPRESSO dos.x code."""
 
     _output_spec_mapping = {
         "energy": "dos.energy",
