@@ -12,6 +12,7 @@ from qe_tools.outputs.pw import PwOutput
         "220603",
         "230310",
         "240411",
+        "250521",
     ],
 )
 def test_default_xml(data_regression, xml_format):
