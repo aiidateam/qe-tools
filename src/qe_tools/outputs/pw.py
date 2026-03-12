@@ -61,7 +61,10 @@ class PwOutput(BaseOutput):
                 for row_number in range(3)
             ],
         ),
-        "fermi_energy": "xml.output.band_structure.fermi_energy",
+        "fermi_energy": (
+            "xml.output.band_structure.fermi_energy",
+            lambda energy: energy * CONSTANTS.hartree_to_ev,
+        ),
     }
 
     @classmethod
