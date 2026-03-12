@@ -45,7 +45,7 @@ class PwOutput(BaseOutput):
             "xml.output.forces",
             lambda forces: [
                 [
-                    value * (CONSTANTS.ry_to_ev * 2) / CONSTANTS.bohr_to_ang
+                    value * CONSTANTS.hartree_to_ev / CONSTANTS.bohr_to_ang
                     for value in forces["$"][atom_index * 3 : (atom_index + 1) * 3]
                 ]
                 for atom_index in range(forces["@dims"][1])
