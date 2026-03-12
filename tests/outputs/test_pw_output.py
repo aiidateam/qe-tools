@@ -32,6 +32,27 @@ def test_default_xml(data_regression, xml_format):
     )
 
 
+@pytest.mark.parametrize(
+    "fixture_directory",
+    [
+        "failed_no_xml",
+    ],
+)
+def test_failed(data_regression, fixture_directory):
+    """Test failed calculations of pw.x."""
+
+    pw_directory = Path(__file__).parent / "fixtures" / "pw" / fixture_directory
+
+    pw_out = PwOutput.from_dir(pw_directory)
+
+    data_regression.check(
+        {
+            "base_outputs": pw_out.get_output_dict(),
+            "raw_outputs": pw_out.raw_outputs,
+        }
+    )
+
+
 def test_ase_outputs(robust_data_regression_check):
     pw_directory = Path(__file__).parent / "fixtures" / "pw" / "default_xml_240411"
 

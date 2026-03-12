@@ -83,7 +83,7 @@ class PwOutput(BaseOutput):
             raise ValueError(f"Path `{directory}` is not a valid directory.")
 
         stdout_file = None
-        xml_file = next(directory.rglob("data-file*.xml"))
+        xml_file = next(directory.rglob("data-file*.xml"), None)
 
         for file in [path for path in directory.iterdir() if path.is_file()]:
             with file.open("r") as handle:
