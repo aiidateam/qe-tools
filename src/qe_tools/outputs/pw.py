@@ -65,6 +65,10 @@ class PwOutput(BaseOutput):
             "xml.output.band_structure.fermi_energy",
             lambda energy: energy * CONSTANTS.hartree_to_ev,
         ),
+        "total_energy": (
+            "xml.output.total_energy.etot",
+            lambda energy: energy * CONSTANTS.hartree_to_ev,
+        ),
     }
 
     @classmethod

@@ -56,6 +56,7 @@ base_outputs:
     - O
     - O
     - Li
+  total_energy: -5389.181650709915
 raw_outputs:
   stdout:
     code_version: '7.2'
