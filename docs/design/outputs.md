@@ -143,7 +143,7 @@ We implement a `BaseConverter` class that implements the basic methods for conve
 For each supported library, we then provide a child class that inherits from `BaseConverter` (e.g. `PymatgenConverter`).
 This class can define a `conversion_mapping`, which again uses `glom` to convert the (much simpler) base output dictionary into the required format.
 
-For classes that can be entirely constructed via their constructor (`__init__` method), we can define the corresponding `output_mapping` value as a `(<output_class>, <glom_spec>)` tuple.
+For classes that can be entirely constructed via their constructor (`__init__` method), we can define the corresponding entry in `conversion_mapping` as a `(<output_class>, <glom_spec>)` tuple.
 For example:
 
 ```python
@@ -202,11 +202,6 @@ To solve [1], we added a `list_outputs` method:
 ```python
 pw_out.list_outputs()
 ```
-
-!!! note
-
-    Currently, the `list_outputs()` method returns _all_ outputs defined on the `_output_spec_mapping`, which may always be available.
-    We could consider adding a `available_only` input that is set to `True`/`False` by default.
 
 For [2] (and also [1]), we created an `outputs` namespace:
 
