@@ -1,21 +1,22 @@
 """Output of the Quantum ESPRESSO pw.x code."""
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import TextIO
 
-from qe_tools.outputs.base import BaseOutput
+from glom import Spec
+
+from qe_tools.outputs.base import BaseOutput, output_mapping
 from qe_tools.outputs.parsers.pw import PwStdoutParser, PwXMLParser
 
 from qe_tools import CONSTANTS
 
 
-class PwOutput(BaseOutput):
-    """Output of the Quantum ESPRESSO pw.x code."""
+@output_mapping
+class _PwMapping:
+    """Typed outputs of a pw.x calculation."""
 
-    _output_spec_mapping = {
-        "structure": {
+    structure: dict = Spec(
+        {
             "atomic_species": (
                 "xml.output.atomic_species.species",
                 [lambda species: species["@name"]],
@@ -40,8 +41,12 @@ class PwOutput(BaseOutput):
                     ]
                 ],
             ),
-        },
-        "forces": (
+        }
+    )
+    """Crystal structure: cell vectors (Å), element symbols, and Cartesian positions (Å)."""
+
+    forces: list = Spec(
+        (
             "xml.output.forces",
             lambda forces: [
                 [
@@ -50,8 +55,12 @@ class PwOutput(BaseOutput):
                 ]
                 for atom_index in range(forces["@dims"][1])
             ],
-        ),
-        "stress": (
+        )
+    )
+    """Forces on atoms in eV/Å, shape [n_atoms][3]."""
+
+    stress: list = Spec(
+        (
             "xml.output.stress",
             lambda stress: [
                 [
@@ -60,16 +69,29 @@ class PwOutput(BaseOutput):
                 ]
                 for row_number in range(3)
             ],
-        ),
-        "fermi_energy": (
+        )
+    )
+    """Stress tensor in GPa, shape [3][3]."""
+
+    fermi_energy: float = Spec(
+        (
             "xml.output.band_structure.fermi_energy",
             lambda energy: energy * CONSTANTS.hartree_to_ev,
-        ),
-        "total_energy": (
+        )
+    )
+    """Fermi energy in eV."""
+
+    total_energy: float = Spec(
+        (
             "xml.output.total_energy.etot",
             lambda energy: energy * CONSTANTS.hartree_to_ev,
-        ),
-    }
+        )
+    )
+    """Total energy in eV."""
+
+
+class PwOutput(BaseOutput[_PwMapping]):
+    """Output of the Quantum ESPRESSO pw.x code."""
 
     @classmethod
     def from_dir(cls, directory: str | Path):
