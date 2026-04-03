@@ -72,7 +72,8 @@ pw_out.outputs.fermi_energy
 !!! warning
 
     The `outputs` namespace is designed for interactive access.
-    If an output is not available, it will not be in the namespace.
+    If an output is not available, accessing it raises `AttributeError`.
+    Tab completion (e.g. in Jupyter) only shows available outputs — but static type checkers like Pylance will show all declared outputs regardless.
 
 
 Finally, you can obtain a dictionary of all available outputs in your preferred library:

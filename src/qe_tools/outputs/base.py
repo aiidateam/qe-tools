@@ -1,18 +1,79 @@
 """Abstract base class for the outputs of Quantum ESPRESSO."""
 
 from __future__ import annotations
-from functools import cached_property
-from types import SimpleNamespace
-from glom import glom, GlomError
 
 import abc
+import dataclasses
+import typing
+from functools import cached_property
+
+from glom import glom, GlomError, Spec
 
 
-class BaseOutput(abc.ABC):
+T = typing.TypeVar("T")
+
+
+def output_mapping(cls):
+    """Decorator that defines a typed, frozen output mapping for a Quantum ESPRESSO code.
+
+    Applies `@dataclass(frozen=True)` and injects `__getattribute__` and `__dir__` so that:
+
+    - Accessing a field whose value is still a `Spec` raises `AttributeError` with a clear
+      message (i.e. the output was not parsed).
+    - `dir()` only lists fields that were successfully extracted.
+
+    Each field must declare a `Spec(...)` as its default value:
+
+        fermi_energy: float = Spec("path.to.fermi_energy")
+        \"""Fermi energy in eV.\"""
+    """
+
+    def __getattribute__(self, name):
+        value = object.__getattribute__(self, name)
+        if isinstance(value, Spec):
+            raise AttributeError(f"'{name}' is not available in the parsed outputs.")
+        return value
+
+    def __dir__(self):
+        return [
+            name for name, value in self.__dict__.items() if not isinstance(value, Spec)
+        ]
+
+    cls.__getattribute__ = __getattribute__
+    cls.__dir__ = __dir__
+    return dataclasses.dataclass(frozen=True)(cls)
+
+
+class BaseOutput(abc.ABC, typing.Generic[T]):
     """Abstract base class for the outputs of Quantum ESPRESSO."""
+
+    @classmethod
+    def _get_mapping_class(cls) -> type:
+        """Extract the mapping class from the generic parameter.
+
+        Example: PwOutput(BaseOutput[_PwMapping]) → _PwMapping
+        """
+        for base in getattr(cls, "__orig_bases__", []):
+            if typing.get_origin(base) is BaseOutput and (
+                args := typing.get_args(base)
+            ):
+                return args[0]
+        raise TypeError(
+            f"{cls.__name__} must subclass BaseOutput[T] with a decorated output mapping, "
+            "e.g. class PwOutput(BaseOutput[_PwMapping])"
+        )
 
     def __init__(self, raw_outputs: dict):
         self.raw_outputs = raw_outputs
+        self._output_spec_mapping = {}
+
+        for field in dataclasses.fields(self._get_mapping_class()):
+            if not isinstance(field.default, Spec):
+                raise TypeError(
+                    f"{type(self).__name__}.{field.name}: expected a Spec(...) default, "
+                    f"got {field.default!r}"
+                )
+            self._output_spec_mapping[field.name] = field.default
 
     @classmethod
     @abc.abstractmethod
@@ -106,11 +167,6 @@ class BaseOutput(abc.ABC):
         return output_names
 
     @cached_property
-    def outputs(self) -> SimpleNamespace:
+    def outputs(self) -> T:
         """Namespace with available outputs."""
-        namespace = SimpleNamespace()
-
-        for name in self.list_outputs(only_available=True):
-            setattr(namespace, name, self.get_output(name))
-
-        return namespace
+        return self._get_mapping_class()(**self.get_output_dict())

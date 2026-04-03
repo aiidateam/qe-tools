@@ -1,11 +1,11 @@
 """Output of the Quantum ESPRESSO dos.x code."""
 
-from __future__ import annotations
-
 from pathlib import Path
 from typing import TextIO
 
-from qe_tools.outputs.base import BaseOutput
+from glom import Spec
+
+from qe_tools.outputs.base import BaseOutput, output_mapping
 
 from .parsers.base import BaseStdoutParser
 from .parsers.dos import DosParser
@@ -22,19 +22,37 @@ def _determine_spin_type(spin: dict) -> str:
     return "non-spin-polarised"
 
 
-class DosOutput(BaseOutput):
-    """Output of the Quantum ESPRESSO dos.x code."""
+@output_mapping
+class _DosMapping:
+    """Typed outputs of a dos.x calculation."""
 
-    _output_spec_mapping = {
-        "energy": "dos.energy",
-        "dos": "dos.dos",
-        "dos_up": "dos.dos_up",
-        "dos_down": "dos.dos_down",
-        "fermi_energy": "dos.fermi_energy",
-        "integrated_dos": "dos.integrated_dos",
-        "full_dos": "dos",
-        "spin_type": ("xml.input.spin", _determine_spin_type),
-    }
+    energy: list = Spec("dos.energy")
+    """Energy grid in eV."""
+
+    dos: list = Spec("dos.dos")
+    """Total density of states (states/eV). Not available for spin-polarised calculations."""
+
+    dos_up: list = Spec("dos.dos_up")
+    """Spin-up DOS (states/eV). Not available for non-spin-polarised calculations."""
+
+    dos_down: list = Spec("dos.dos_down")
+    """Spin-down DOS (states/eV). Not available for non-spin-polarised calculations."""
+
+    fermi_energy: float = Spec("dos.fermi_energy")
+    """Fermi energy in eV."""
+
+    integrated_dos: list = Spec("dos.integrated_dos")
+    """Integrated DOS."""
+
+    full_dos: dict = Spec("dos")
+    """Full parsed DOS dictionary."""
+
+    spin_type: str = Spec(("xml.input.spin", _determine_spin_type))
+    """Spin type: 'non-spin-polarised', 'spin-polarised', 'non-collinear', or 'spin-orbit'."""
+
+
+class DosOutput(BaseOutput[_DosMapping]):
+    """Output of the Quantum ESPRESSO dos.x code."""
 
     @classmethod
     def from_dir(cls, directory: str | Path):

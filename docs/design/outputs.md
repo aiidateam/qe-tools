@@ -101,28 +101,44 @@ glom(pw_out.raw_outputs, {'fermi_energy': 'xml.output.band_structure.fermi_energ
 ```
 
 This will return a dictionary: `{'fermi_energy': 0.04425026484437661}`.
-The idea is that every base output has one key-value pair in an `_output_spec_mapping` dictionary defined on each output class:
+
+### Defining outputs
+
+Each extracted output is declared as a typed field on a per-code mapping class decorated with `@output_mapping`:
 
 ```python
-_output_spec_mapping = {
-    <output_name: str>: <glom_spec>,
+@output_mapping
+class _PwMapping:
+    fermi_energy: float = Spec("xml.output.band_structure.fermi_energy")
+    """Fermi energy in eV."""
+```
+
+This is a single source of truth: the field declaration carries the output name, type annotation, extraction `Spec`, and docstring.
+Adding a new output means adding one field — nothing else.
+
+The mapping class is connected to the output class via the generic typing syntax:
+
+```python
+class PwOutput(BaseOutput[_PwMapping]):
     ...
-}
 ```
 
-For example:
+`BaseOutput` extracts the mapping class from this generic parameter at instantiation, then uses `dataclasses.fields()` to build `_output_spec_mapping` — a dict mapping each field name to its `Spec`.
+The actual extraction runs when the user accesses `outputs`: glom resolves each `Spec` against `raw_outputs`, and the results are used to populate the mapping instance.
+Fields whose `Spec` cannot be resolved retain the `Spec` object as their value — a placeholder that signals "not extracted".
+Accessing such a field on the `outputs` namespace raises `AttributeError` with a clear message.
 
-```python
-output_mapping = {
-    'fermi_energy': 'xml.output.band_structure.fermi_energy'
-}
-```
+!!! note
 
-!!! warning "Important"
+    The `Spec` object here acts as a placeholder for an output that was not produced by the calculation.
+    Other options would be `None`, `dataclasses.MISSING`, or a custom sentinel — all carry the same semantic awkwardness: the field is typed as `float`, but its value is not a float.
+    The initial option we chose was `Annotated[float | None, Spec(...)] = None`, but this has several drawbacks: it implies the field can legitimately be `None` (no more honest), it is considerably more verbose, it requires type-hacking to extract the `Spec` from `Annotated`, and contributors adding new outputs may not be familiar with `Annotated`.
 
-    In our current design, we have a `BaseOutput` class that defines several "data retrieval" methods.
-    Some of these rely on the fact that the child classes (e.g. `PwOutput`) cannot have state changes after construction.
-    This _should_ be the case, and no mutating methods should be allowed on `BaseOutput` classes.
+    Using `Spec` as the field default has a key advantage: it unambiguously identifies the value as a glom spec, making it clear both that the field is not yet extracted *and* how it will be extracted.
+    The `@output_mapping` decorator enforces that every field uses a `Spec` as its default, catching mistakes at instantiation.
+
+The `@output_mapping` decorator applies `@dataclass(frozen=True)` to the mapping class, making the extracted outputs immutable: users cannot overwrite a parsed result.
+Beyond this, `BaseOutput` itself is designed to be stateful but immutable — it stores `raw_outputs` and derived data at construction, and no mutating methods are allowed after that point.
 
 ## Conversion to other libraries
 
@@ -167,7 +183,7 @@ This points to poor design of this class' constructor, but we can still support 
 
 !!! note
 
-    This approach requires careful syncing the `_output_spec_mapping` of the output classes to the `conversion_mapping` of the converter classes, and hence the code logic for obtaining is not fully localized.
+    This approach requires careful syncing the extraction specs of the output classes (defined via `@output_mapping` fields) to the `conversion_mapping` of the converter classes, and hence the code logic for obtaining is not fully localized.
     To make things worse, in some cases it also requires understanding the raw outputs (but this can be prevented with clear schemas for the base outputs).
     We're not fully converged on the design here, but some considerations below:
 
@@ -213,12 +229,14 @@ Whose attributes are populated on the fly, based on the **available** outputs.
 
 !!! note
 
-    There are currently two "issues" with the `outputs` namespace.
+    Accessing an output that was not produced by the calculation raises `AttributeError`
+    with a clear message. The `outputs` namespace only exposes available outputs in tab
+    completion (`__dir__` is filtered at runtime), though static type checkers like
+    Pylance will still show all declared fields.
 
-    1. Since an attribute cannot be populated in case the corresponding output isn't there, the output `name` will be missing from the namespace.
-       Hence, the `outputs` namespace only has available outputs.
-    2. The `outputs` namespace can only output the "base outputs", without conversion to e.g. ASE.
-       We're exploring ways to change the default output format [in this issue](https://github.com/aiidateam/qe-tools/issues/113)
+    The `outputs` namespace currently returns base outputs only — conversion to e.g. ASE
+    is not supported via this interface. We're exploring this in
+    [issue #113](https://github.com/aiidateam/qe-tools/issues/113).
 
 ## Custom spec
 
