@@ -91,18 +91,20 @@ class BaseOutput(abc.ABC, typing.Generic[T]):
         """
         return glom(self.raw_outputs, spec)
 
-    def get_output(self, name: str, to: None | str = None):
-        """Return an output by name.
+    def get_output(
+        self, name: str, to: typing.Literal["aiida", "ase", "pymatgen"] | None = None
+    ):
+        """Return an output by `name`.
 
         Args:
-            name (str): Output to retrieve (e.g., 'structure', 'fermi_energy',
-                'forces').
-            to (str): Optional target library to convert the base output to (e.g.,
-                "aiida", "ase", "pymatgen").
+            name (str): Output to retrieve (e.g., "structure", "fermi_energy",
+                "forces").
+            to (str): Optional target library to convert the base output to. One of
+                "aiida", "ase", "pymatgen".
 
         Examples:
-            >>> parser.get_output(name="structure")
-            >>> parser.get_output(name="structure", to="pymatgen")
+            >>> pw_out.get_output(name="structure")
+            >>> pw_out.get_output(name="structure", to="pymatgen")
         """
         output_data = glom(self.raw_outputs, self._output_spec_mapping[name])
 
@@ -125,14 +127,17 @@ class BaseOutput(abc.ABC, typing.Generic[T]):
         )
 
     def get_output_dict(
-        self, names: None | list[str] = None, to: None | str = None
+        self,
+        names: None | list[str] = None,
+        to: typing.Literal["aiida", "ase", "pymatgen"] | None = None,
     ) -> dict:
-        """Return a dictionary of (selected) outputs.
+        """Return a dictionary of outputs.
 
         Args:
-            names (list[str]): Output names to include.
-            to (str): Convert each output to a target library (e.g., "aiida", "ase",
-                "pymatgen").
+            names (list[str]): Output names to include. If not provided, all
+                available outputs are included.
+            to (str): Optional target library to convert each output to. One of
+                "aiida", "ase", "pymatgen".
 
         Returns:
             dict: Mapping from output name to value.
