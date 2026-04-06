@@ -81,6 +81,28 @@ class _PwMapping:
     )
     """Fermi energy in eV."""
 
+    fermi_energy_up: float = Spec(
+        (
+            "xml.output.band_structure.two_fermi_energies",
+            lambda energies: energies[0] * CONSTANTS.hartree_to_ev,
+        )
+    )
+    """Fermi energy of spin-up channel in eV.
+    
+    Only available when ``tot_magnetization`` is set in ``SYSTEM``.
+    """
+
+    fermi_energy_down: float = Spec(
+        (
+            "xml.output.band_structure.two_fermi_energies",
+            lambda energies: energies[1] * CONSTANTS.hartree_to_ev,
+        )
+    )
+    """Fermi energy of spin-down channel in eV.
+    
+    Only available when ``tot_magnetization`` is set in ``SYSTEM``.
+    """
+
     total_energy: float = Spec(
         (
             "xml.output.total_energy.etot",
