@@ -35,6 +35,26 @@ def test_default_xml(data_regression, xml_format):
 @pytest.mark.parametrize(
     "fixture_directory",
     [
+        "collinear",
+    ],
+)
+def test_success_base(data_regression, fixture_directory):
+    """Test the base outputs of successful pw.x calculations."""
+
+    pw_directory = Path(__file__).parent / "fixtures" / "pw" / fixture_directory
+
+    pw_out = PwOutput.from_dir(pw_directory)
+
+    data_regression.check(
+        {
+            "base_outputs": pw_out.get_output_dict(),
+        }
+    )
+
+
+@pytest.mark.parametrize(
+    "fixture_directory",
+    [
         "failed_no_xml",
     ],
 )
@@ -64,6 +84,7 @@ def test_tot_magnetization(data_regression):
         {
             "fermi_energy_up": pw_out.get_output("fermi_energy_up"),
             "fermi_energy_down": pw_out.get_output("fermi_energy_down"),
+            "number_of_bands": pw_out.get_output("number_of_bands"),
         }
     )
 

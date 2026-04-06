@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import TextIO
 
-from glom import Spec
+from glom import Coalesce, Spec
 
 from qe_tools.outputs.base import BaseOutput, output_mapping
 from qe_tools.outputs.parsers.pw import PwStdoutParser, PwXMLParser
@@ -102,6 +102,14 @@ class _PwMapping:
     
     Only available when ``tot_magnetization`` is set in ``SYSTEM``.
     """
+
+    number_of_bands: int = Spec(
+        Coalesce(
+            "xml.output.band_structure.nbnd",
+            "xml.output.band_structure.nbnd_up",
+        )
+    )
+    """Number of Kohn-Sham bands (per spin channel for spin-polarized calculations)."""
 
     total_energy: float = Spec(
         (
