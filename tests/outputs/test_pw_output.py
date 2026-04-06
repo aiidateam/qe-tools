@@ -53,6 +53,21 @@ def test_failed(data_regression, fixture_directory):
     )
 
 
+def test_tot_magnetization(data_regression):
+    """Test the output of a spin-polarized pw.x calculation with tot_magnetization."""
+
+    pw_directory = Path(__file__).parent / "fixtures" / "pw" / "tot_magnetization"
+
+    pw_out = PwOutput.from_dir(pw_directory)
+
+    data_regression.check(
+        {
+            "fermi_energy_up": pw_out.get_output("fermi_energy_up"),
+            "fermi_energy_down": pw_out.get_output("fermi_energy_down"),
+        }
+    )
+
+
 def test_ase_outputs(robust_data_regression_check):
     pw_directory = Path(__file__).parent / "fixtures" / "pw" / "default_xml_240411"
 
