@@ -1,6 +1,17 @@
 base_outputs:
   fermi_energy: 1.8452196496373638
+  k_points_cartesian:
+  - - 0.0
+    - 0.0
+    - 0.0
+  - - -0.7795515303527284
+    - 0.0
+    - 0.0
+  k_points_weights:
+  - 0.5
+  - 0.5
   number_of_bands: 24
+  number_of_k_points: 2
   structure:
     atomic_species:
     - F
