@@ -58,7 +58,8 @@ tests = [
   "pytest-regressions"
 ]
 pre-commit = [
-  "pre-commit"
+  "pre-commit",
+  "mypy~=1.20"
 ]
 
 [dependency-groups]
@@ -91,6 +92,10 @@ run = "pytest {args}"
 
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+
+[[tool.mypy.overrides]]
+module = "glom"
+ignore_missing_imports = true
 
 [tool.ruff]
 lint.ignore = [

@@ -17,9 +17,14 @@ class DosParser(BaseOutputFileParser):
 
         header, _, body = content.partition("\n")
 
-        fermi_energy = float(
-            re.search(r"EFermi\s=\s+([\d\.]+)\seV", header).groups()[0]
-        )
+        match = re.search(r"EFermi\s=\s+([\d\.]+)\seV", header)
+
+        if match is None:
+            raise ValueError(
+                f"Could not parse Fermi energy from DOS header: {header!r}"
+            )
+
+        fermi_energy = float(match.group(1))
 
         body_array = np.loadtxt(StringIO(body))
 

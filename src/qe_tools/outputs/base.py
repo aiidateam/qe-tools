@@ -9,6 +9,9 @@ from functools import cached_property
 
 from glom import glom, GlomError, Spec
 
+if typing.TYPE_CHECKING:
+    from qe_tools.converters.base import BaseConverter
+
 
 T = typing.TypeVar("T")
 
@@ -110,6 +113,9 @@ class BaseOutput(abc.ABC, typing.Generic[T]):
 
         if to is None:
             return output_data
+
+        # Pre-declare so the three lazy imports below don't trip mypy `no-redef`.
+        Converter: type[BaseConverter]
 
         if to == "aiida":
             from qe_tools.converters.aiida import AiiDAConverter as Converter
