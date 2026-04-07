@@ -1,5 +1,6 @@
 """Output of the Quantum ESPRESSO pw.x code."""
 
+import math
 from pathlib import Path
 from typing import TextIO
 
@@ -102,6 +103,37 @@ class _PwMapping:
     
     Only available when ``tot_magnetization`` is set in ``SYSTEM``.
     """
+
+    number_of_k_points: int = Spec("xml.output.band_structure.nks")
+    """Number of k-points at which the Kohn-Sham states were computed."""
+
+    k_points_weights: list = Spec(
+        (
+            "xml.output.band_structure.ks_energies",
+            [lambda ks: ks["k_point"]["@weight"]],
+        )
+    )
+    """Weights of the k-points at which the Kohn-Sham states were computed.
+
+    Dimensionless; per QE convention the weights sum to 2 for `nspin=1` and to 1 for `nspin=2`.
+    """
+
+    k_points_cartesian: list = Spec(
+        (
+            "xml.output",
+            lambda output: [
+                [
+                    kp
+                    * 2
+                    * math.pi
+                    / (output["atomic_structure"]["@alat"] * CONSTANTS.bohr_to_ang)
+                    for kp in ks["k_point"]["$"]
+                ]
+                for ks in output["band_structure"]["ks_energies"]
+            ],
+        )
+    )
+    """Cartesian coordinates of the k-points in 1/Å, shape `[n_kpoints][3]`."""
 
     number_of_bands: int = Spec(
         Coalesce(
