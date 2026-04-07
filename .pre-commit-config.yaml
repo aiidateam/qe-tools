@@ -1,4 +1,14 @@
 repos:
+  - repo: local
+    hooks:
+      - id: mypy
+        name: Type-check with mypy
+        entry: mypy
+        language: python
+        types: [python]
+        require_serial: true
+        files: ^src/qe_tools/outputs/
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.13.2
     hooks:
