@@ -12,7 +12,7 @@ from qe_tools.converters.base import BaseConverter
 from qe_tools.converters.pymatgen import PymatgenConverter
 from qe_tools.outputs.base import BaseOutput, output_mapping
 
-from .parsers.base import BaseStdoutParser
+from .parsers.stdout import BaseStdoutParser
 from .parsers.dos import DosParser
 from .parsers.pw import PwXMLParser
 
