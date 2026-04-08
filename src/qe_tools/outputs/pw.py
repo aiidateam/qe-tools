@@ -1,11 +1,16 @@
 """Output of the Quantum ESPRESSO pw.x code."""
 
 import math
+import typing
 from pathlib import Path
 from typing import TextIO
 
 from glom import Coalesce, Spec
 
+from qe_tools.converters.aiida import AiiDAConverter
+from qe_tools.converters.ase import ASEConverter
+from qe_tools.converters.base import BaseConverter
+from qe_tools.converters.pymatgen import PymatgenConverter
 from qe_tools.outputs.base import BaseOutput, output_mapping
 from qe_tools.outputs.parsers.pw import PwStdoutParser, PwXMLParser
 
@@ -247,6 +252,12 @@ class _PwMapping:
 
 class PwOutput(BaseOutput[_PwMapping]):
     """Output of the Quantum ESPRESSO pw.x code."""
+
+    converters: typing.ClassVar[dict[str, type[BaseConverter]]] = {
+        "ase": ASEConverter,
+        "pymatgen": PymatgenConverter,
+        "aiida": AiiDAConverter,
+    }
 
     @classmethod
     def from_dir(cls, directory: str | Path):

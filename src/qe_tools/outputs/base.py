@@ -10,8 +10,7 @@ from functools import cached_property
 
 from glom import glom, GlomError, Spec
 
-if typing.TYPE_CHECKING:
-    from qe_tools.converters.base import BaseConverter
+from qe_tools.converters.base import BaseConverter
 
 
 T = typing.TypeVar("T")
@@ -90,6 +89,18 @@ def output_mapping(cls):
 class BaseOutput(abc.ABC, typing.Generic[T]):
     """Abstract base class for the outputs of Quantum ESPRESSO."""
 
+    converters: typing.ClassVar[dict[str, type[BaseConverter]]] = {}
+    """Mapping of target-library name to its `BaseConverter` subclass.
+
+    Subclasses populate this with the converters they support, e.g.
+
+        `converters = {"ase": ASEConverter, ...}`
+
+    Each converter is responsible for importing optional dependencies lazily inside the
+    `get_conversion_mapping()` classmethod, so simply listing it here does not pull it
+    in at import time.
+    """
+
     @classmethod
     def _get_mapping_class(cls) -> type:
         """Extract the mapping class from the generic parameter.
@@ -144,16 +155,21 @@ class BaseOutput(abc.ABC, typing.Generic[T]):
         """
         return glom(self.raw_outputs, spec)
 
-    def get_output(
-        self, name: str, to: typing.Literal["aiida", "ase", "pymatgen"] | None = None
-    ):
+    def get_output(self, name: str, to: str | None = None):
         """Return an output by `name`.
 
         Args:
             name (str): Output to retrieve (e.g., "structure", "fermi_energy",
                 "forces").
-            to (str): Optional target library to convert the base output to. One of
-                "aiida", "ase", "pymatgen".
+            to (str): Optional target library to convert the base output to.
+
+                The supported values are the keys of this subclass's `converters`
+                class variable — list them with
+
+                    `sorted(OutputClass.converters)`
+
+                Passing an unsupported value raises `ValueError` listing the
+                available options.
 
         Examples:
             >>> pw_out.get_output(name="structure")
@@ -173,44 +189,49 @@ class BaseOutput(abc.ABC, typing.Generic[T]):
         if to is None:
             return output_data
 
-        # Pre-declare so the three lazy imports below don't trip mypy `no-redef`.
-        Converter: type[BaseConverter]
+        try:
+            Converter = self.converters[to]
+        except KeyError:
+            available = sorted(self.converters)
+            raise ValueError(
+                f"Library '{to}' is not supported. Available: {available}"
+            ) from None
 
-        if to == "aiida":
-            from qe_tools.converters.aiida import AiiDAConverter as Converter
-        elif to == "ase":
-            from qe_tools.converters.ase import ASEConverter as Converter
-        elif to == "pymatgen":
-            from qe_tools.converters.pymatgen import PymatgenConverter as Converter
-        else:
-            raise ValueError(f"Library '{to}' is not supported.")
+        conversion_mapping = Converter.get_conversion_mapping()
 
         if isinstance(entry, dict):
             return {
                 sub_name: Converter().convert(f"{name}.{sub_name}", sub_value)
-                if sub_name in Converter.conversion_mapping
+                if sub_name in conversion_mapping
                 else sub_value
                 for sub_name, sub_value in output_data.items()
             }
 
         return (
             Converter().convert(name, output_data)
-            if name in Converter.conversion_mapping
+            if name in conversion_mapping
             else output_data
         )
 
     def get_output_dict(
         self,
         names: None | list[str] = None,
-        to: typing.Literal["aiida", "ase", "pymatgen"] | None = None,
+        to: str | None = None,
     ) -> dict:
         """Return a dictionary of outputs.
 
         Args:
             names (list[str]): Output names to include. If not provided, all
                 available outputs are included.
-            to (str): Optional target library to convert each output to. One of
-                "aiida", "ase", "pymatgen".
+            to (str): Optional target library to convert the base output to.
+
+                The supported values are the keys of this subclass's `converters`
+                class variable — list them with
+
+                    `sorted(OutputClass.converters)`
+
+                Passing an unsupported value raises `ValueError` listing the
+                available options.
 
         Returns:
             dict: Mapping from output name to value.
