@@ -1,4 +1,5 @@
-base_outputs: {}
+base_outputs:
+  parameters: {}
 raw_outputs:
   stdout:
     code_version: '7.5'

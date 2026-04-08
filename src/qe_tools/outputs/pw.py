@@ -13,8 +13,101 @@ from qe_tools import CONSTANTS
 
 
 @output_mapping
+class _PwParametersMapping:
+    """Parameters the pw.x calculation ran with.
+
+    Includes both user-supplied inputs (cutoffs, k-points, smearing, ...) and values
+    resolved by QE at runtime (effective FFT grids, functional from pseudopotentials
+    when `input_dft` is unset).
+    """
+
+    ecutwfc: float = Spec(
+        (
+            "xml.input.basis.ecutwfc",
+            lambda ecut: ecut * CONSTANTS.hartree_to_ev,
+        )
+    )
+    """Kinetic-energy cutoff for wavefunctions in eV."""
+
+    ecutrho: float = Spec(
+        (
+            "xml.input.basis.ecutrho",
+            lambda ecut: ecut * CONSTANTS.hartree_to_ev,
+        )
+    )
+    """Kinetic-energy cutoff for the charge density and potential in eV."""
+
+    fft_grid: list = Spec(
+        (
+            "xml.output.basis_set.fft_grid",
+            lambda grid: [grid["@nr1"], grid["@nr2"], grid["@nr3"]],
+        )
+    )
+    """Charge-density FFT grid dimensions `[nr1, nr2, nr3]` (used for the density and potentials)."""
+
+    smooth_fft_grid: list = Spec(
+        (
+            "xml.output.basis_set.fft_smooth",
+            lambda grid: [grid["@nr1"], grid["@nr2"], grid["@nr3"]],
+        )
+    )
+    """Smooth FFT grid dimensions `[nr1, nr2, nr3]` (used for wavefunctions)."""
+
+    xc_functional: str = Spec("xml.output.dft.functional")
+    """Name of the exchange-correlation functional (e.g. `PBESOL`)."""
+
+    monkhorst_pack_grid: list = Spec(
+        (
+            "xml.input.k_points_IBZ.monkhorst_pack",
+            lambda mp: [mp["@nk1"], mp["@nk2"], mp["@nk3"]],
+        )
+    )
+    """Monkhorst-Pack k-point mesh `[nk1, nk2, nk3]`."""
+
+    monkhorst_pack_offset: list = Spec(
+        (
+            "xml.input.k_points_IBZ.monkhorst_pack",
+            lambda mp: [mp["@k1"], mp["@k2"], mp["@k3"]],
+        )
+    )
+    """Monkhorst-Pack k-point shift flags `[k1, k2, k3]` (each 0 or 1; `1` shifts by half a grid step along that axis)."""
+
+    smearing_type: str = Spec("xml.input.bands.smearing.$")
+    """Smearing function (e.g. `mv`, `gaussian`, `fd`, `mp`)."""
+
+    degauss: float = Spec(
+        (
+            "xml.input.bands.smearing.@degauss",
+            lambda d: d * CONSTANTS.hartree_to_ev,
+        )
+    )
+    """Smearing width in eV."""
+
+    occupations: str = Spec("xml.input.bands.occupations")
+    """Occupations scheme (e.g. `smearing`, `tetrahedra`, `fixed`)."""
+
+    noncolin: bool = Spec("xml.input.spin.noncolin")
+    """Whether a non-collinear magnetic calculation was performed."""
+
+    lspinorb: bool = Spec("xml.input.spin.spinorbit")
+    """Whether spin-orbit coupling was included."""
+
+    noinv: bool = Spec("xml.input.symmetry_flags.noinv")
+    """Whether inversion symmetry was disabled (`noinv=.true.`)."""
+
+    no_t_rev: bool = Spec("xml.input.symmetry_flags.no_t_rev")
+    """Whether time-reversal symmetry was disabled (`no_t_rev=.true.`)."""
+
+    assume_isolated: str = Spec("xml.input.boundary_conditions.assume_isolated")
+    """Boundary-conditions / isolation scheme (e.g. `makov-payne`, `martyna-tuckerman`)."""
+
+
+@output_mapping
 class _PwMapping:
     """Typed outputs of a pw.x calculation."""
+
+    parameters: _PwParametersMapping
+    """Parameters the calculation ran with: cutoffs, grids, XC functional, k-points, spin/symmetry flags."""
 
     structure: dict = Spec(
         {

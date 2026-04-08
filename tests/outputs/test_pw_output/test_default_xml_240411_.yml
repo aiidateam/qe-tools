@@ -63,6 +63,33 @@ base_outputs:
   - 0.1875
   number_of_bands: 8
   number_of_k_points: 13
+  parameters:
+    degauss: 0.136056917253
+    ecutrho: 3265.366014072
+    ecutwfc: 408.170751759
+    fft_grid:
+    - 36
+    - 36
+    - 36
+    lspinorb: false
+    monkhorst_pack_grid:
+    - 4
+    - 4
+    - 4
+    monkhorst_pack_offset:
+    - 0
+    - 0
+    - 0
+    no_t_rev: false
+    noinv: false
+    noncolin: false
+    occupations: smearing
+    smearing_type: mv
+    smooth_fft_grid:
+    - 32
+    - 32
+    - 32
+    xc_functional: PBESOL
   stress:
   - - 0.00831212176267791
     - 5.84098538270437e-18
