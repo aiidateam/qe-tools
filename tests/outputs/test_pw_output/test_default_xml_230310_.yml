@@ -69,6 +69,31 @@ base_outputs:
   - 0.03125
   number_of_bands: 16
   number_of_k_points: 13
+  parameters:
+    ecutrho: 3265.366014072
+    ecutwfc: 408.170751759
+    fft_grid:
+    - 48
+    - 48
+    - 48
+    lspinorb: false
+    monkhorst_pack_grid:
+    - 4
+    - 4
+    - 4
+    monkhorst_pack_offset:
+    - 0
+    - 0
+    - 0
+    no_t_rev: false
+    noinv: false
+    noncolin: false
+    occupations: fixed
+    smooth_fft_grid:
+    - 36
+    - 36
+    - 36
+    xc_functional: PBE
   stress:
   - - -62.88281405555692
     - -2.551866364254089e-14
