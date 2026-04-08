@@ -1,10 +1,15 @@
 """Output of the Quantum ESPRESSO dos.x code."""
 
+import typing
 from pathlib import Path
 from typing import TextIO
 
 from glom import Spec
 
+from qe_tools.converters.aiida import AiiDAConverter
+from qe_tools.converters.ase import ASEConverter
+from qe_tools.converters.base import BaseConverter
+from qe_tools.converters.pymatgen import PymatgenConverter
 from qe_tools.outputs.base import BaseOutput, output_mapping
 
 from .parsers.base import BaseStdoutParser
@@ -53,6 +58,12 @@ class _DosMapping:
 
 class DosOutput(BaseOutput[_DosMapping]):
     """Output of the Quantum ESPRESSO dos.x code."""
+
+    converters: typing.ClassVar[dict[str, type[BaseConverter]]] = {
+        "ase": ASEConverter,
+        "pymatgen": PymatgenConverter,
+        "aiida": AiiDAConverter,
+    }
 
     @classmethod
     def from_dir(cls, directory: str | Path):
