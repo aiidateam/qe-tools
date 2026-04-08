@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import abc
+import contextlib
 import dataclasses
 import typing
 from functools import cached_property
@@ -16,34 +17,73 @@ if typing.TYPE_CHECKING:
 T = typing.TypeVar("T")
 
 
+class SubMapping:
+    """Sentinel marking a field as a nested output mapping.
+
+    `BaseOutput` resolves these at instantiation time. Nesting is intended to
+    be one level only: a sub-mapping class should only contain `Spec` fields.
+    """
+
+    def __init__(self, mapping_cls: type):
+        self.mapping_cls = mapping_cls
+
+
 def output_mapping(cls):
     """Decorator that defines a typed, frozen output mapping for a Quantum ESPRESSO code.
 
     Applies `@dataclass(frozen=True)` and injects `__getattribute__` and `__dir__` so that:
 
-    - Accessing a field whose value is still a `Spec` raises `AttributeError` with a clear
-      message (i.e. the output was not parsed).
+    - Accessing a field whose value is still a `Spec` or `SubMapping` raises
+      `AttributeError` with a clear message (i.e. the output was not parsed).
     - `dir()` only lists fields that were successfully extracted.
 
-    Each field must declare a `Spec(...)` as its default value:
+    Output fields declare a `Spec(...)` default. Sub-namespace fields are
+    declared with a bare annotation whose type is another `@output_mapping`
+    class — the decorator auto-injects a `SubMapping(hint)` default:
 
         fermi_energy: float = Spec("path.to.fermi_energy")
         \"""Fermi energy in eV.\"""
+        magnetization: _MagnetizationMapping
+        \"""Nested magnetization outputs.\"""
     """
 
     def __getattribute__(self, name):
         value = object.__getattribute__(self, name)
-        if isinstance(value, Spec):
+        if isinstance(value, (Spec, SubMapping)):
             raise AttributeError(f"'{name}' is not available in the parsed outputs.")
         return value
 
     def __dir__(self):
         return [
-            name for name, value in self.__dict__.items() if not isinstance(value, Spec)
+            name
+            for name, value in self.__dict__.items()
+            if not isinstance(value, (Spec, SubMapping))
         ]
 
     cls.__getattribute__ = __getattribute__
     cls.__dir__ = __dir__
+
+    # Inject `SubMapping(hint)` defaults for bare annotations whose type is
+    # itself an `@output_mapping`-decorated class. Note: `get_type_hints`
+    # evaluates annotations, which is fine as long as the module does not use
+    # `from __future__ import annotations` together with `TYPE_CHECKING`-only
+    # sub-mapping imports — in that case the eval would raise `NameError` here.
+    # Sub-mapping classes must be defined *before* the parent that references
+    # them (Python enforces this anyway for non-future-annotations modules).
+    for name, hint in typing.get_type_hints(cls).items():
+        if hasattr(cls, name):  # already has a default
+            continue
+
+        if not (isinstance(hint, type) and getattr(hint, "_is_output_mapping", False)):
+            raise TypeError(
+                f"{cls.__name__}.{name}: needs a Spec(...) default, or a bare "
+                f"annotation whose type is an @output_mapping class "
+                f"(which must be defined before this class)"
+            )
+
+        setattr(cls, name, SubMapping(hint))
+
+    cls._is_output_mapping = True
     return dataclasses.dataclass(frozen=True)(cls)
 
 
@@ -68,15 +108,25 @@ class BaseOutput(abc.ABC, typing.Generic[T]):
 
     def __init__(self, raw_outputs: dict):
         self.raw_outputs = raw_outputs
-        self._output_spec_mapping = {}
 
-        for field in dataclasses.fields(self._get_mapping_class()):
-            if not isinstance(field.default, Spec):
-                raise TypeError(
-                    f"{type(self).__name__}.{field.name}: expected a Spec(...) default, "
-                    f"got {field.default!r}"
-                )
-            self._output_spec_mapping[field.name] = field.default
+        def build(mapping_cls: type) -> dict:
+            """Build the nested spec dict from a mapping class."""
+            result: dict = {}
+
+            for field in dataclasses.fields(mapping_cls):
+                if isinstance(field.default, SubMapping):
+                    result[field.name] = build(field.default.mapping_cls)
+                elif isinstance(field.default, Spec):
+                    result[field.name] = field.default
+                else:
+                    raise TypeError(
+                        f"{mapping_cls.__name__}.{field.name}: expected a Spec(...) or "
+                        f"SubMapping(...) default, got {field.default!r}"
+                    )
+
+            return result
+
+        self._output_spec_mapping = build(self._get_mapping_class())
 
     @classmethod
     @abc.abstractmethod
@@ -109,7 +159,16 @@ class BaseOutput(abc.ABC, typing.Generic[T]):
             >>> pw_out.get_output(name="structure")
             >>> pw_out.get_output(name="structure", to="pymatgen")
         """
-        output_data = glom(self.raw_outputs, self._output_spec_mapping[name])
+        entry = self._output_spec_mapping[name]
+
+        if isinstance(entry, dict):
+            output_data: typing.Any = {}
+
+            for sub_name, sub_spec in entry.items():
+                with contextlib.suppress(GlomError):
+                    output_data[sub_name] = glom(self.raw_outputs, sub_spec)
+        else:
+            output_data = glom(self.raw_outputs, entry)
 
         if to is None:
             return output_data
@@ -125,6 +184,14 @@ class BaseOutput(abc.ABC, typing.Generic[T]):
             from qe_tools.converters.pymatgen import PymatgenConverter as Converter
         else:
             raise ValueError(f"Library '{to}' is not supported.")
+
+        if isinstance(entry, dict):
+            return {
+                sub_name: Converter().convert(f"{name}.{sub_name}", sub_value)
+                if sub_name in Converter.conversion_mapping
+                else sub_value
+                for sub_name, sub_value in output_data.items()
+            }
 
         return (
             Converter().convert(name, output_data)
@@ -180,4 +247,15 @@ class BaseOutput(abc.ABC, typing.Generic[T]):
     @cached_property
     def outputs(self) -> T:
         """Namespace with available outputs."""
-        return self._get_mapping_class()(**self.get_output_dict())
+
+        def build(mapping_cls: type, data: dict):
+            defaults = {f.name: f.default for f in dataclasses.fields(mapping_cls)}
+            kwargs = {
+                name: build(defaults[name].mapping_cls, value)  # type: ignore[union-attr]
+                if isinstance(defaults[name], SubMapping)
+                else value
+                for name, value in data.items()
+            }
+            return mapping_cls(**kwargs)
+
+        return build(self._get_mapping_class(), self.get_output_dict())
