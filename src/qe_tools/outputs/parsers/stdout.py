@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import re
 
-from qe_tools.utils import convert_qe_time_to_sec
+from dough.outputs import BaseOutputFileParser
 
-from .base import BaseOutputFileParser
+from qe_tools.utils import convert_qe_time_to_sec
 
 
 class BaseStdoutParser(BaseOutputFileParser):
