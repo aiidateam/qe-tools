@@ -7,11 +7,12 @@ from typing import TextIO
 
 from glom import Coalesce, Spec
 
+from dough.converters import BaseConverter
+from dough.outputs import BaseOutput, output_mapping
+
 from qe_tools.converters.aiida import AiiDAConverter
 from qe_tools.converters.ase import ASEConverter
-from qe_tools.converters.base import BaseConverter
 from qe_tools.converters.pymatgen import PymatgenConverter
-from qe_tools.outputs.base import BaseOutput, output_mapping
 from qe_tools.outputs.parsers.pw import PwStdoutParser, PwXMLParser
 
 from qe_tools import CONSTANTS

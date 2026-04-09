@@ -5,8 +5,9 @@ from xml.etree import ElementTree
 
 from xmlschema import XMLSchema
 
+from dough.outputs import BaseOutputFileParser
+
 from qe_tools.outputs.parsers import schemas
-from qe_tools.outputs.parsers.base import BaseOutputFileParser
 from qe_tools.outputs.parsers.stdout import BaseStdoutParser
 
 

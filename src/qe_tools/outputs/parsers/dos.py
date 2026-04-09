@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from qe_tools.outputs.parsers.base import BaseOutputFileParser
+from dough.outputs import BaseOutputFileParser
 import numpy as np
 from io import StringIO
 import re

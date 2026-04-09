@@ -4,7 +4,7 @@ import typing
 
 from glom import T
 
-from qe_tools.converters.base import BaseConverter
+from dough.converters import BaseConverter
 
 
 class AiiDAConverter(BaseConverter):

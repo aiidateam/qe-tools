@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-from qe_tools.converters.base import BaseConverter
+from dough.converters import BaseConverter
 
 
 class ASEConverter(BaseConverter):

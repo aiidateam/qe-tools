@@ -29,7 +29,8 @@ dependencies = [
     'numpy',
     'packaging',
     'xmlschema',
-    'glom~=24.11'
+    'glom~=24.11',
+    'dough==0.1.0',
 ]
 
 [project.urls]
