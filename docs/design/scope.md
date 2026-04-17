@@ -13,7 +13,7 @@ The basic features we want to offer, in order of priority:
 
 1. Output parsing, see [current design](outputs.md).
 1. Interoperability with other tools ([AiiDA](https://aiida.net/), [`pymatgen`](https://pymatgen.org/), [ASE](https://ase-lib.org/), [MaRDA extractors](https://github.com/marda-alliance/metadata_extractors), ...).
-   See the [current design for outputs](outputs.md/#conversion-to-other-libraries).
+   See the [conversion design notes in `dough`](https://github.com/mbercx/dough/blob/main/docs/design/outputs.md#conversion-to-other-libraries).
 1. Input file parsing / generation / validation.
 1. Definitions and explanations of failure modes.
 1. (tbd) Error handling approaches.

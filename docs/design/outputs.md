@@ -1,279 +1,65 @@
 # Outputs
 
-The main purpose of this package is to parse and convert the outputs of Quantum ESPRESSO calculations into Python types.
-On this page we discuss the design of the parser functionality.
+`qe-tools` builds on the generic output machinery from [`dough`](https://github.com/mbercx/dough): base file parsers, the `BaseOutput` class, the `@output_mapping` declaration, and converters all live there.
+For the design rationale of those building blocks (parser shape, glom-based extraction, conversion to ASE/pymatgen/AiiDA, the `outputs` namespace, etc.) see the [dough outputs design notes](https://github.com/mbercx/dough/blob/main/docs/design/outputs.md).
 
-## Parsing
-<br>
-![Output extraction](img/output_extraction.png)
+This page covers what is **specific to Quantum ESPRESSO**: which classes exist, how they map onto QE's binaries and output files, and the conventions we apply on top of the generic machinery.
 
-### One file, one parser class
+## Per-binary output classes
 
-All the logic related to parsing (or generating) a file should be stored on one class, with generic utility methods shared between parser classes.
-The parser classes are implemented as stateless objects, which have to implement a single `parse`
-method with the following signature:
+Each QE binary (`pw.x`, `cp.x`, `dos.x`, ...) gets its own output class (`PwOutput`, `CpOutput`, `DosOutput`, ...) in `qe_tools.outputs`.
+Each such class relies on one or more file parser classes to generate the "raw outputs", which are then exposed to users via more digestible "base outputs".
+
+The diagram below shows the structure for `pw.x`.
+
+```mermaid
+flowchart LR
+    classDef io fill:#4caf50,stroke:#2e7d32
+    classDef parser fill:#ffa726,stroke:#ef6c00
+    classDef file fill:#f5f5f5,stroke:#9e9e9e
+
+    STD([stdout]):::file --> SP[PwStdoutParser]:::parser
+    XML([data-file-schema.xml]):::file --> XP[PwXMLParser]:::parser
+    CRASH([CRASHFILE]):::file --> CP[PwCrashParser]:::parser
+    SP --> PWOUT[PwOutput]:::io
+    XP --> PWOUT
+    CP --> PWOUT
+```
+
+!!! note "XML-first policy"
+
+    Ideally, all outputs would come from the XML — it is structured, validated, and versioned.
+    In practice, many quantities are still missing from the QE XML schema, so a stdout parser fills the gaps.
+    We always look for an output in the XML first at the implementation stage: only when the quantity is absent from the XML do we implement parsing on the `StdoutParser`.
+    As such, the functionality of the `StdoutParser` is limited by design.
+
+## Units
+
+QE writes XML output in Hartree atomic units and stdout output in Rydberg atomic units.
+**Parsers are unit-agnostic**: they return the raw QE values with no conversion.
+All unit conversions live in the extraction `Spec` of the corresponding mapping field, using the `CONSTANTS` object exported from `qe_tools`:
 
 ```python
-def parse(content: str):
+from qe_tools import CONSTANTS
 
-    parsed_data: dict = ...
-    return parsed_data
-```
-
-This make their usage and implementation very transparent. Moreover, it means we can
-obtain the parsed data in a single step, e.g.:
-
-```python
-parsed_data = PwXMLParser.parse(content)
-```
-
-The abstract base class `BaseOutputFileParser` also implements a `parse_from_file` method that all parser classes can use:
-
-```python
-parsed_data = PwXMLParser.parse_from_file('qe_dir/pwscf.xml')
-```
-
-!!! note
-
-    One motivation for having a stateful class might be performance: by storing the raw content on the class and only parsing it later, we can selectively parse what is needed.
-    However, parsing the XML is most likely the most expensive operation we'll have to do here, in part because of the validation done by `xmlschema`.
-    We're not sure if partially parsing the XML is an option, or we would accept losing the validation.
-    There is also no performance bottleneck at this stage, even for larger XML files the parsing only takes 50 ms.
-
-    Since the parser classes are not part of the public API at this point (see below), we can still come back on this point at a later date.
-    Moreover, we can still keep the static methods in place, i.e. make changes to support partial parsing in a backwards-compatible manner.
-
-!!! question "Should the file parser classes be part of the public API?"
-
-    At first, I would have answered "yes" to this question.
-    However, if a user can easily find the `pw.x` `stdout` parser, they might use it and then be rather disappointed with the result, since we _want_ to parse most outputs from the XML.
-
-### One output object for each calculation
-
-Parsing one file is typically not enough to get all the outputs of a calculation.
-It would be useful to gather all of these into a single "output" object from which the user can access all data they are interested in.
-
-```python
-from qe_tools.outputs import PwOutput
-
-qe_dir = '/Users/mbercx/project/qetools/data/qe_dir'
-
-pw_out = PwOutput.from_dir(qe_dir)
-pw_out.outputs
-```
-
-### Raw output
-
-For any data in the XML, writing a parsers seems _easy_.
-Use the `xmlschema` package to parse (and validate) the data, get a dictionary, and done!
-
-However, the "raw" outputs of the XML are perhaps not the most user friendly.
-Just try executing the following code for the `PwOutput`:
-
-```
-from qe_tools.outputs import PwOutput
-
-qe_dir = '/Users/mbercx/project/qetools/data/qe_dir'
-
-pw_out = PwOutput.from_dir(qe_dir)
-pw_out.raw_outputs
-```
-
-The `raw_outputs` are massive, and in a format that most users won't understand.
-
-### Querying JSON
-
-Instead, we want to query for or "extract" the outputs that most users care about: structure, Fermi energy, forces, etc.
-However, we want to make sure that:
-
-1. it is very clear from which raw output data the final output is extracted.
-2. the logic of how a final output is extracted is as _localized_ as possible (to borrow a phrase from quantum mechanics).
-3. we avoid having to guard against the absence of certain keys with massive `get(value, {})` chains.
-
-In order to do this, we decided to look for a "JSON querying" tool, that allows us to quickly, robustly and with a few lines of code extract the data we are interested in.
-After doing a bit of research, we decided to give [`glom`](https://glom.readthedocs.io/en/latest/index.html) a try.
-As a basic example, take the Fermi energy:
-
-```
-from glom import glom
-
-glom(pw_out.raw_outputs, {'fermi_energy': 'xml.output.band_structure.fermi_energy'})
-```
-
-This will return a dictionary: `{'fermi_energy': 0.04425026484437661}`.
-
-### Defining outputs
-
-Each extracted output is declared as a typed field on a per-code mapping class decorated with `@output_mapping`:
-
-```python
 @output_mapping
 class _PwMapping:
-    fermi_energy: float = Spec("xml.output.band_structure.fermi_energy")
-    """Fermi energy in eV."""
+    total_energy: float = Spec(
+        ("xml.output.total_energy.etot", lambda e: e * CONSTANTS.hartree_to_ev)
+    )
+    """Total energy in eV."""
 ```
 
-This is a single source of truth: the field declaration carries the output name, type annotation, extraction `Spec`, and docstring.
-Adding a new output means adding one field — nothing else.
+The documented units of every output (eV, Å, GPa, 1/Å, ...) are stated in the field's docstring.
+`CONSTANTS` represents the constants defined internally by Quantum ESPRESSO.
 
-The mapping class is connected to the output class via the generic typing syntax:
+## Schemas
 
-```python
-class PwOutput(BaseOutput[_PwMapping]):
-    ...
-```
+XML parsers validate against the QE XML schemas shipped under `src/qe_tools/outputs/parsers/schemas/`.
+These are vendored copies of the upstream QE `qexsd` schemas, version-pinned to the QE releases we target.
+When a new QE version changes the schema, drop the new `.xsd` into that directory and update the parser to dispatch on the schema version where needed.
 
-`BaseOutput` extracts the mapping class from this generic parameter at instantiation, then uses `dataclasses.fields()` to build `_output_spec_mapping` — a dict mapping each field name to its `Spec`.
-The actual extraction runs when the user accesses `outputs`: glom resolves each `Spec` against `raw_outputs`, and the results are used to populate the mapping instance.
-Fields whose `Spec` cannot be resolved retain the `Spec` object as their value — a placeholder that signals "not extracted".
-Accessing such a field on the `outputs` namespace raises `AttributeError` with a clear message.
+## Custom outputs and units summary
 
-!!! note
-
-    The `Spec` object here acts as a placeholder for an output that was not produced by the calculation.
-    Other options would be `None`, `dataclasses.MISSING`, or a custom sentinel — all carry the same semantic awkwardness: the field is typed as `float`, but its value is not a float.
-    The initial option we chose was `Annotated[float | None, Spec(...)] = None`, but this has several drawbacks: it implies the field can legitimately be `None` (no more honest), it is considerably more verbose, it requires type-hacking to extract the `Spec` from `Annotated`, and contributors adding new outputs may not be familiar with `Annotated`.
-
-    Using `Spec` as the field default has a key advantage: it unambiguously identifies the value as a glom spec, making it clear both that the field is not yet extracted *and* how it will be extracted.
-    The `@output_mapping` decorator enforces that every field uses a `Spec` as its default, catching mistakes at instantiation.
-
-The `@output_mapping` decorator applies `@dataclass(frozen=True)` to the mapping class, making the extracted outputs immutable: users cannot overwrite a parsed result.
-Beyond this, `BaseOutput` itself is designed to be stateful but immutable — it stores `raw_outputs` and derived data at construction, and no mutating methods are allowed after that point.
-
-## Conversion to other libraries
-
-![Output extraction](img/output_conversion.png)
-
-Another goal is to be able to convert the base outputs into formats of well-known packages in the community (AiiDA, ASE, pymatgen, ...).
-Some deliverables here:
-
-- Outputs that need to be converted should be done so on the fly, and they should be available in the same way as base outputs that don't require conversion.
-- We want all the converter logic of one output/library to be as localized as possible.
-- All libraries should be optional dependencies defined as extras.
-  When the user tries to convert to a certain library, we should check if it is available.
-
-We implement a `BaseConverter` class that implements the basic methods for converting outputs shared by all converter classes:
-
-- `convert`: converts the `base_output` into the `output` in the converted format of the corresponding class library.
-
-For each supported library, we then provide a child class that inherits from `BaseConverter` (e.g. `PymatgenConverter`).
-This class can define a `conversion_mapping`, which again uses `glom` to convert the (much simpler) base output dictionary into the required format.
-
-For classes that can be entirely constructed via their constructor (`__init__` method), we can define the corresponding entry in `conversion_mapping` as a `(<output_class>, <glom_spec>)` tuple.
-For example:
-
-```python
-class PymatgenConverter(BaseConverter):
-
-    conversion_mapping = {
-        "structure": (
-            Structure,
-            {
-                "species": "symbols",
-                "lattice": ("cell", lambda cell: np.array(cell)),
-                "coords": ("positions", lambda positions: np.array(positions)),
-            },
-        ),
-    }
-```
-
-However, if this is not the case, the output cannot be directly constructed with this approach.
-An example here is AiiDA's `StructureData`.
-This points to poor design of this class' constructor, but we can still support the class by allowing the first element in the now `(<output_converter>, <glom_spec>)` tuple to be a function.
-
-!!! note
-
-    This approach requires careful syncing the extraction specs of the output classes (defined via `@output_mapping` fields) to the `conversion_mapping` of the converter classes, and hence the code logic for obtaining is not fully localized.
-    To make things worse, in some cases it also requires understanding the raw outputs (but this can be prevented with clear schemas for the base outputs).
-    We're not fully converged on the design here, but some considerations below:
-
-    1. If we want the code for converting to a certain library to be isolated, we will always have to accept some delocalization.
-       We could consider directly extracting the data required from the raw outputs, but then a developer still has to go check the corresponding output class for the keys it uses to store the raw output, as well as the raw output itself.
-       Moreover: it could lead to a lot of code duplication; right now the base outputs are already in the default units.
-
-    2. One other issue could be name conflicts: in case there are multiple outputs from different output classes that have the same name but different content, you cannot define conversion (or lack thereof) for both of them.
-       However, it seems clear that we should try to have consistent and distinct names for each output.
-
-    At this stage, we think clearly structured and defined "base outputs" are a better approach than direct extraction.
-
-## User interface
-
-A `get_output` method is implemented on the `PwOutput`, which is the main user-facing interface for all these features.
-Example usage:
-
-```python
-from qe_tools.outputs import PwOutput
-
-pw_out = PwOutput.from_dir('/path/to/qe_dir')
-pw_out.get_output('fermi_energy')
-```
-
-However, having a string as an input is not the most user-friendly, as it suffers from the following issues:
-
-1. How to know which properties there are?
-2. No tab-completion.
-
-To solve [1], we added a `list_outputs` method:
-
-```python
-pw_out.list_outputs()
-```
-
-For [2] (and also [1]), we created an `outputs` namespace:
-
-```python
-pw_out.outputs.fermi_energy
-```
-
-Whose attributes are populated on the fly, based on the **available** outputs.
-
-!!! note
-
-    Accessing an output that was not produced by the calculation raises `AttributeError`
-    with a clear message. The `outputs` namespace only exposes available outputs in tab
-    completion (`__dir__` is filtered at runtime), though static type checkers like
-    Pylance will still show all declared fields.
-
-    The `outputs` namespace currently returns base outputs only — conversion to e.g. ASE
-    is not supported via this interface. We're exploring this in
-    [issue #113](https://github.com/aiidateam/qe-tools/issues/113).
-
-## Custom spec
-
-!!! question
-
-    What if the user wants more outputs?
-
-In order to give users more power and freedom to users, we want them to be able to write their own custom spec to get the outputs they are interested in.
-Note that they could already do this quite easily:
-
-```
-from glom import glom
-
-glom(pw_out.raw_outputs, 'xml.output.magnetization.absolute')
-```
-
-But in order to make this _even more_ accessible, we add a `BaseOutput.get_output_from_spec()` method:
-
-```
-pw_out.get_output_from_spec('xml.output.magnetization.absolute')
-```
-
-Which does _exactly_ the same thing.
-
-!!! question
-
-    Currently the `raw_outputs` are a part of the public API, along with the `get_output_from_spec` method that allows users to extract data from the raw outputs.
-    Should this be the case?
-    
-    1. Do we expect a need to change the underlying `raw_outputs` structure?
-    2. If so, is giving users access to the raw outputs worth the need to keep backwards-compatibility?
-
-## Other codes than `pw.x`:
-
-!!! question
-
-    How to support multiple "raw" outputs, i.e. for the various codes (`projwfc.x`, `ph.x`, ...)?
-
-The "extraction" specs of the base outputs for each code should be defined on the corresponding output class (e.g. `ProjwfcOutput`).
-The "conversion" specs of _all_ outputs should be defined on a single library converter class (e.g. `PymatgenConverter`).
+For QE-specific outputs not yet covered by a `Spec`, users can fall back to `get_output_from_spec()` against `raw_outputs` (XML in Hartree, stdout in Rydberg — convert manually).
+For first-class support, add a field to the corresponding `_*Mapping` class with a `Spec` that returns the documented unit.
