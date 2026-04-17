@@ -10,7 +10,23 @@ A place to write down quick notes on the design decisions made for the `qe-tools
 
 The currently envisioned class structure is shown in the sketch below, for the `pw.x` calculation:
 
-![](img/class_structure.png)
+```mermaid
+flowchart LR
+    classDef io fill:#4caf50,stroke:#2e7d32
+    classDef parser fill:#ffa726,stroke:#ef6c00
+    classDef facade fill:#4285f4,stroke:#1565c0
+    classDef file fill:#f5f5f5,stroke:#9e9e9e
+
+    PWIN([pw.in]):::file <--> PWINP[PwInput]:::io
+    PWINP --> CALC[PwCalc]:::facade
+    PWOUT[PwOutput]:::io --> CALC
+    STD([stdout]):::file --> SP[PwStdoutParser]:::parser
+    XML([data-file-schema.xml]):::file --> XP[PwXMLParser]:::parser
+    CRASH([CRASHFILE]):::file --> CP[PwCrashParser]:::parser
+    SP --> PWOUT
+    XP --> PWOUT
+    CP --> PWOUT
+```
 
 ## Outputs
 
