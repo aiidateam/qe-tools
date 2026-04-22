@@ -40,13 +40,16 @@ QE writes XML output in Hartree atomic units and stdout output in Rydberg atomic
 All unit conversions live in the extraction `Spec` of the corresponding mapping field, using the `CONSTANTS` object exported from `qe_tools`:
 
 ```python
+from typing import Annotated
+from glom import Spec
 from qe_tools import CONSTANTS
 
 @output_mapping
 class _PwMapping:
-    total_energy: float = Spec(
-        ("xml.output.total_energy.etot", lambda e: e * CONSTANTS.hartree_to_ev)
-    )
+    total_energy: Annotated[
+        float,
+        Spec(("xml.output.total_energy.etot", lambda e: e * CONSTANTS.hartree_to_ev)),
+    ]
     """Total energy in eV."""
 ```
 
