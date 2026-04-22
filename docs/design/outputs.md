@@ -1,7 +1,7 @@
 # Outputs
 
 `qe-tools` builds on the generic output machinery from [`dough`](https://github.com/mbercx/dough): base file parsers, the `BaseOutput` class, the `@output_mapping` declaration, and converters all live there.
-For the design rationale of those building blocks (parser shape, glom-based extraction, conversion to ASE/pymatgen/AiiDA, the `outputs` namespace, etc.) see the [dough outputs design notes](https://github.com/mbercx/dough/blob/main/docs/design/outputs.md).
+For the design rationale of those building blocks (parser shape, glom-based extraction, conversion to ASE/pymatgen/AiiDA, the `outputs` namespace, etc.) see the [dough outputs design notes](https://mbercx.github.io/dough/design/outputs/).
 
 This page covers what is **specific to Quantum ESPRESSO**: which classes exist, how they map onto QE's binaries and output files, and the conventions we apply on top of the generic machinery.
 
