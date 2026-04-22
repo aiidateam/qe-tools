@@ -30,7 +30,7 @@ dependencies = [
     'packaging',
     'xmlschema',
     'glom~=24.11',
-    'dough==0.1.0',
+    'dough==0.2.1',
 ]
 
 [project.urls]

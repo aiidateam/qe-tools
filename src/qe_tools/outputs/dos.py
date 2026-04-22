@@ -2,7 +2,7 @@
 
 import typing
 from pathlib import Path
-from typing import TextIO
+from typing import Annotated, TextIO
 
 from glom import Spec
 
@@ -32,28 +32,28 @@ def _determine_spin_type(spin: dict) -> str:
 class _DosMapping:
     """Typed outputs of a dos.x calculation."""
 
-    energy: list = Spec("dos.energy")
+    energy: Annotated[list, Spec("dos.energy")]
     """Energy grid in eV."""
 
-    dos: list = Spec("dos.dos")
+    dos: Annotated[list, Spec("dos.dos")]
     """Total density of states (states/eV). Not available for spin-polarised calculations."""
 
-    dos_up: list = Spec("dos.dos_up")
+    dos_up: Annotated[list, Spec("dos.dos_up")]
     """Spin-up DOS (states/eV). Not available for non-spin-polarised calculations."""
 
-    dos_down: list = Spec("dos.dos_down")
+    dos_down: Annotated[list, Spec("dos.dos_down")]
     """Spin-down DOS (states/eV). Not available for non-spin-polarised calculations."""
 
-    fermi_energy: float = Spec("dos.fermi_energy")
+    fermi_energy: Annotated[float, Spec("dos.fermi_energy")]
     """Fermi energy in eV."""
 
-    integrated_dos: list = Spec("dos.integrated_dos")
+    integrated_dos: Annotated[list, Spec("dos.integrated_dos")]
     """Integrated DOS."""
 
-    full_dos: dict = Spec("dos")
+    full_dos: Annotated[dict, Spec("dos")]
     """Full parsed DOS dictionary."""
 
-    spin_type: str = Spec(("xml.input.spin", _determine_spin_type))
+    spin_type: Annotated[str, Spec(("xml.input.spin", _determine_spin_type))]
     """Spin type: 'non-spin-polarised', 'spin-polarised', 'non-collinear', or 'spin-orbit'."""
 
 
