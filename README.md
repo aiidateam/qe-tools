@@ -5,7 +5,7 @@
 Python tools for working with [Quantum ESPRESSO](https://www.quantum-espresso.org/).
 
 >[!WARNING]
-> The `qe-tools` is being redesigned significantly for the next major release (v3.0).
+> The `qe-tools` package is being redesigned significantly for the next major release (v3.0).
 > Expect the API on `main` to be _very_ unstable until the alpha release, and even then there could be breaking changes.
 
 ## 📋 Road map
