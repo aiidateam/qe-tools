@@ -17,3 +17,41 @@ The basic features we want to offer, in order of priority:
 1. Input file parsing / generation / validation.
 1. Definitions and explanations of failure modes.
 1. (tbd) Error handling approaches.
+
+## Development
+
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management and environment isolation. By default, `uv sync` will install the `dev` dependency group, which includes all scientific extras (`ase`, `pymatgen`), testing tools, and documentation builders.
+
+### Quick Start
+- **Set up/refresh dev environment (Latest Python version):**
+    ```bash
+    uv sync
+    ```
+- **Set up/refresh dev environment (Strict Python 3.13):**
+    ```bash
+    uv sync --python 3.13
+    ```
+- **Run the full test suite:**
+    ```bash
+    uv run pytest tests
+    ```
+- **Run linting/pre-commit on all files:**
+    ```bash
+    uv run pre-commit run --all-files
+    ```
+
+### Documentation
+Documentation scripts in `pyproject.toml` are minimized to favor direct `uv` execution, ensuring a consistent environment without legacy overhead.
+
+- **Build documentation:** ```bash
+    uv run mkdocs build --clean --strict
+    ```
+- **Local Preview:** To serve the documentation locally for development:
+    ```bash
+    uv run mkdocs serve --dev-addr localhost:8000
+    ```
+- **Manual Deployment:**
+    While deployment is primarily handled via CI/CD pipelines, you can manually deploy to GitHub Pages using:
+    ```bash
+    uv run mkdocs gh-deploy --force
+    ```

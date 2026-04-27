@@ -1,6 +1,6 @@
 name: ci
 
-on:                       
+on:
   push:
     branches:
       - main
@@ -10,31 +10,37 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Install Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
         with:
-          python-version: '3.13'
+          enable-cache: true
+          python-version: "3.13"
 
-      - name: Install Hatch
-        run: |
-          pip install hatch
-          hatch env prune
+      - name: Install dependencies
+        run: uv sync --all-extras --dev --frozen
 
       - name: Run pre-commit
-        run: hatch run pre-commit:run
+        run: uv run pre-commit run
 
   tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.10', '3.14']
+        python-version: [ '3.10', '3.14' ]
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
         with:
+          enable-cache: true
           python-version: ${{ matrix.python-version }}
-      - run: pip install hatch
-      - run: hatch test
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Run pytest
+        run: uv run pytest
