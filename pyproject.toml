@@ -8,11 +8,11 @@ dynamic = ["version"]
 description = "Tools for Quantum ESPRESSO"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { file = "LICENSE" }
+license = {file = "LICENSE"}
 keywords = []
 authors = []
 classifiers = [
-    "License :: OSI Approved :: MIT License",
+    'License :: OSI Approved :: MIT License',
     "Development Status :: 4 - Beta",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.10",
@@ -20,75 +20,74 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "Operating System :: OS Independent",
-    "Topic :: Scientific/Engineering :: Physics",
-    "Topic :: Scientific/Engineering :: Chemistry",
-    "Topic :: Software Development :: Libraries :: Python Modules",
+    'Operating System :: OS Independent',
+    'Topic :: Scientific/Engineering :: Physics',
+    'Topic :: Scientific/Engineering :: Chemistry',
+    'Topic :: Software Development :: Libraries :: Python Modules',
 ]
 dependencies = [
-    "numpy>=1.26.0",
-    "packaging",
-    "xmlschema",
-    "glom~=24.11",
-    "dough==0.3.0",
+    'numpy>=1.26.0', # Critical: Fixes Python 3.13/3.14 compatibility
+    'packaging',
+    'xmlschema',
+    'glom~=24.11',
+    'dough==0.3.0',
 ]
 
 [project.urls]
-Home = "https://github.com/aiidateam/qe-tools"
-Source = "https://github.com/aiidateam/qe-tools"
+Home = 'https://github.com/aiidateam/qe-tools'
+Source = 'https://github.com/aiidateam/qe-tools'
 
 [project.optional-dependencies]
 ase = [
-    "ase",
-    "pint"
+  "ase",
+  "pint"
 ]
 pymatgen = [
-    "pymatgen"
+  "pymatgen"
 ]
 aiida = [
-    "aiida-core"
+  "aiida-core"
 ]
-
+docs = [
+"mkdocs",
+  "mkdocs-material"
+]
+tests = [
+  "pytest",
+  "pytest_cases",
+  "timeout_decorator",
+  "pytest-regressions"
+]
 pre-commit = [
-    "pre-commit",
-    "ruff"
+  "pre-commit",
+  "mypy~=1.20"
 ]
 
 [dependency-groups]
-docs = [
-    "mkdocs",
-    "mkdocs-material"
-]
-tests = [
-    "pytest",
-    "pytest_cases",
-    "timeout_decorator",
-    "pytest-regressions"
-]
 dev = [
-    { include-group = "docs" },
-    { include-group = "tests" },
-    "qe-tools[pre-commit, ase, pymatgen]",
-    "mypy~=1.20"
+  "qe-tools[docs,tests,pre-commit, ase, pymatgen]",
 ]
 
 [tool.uv]
-default-groups = ["dev"]
 managed = true
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/qe_tools"]
+default-groups = ["dev"]
 
 [tool.hatch.version]
 path = "src/qe_tools/__about__.py"
 
+[tool.hatch.envs.default]
+installer = 'uv'
+
 [tool.hatch.envs.docs]
 features = ["docs"]
 scripts.build = "mkdocs build --clean --strict"
+scripts.serve = "mkdocs serve --dev-addr localhost:8000"
+scripts.deploy = "mkdocs gh-deploy --force"
 
 [tool.hatch.envs.pre-commit]
 features = ["pre-commit"]
-scripts.run = "pre-commit run --all-files"
+scripts.install = "pre-commit install"
+scripts.run = "pre-commit run {args}"
 
 [tool.hatch.envs.hatch-test]
 features = ["tests", "ase", "pymatgen"]
@@ -105,13 +104,13 @@ ignore_missing_imports = true
 
 [tool.ruff]
 lint.ignore = [
-    "TRY003", # https://docs.astral.sh/ruff/rules/raise-vanilla-args/
-    "EM101", # https://docs.astral.sh/ruff/rules/raw-string-in-exception
-    "EM102", # https://docs.astral.sh/ruff/rules/f-string-in-exception/
-    "PLR2004", # https://docs.astral.sh/ruff/rules/magic-value-comparison/ 
-    "FBT002", # https://docs.astral.sh/ruff/rules/boolean-default-value-positional-argument/
-    "TID252", # https://docs.astral.sh/ruff/rules/relative-imports/
-    "S314", # https://docs.astral.sh/ruff/rules/suspicious-xml-element-tree-usage/
+    "TRY003",  # https://docs.astral.sh/ruff/rules/raise-vanilla-args/
+    "EM101",   # https://docs.astral.sh/ruff/rules/raw-string-in-exception
+    "EM102",   # https://docs.astral.sh/ruff/rules/f-string-in-exception/
+    "PLR2004", # https://docs.astral.sh/ruff/rules/magic-value-comparison/
+    "FBT002",  # https://docs.astral.sh/ruff/rules/boolean-default-value-positional-argument/
+    "TID252",  # https://docs.astral.sh/ruff/rules/relative-imports/
+    "S314",    # https://docs.astral.sh/ruff/rules/suspicious-xml-element-tree-usage/
 ]
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["INP001", "S101", "PT009", "B026", "PT027", "T201"]

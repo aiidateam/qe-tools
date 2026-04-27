@@ -70,6 +70,14 @@ and install the package locally in **editable** mode (`-e`):
     `uv` is a Python package and project manager.
     See [the documentation](https://docs.astral.sh/uv/getting-started/installation/) on how to install `uv`.
 
+    🔧 **Environment Setup**
+
+    Initialize the development environment and all dependencies (including scientific extras and testing tools) with a single command:
+
+        uv sync
+
+    *This uses the project's lockfile to ensure a consistent, reproducible environment.*
+
     🔧 **Pre-commit**
 
     To make sure your changes adhere to our formatting/linting preferences, install the pre-commit hooks:
@@ -104,10 +112,18 @@ and install the package locally in **editable** mode (`-e`):
     We use [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) as our documentation framework.
     Start the documentation server with:
 
-        mkdocs serve
+        uv run mkdocs serve
+
+    or specify a different port with:
+
+        uv run mkdocs serve --dev-addr localhost:8001
 
     and open the documentation in your browser via the link shown.
     Every time you save a file, the corresponding documentation page is updated automatically!
+
+    To build a clean version of the documentation:
+
+        uv run mkdocs build --clean --strict
 
 === "Hatch"
 
