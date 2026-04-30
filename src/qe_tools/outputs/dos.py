@@ -6,6 +6,7 @@ from typing import Annotated, TextIO
 
 from glom import Spec
 
+from dough import Unit
 from dough.converters import BaseConverter
 from dough.outputs import BaseOutput, output_mapping
 
@@ -32,23 +33,23 @@ def _determine_spin_type(spin: dict) -> str:
 class _DosMapping:
     """Typed outputs of a dos.x calculation."""
 
-    energy: Annotated[list, Spec("dos.energy")]
+    energy: Annotated[list, Spec("dos.energy"), Unit("eV")]
     """Energy grid in eV."""
 
-    dos: Annotated[list, Spec("dos.dos")]
+    dos: Annotated[list, Spec("dos.dos"), Unit("1/eV")]
     """Total density of states (states/eV). Not available for spin-polarised calculations."""
 
-    dos_up: Annotated[list, Spec("dos.dos_up")]
+    dos_up: Annotated[list, Spec("dos.dos_up"), Unit("1/eV")]
     """Spin-up DOS (states/eV). Not available for non-spin-polarised calculations."""
 
-    dos_down: Annotated[list, Spec("dos.dos_down")]
+    dos_down: Annotated[list, Spec("dos.dos_down"), Unit("1/eV")]
     """Spin-down DOS (states/eV). Not available for non-spin-polarised calculations."""
 
-    fermi_energy: Annotated[float, Spec("dos.fermi_energy")]
+    fermi_energy: Annotated[float, Spec("dos.fermi_energy"), Unit("eV")]
     """Fermi energy in eV."""
 
     integrated_dos: Annotated[list, Spec("dos.integrated_dos")]
-    """Integrated DOS."""
+    """Integrated DOS (# of states)."""
 
     full_dos: Annotated[dict, Spec("dos")]
     """Full parsed DOS dictionary."""

@@ -7,6 +7,7 @@ from typing import Annotated, TextIO
 
 from glom import Coalesce, Spec
 
+from dough import Unit
 from dough.converters import BaseConverter
 from dough.outputs import BaseOutput, output_mapping
 
@@ -35,6 +36,7 @@ class _PwParametersMapping:
                 lambda ecut: ecut * CONSTANTS.hartree_to_ev,
             )
         ),
+        Unit("eV"),
     ]
     """Kinetic-energy cutoff for wavefunctions in eV."""
 
@@ -46,6 +48,7 @@ class _PwParametersMapping:
                 lambda ecut: ecut * CONSTANTS.hartree_to_ev,
             )
         ),
+        Unit("eV"),
     ]
     """Kinetic-energy cutoff for the charge density and potential in eV."""
 
@@ -107,6 +110,7 @@ class _PwParametersMapping:
                 lambda d: d * CONSTANTS.hartree_to_ev,
             )
         ),
+        Unit("eV"),
     ]
     """Smearing width in eV."""
 
@@ -185,6 +189,7 @@ class _PwMapping:
                 ],
             )
         ),
+        Unit("eV/angstrom"),
     ]
     """Forces on atoms in eV/Å, shape [n_atoms][3]."""
 
@@ -202,6 +207,7 @@ class _PwMapping:
                 ],
             )
         ),
+        Unit("GPa"),
     ]
     """Stress tensor in GPa, shape [3][3]."""
 
@@ -213,6 +219,7 @@ class _PwMapping:
                 lambda energy: energy * CONSTANTS.hartree_to_ev,
             )
         ),
+        Unit("eV"),
     ]
     """Fermi energy in eV."""
 
@@ -224,6 +231,7 @@ class _PwMapping:
                 lambda energies: energies[0] * CONSTANTS.hartree_to_ev,
             )
         ),
+        Unit("eV"),
     ]
     """Fermi energy of spin-up channel in eV.
 
@@ -238,6 +246,7 @@ class _PwMapping:
                 lambda energies: energies[1] * CONSTANTS.hartree_to_ev,
             )
         ),
+        Unit("eV"),
     ]
     """Fermi energy of spin-down channel in eV.
 
@@ -278,6 +287,7 @@ class _PwMapping:
                 ],
             )
         ),
+        Unit("1/angstrom"),
     ]
     """Cartesian coordinates of the k-points in 1/Å, shape `[n_kpoints][3]`."""
 
@@ -300,6 +310,7 @@ class _PwMapping:
                 lambda energy: energy * CONSTANTS.hartree_to_ev,
             )
         ),
+        Unit("eV"),
     ]
     """Total energy in eV."""
 

@@ -30,7 +30,7 @@ dependencies = [
     'packaging',
     'xmlschema',
     'glom~=24.11',
-    'dough==0.3.0',
+    'dough==0.4.0',
 ]
 
 [project.urls]
@@ -40,13 +40,15 @@ Source = 'https://github.com/aiidateam/qe-tools'
 [project.optional-dependencies]
 ase = [
   "ase",
-  "pint"
 ]
 pymatgen = [
   "pymatgen"
 ]
 aiida = [
   "aiida-core"
+]
+pint = [
+  "dough[pint]",
 ]
 docs = [
 "mkdocs",
