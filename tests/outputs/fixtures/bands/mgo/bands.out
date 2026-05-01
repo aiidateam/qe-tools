@@ -1,0 +1,16 @@
+
+     Program BANDS v.7.5 starts on  1May2026 at  7:10: 3
+
+     This program is part of the open-source Quantum ESPRESSO suite
+
+--- Removed: header banner ---
+
+     high-symmetry point:  1.0000 0.5000 0.0000   x coordinate   0.0000
+     high-symmetry point:  0.0000 0.0000 0.0000   x coordinate   1.5731
+     high-symmetry point:  1.0000 0.0000 0.0000   x coordinate   2.5731
+
+--- Removed: per-k-point band-following diagnostics ---
+
+     BANDS        :      6.58s CPU      7.01s WALL
+
+   JOB DONE.
