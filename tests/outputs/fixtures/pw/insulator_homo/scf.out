@@ -1,0 +1,32 @@
+
+     Program PWSCF v.7.5 starts on  1May2026 at  7: 9:44
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org",
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on     1 processors
+
+     MPI processes distributed on     1 nodes
+
+--- Removed: SCF iteration log, k-point eigenvalues, energy decomposition ---
+
+     highest occupied level (ev):     5.3452
+
+!    total energy              =     -75.53725762 Ry
+
+--- Removed: timing breakdown ---
+
+     PWSCF        :      2.14s CPU      2.25s WALL
+
+
+   This run was terminated on:   7: 9:47   1May2026
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=

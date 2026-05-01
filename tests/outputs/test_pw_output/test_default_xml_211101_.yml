@@ -1,4 +1,14 @@
 base_outputs:
+  absolute_magnetization: 0.0
+  alat: 3.8669746330979136
+  eigenvalues:
+    first: -5.34429
+    last: 13.87319
+    shape:
+    - 2
+    - 1
+    - 8
+    sum: 99.50024
   fermi_energy: 7.296652068825847
   forces:
   - - 0.0
@@ -7,6 +17,7 @@ base_outputs:
   - - 0.0
     - 0.0
     - 0.1714861209572958
+  job_done: true
   k_points_cartesian:
   - - 0.0
     - 0.0
@@ -17,8 +28,20 @@ base_outputs:
   k_points_weights:
   - 1.0
   - 1.0
+  lsda: false
+  number_of_atoms: 2
   number_of_bands: 8
+  number_of_electrons: 8.0
   number_of_k_points: 2
+  number_of_species: 1
+  occupations_kpoint:
+    first: 1.0
+    last: 0.0
+    shape:
+    - 2
+    - 1
+    - 8
+    sum: 8.0
   parameters:
     degauss: 0.136056917253
     ecutrho: 3265.366014072
@@ -38,6 +61,7 @@ base_outputs:
     - 32
     - 32
     xc_functional: PBE
+  scf_converged: true
   stress:
   - - 19.802407083925143
     - 3.18983295531761e-15

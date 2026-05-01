@@ -5,6 +5,7 @@ import typing
 from pathlib import Path
 from typing import Annotated, TextIO
 
+import numpy as np
 from glom import Coalesce, Spec
 
 from dough import Unit
@@ -17,6 +18,24 @@ from qe_tools.converters.pymatgen import PymatgenConverter
 from qe_tools.outputs.parsers.pw import PwStdoutParser, PwXMLParser
 
 from qe_tools import CONSTANTS
+
+
+def _stack_per_kpoint(band_structure: dict, key: str) -> np.ndarray:
+    """Stack a per-k-point flat array (eigenvalues / occupations) into shape `(nks, nspin, nbnd)`.
+
+    QE stores `eigenvalues` (and `occupations`) as a single flat list per k-point of
+    length `nbnd` (spin-unpolarised) or `2 * nbnd_per_spin` (spin-polarised LSDA, with
+    spin-up values first, spin-down second).
+    """
+    lsda = band_structure["lsda"]
+    nspin = 2 if lsda else 1
+    arr = np.array(
+        [ks[key]["$"] for ks in band_structure["ks_energies"]],
+        dtype=float,
+    )
+    nks, total = arr.shape
+    nbnd = total // nspin
+    return arr.reshape(nks, nspin, nbnd)
 
 
 @output_mapping
@@ -313,6 +332,118 @@ class _PwMapping:
         Unit("eV"),
     ]
     """Total energy in eV."""
+
+    eigenvalues: Annotated[
+        np.ndarray,
+        Spec(
+            (
+                "xml.output.band_structure",
+                lambda bs: _stack_per_kpoint(bs, "eigenvalues")
+                * CONSTANTS.hartree_to_ev,
+            )
+        ),
+        Unit("eV"),
+    ]
+    """Kohn-Sham eigenvalues in eV.
+
+    Numpy array of shape `(n_kpoints, n_spin, n_bands)`:
+
+    - axis 0 (`n_kpoints`): k-points in the order given by `k_points_cartesian`
+    - axis 1 (`n_spin`): spin channel (length 1 for non-spin-polarised / non-collinear,
+      length 2 for spin-polarised LSDA, with index 0 = spin-up and index 1 = spin-down)
+    - axis 2 (`n_bands`): band index, energy-sorted ascending
+    """
+
+    occupations_kpoint: Annotated[
+        np.ndarray,
+        Spec(
+            (
+                "xml.output.band_structure",
+                lambda bs: _stack_per_kpoint(bs, "occupations"),
+            )
+        ),
+    ]
+    """Kohn-Sham occupations (dimensionless), aligned with `eigenvalues`.
+
+    Numpy array of shape `(n_kpoints, n_spin, n_bands)`. Same axis meanings as
+    `eigenvalues`. Values lie in `[0, 1]` for spin-polarised calculations and in
+    `[0, 2]` (the per-band occupancy) for spin-unpolarised calculations.
+    """
+
+    number_of_electrons: Annotated[float, Spec("xml.output.band_structure.nelec")]
+    """Total number of electrons in the unit cell."""
+
+    number_of_atoms: Annotated[int, Spec("xml.output.atomic_structure.@nat")]
+    """Number of atoms in the unit cell."""
+
+    number_of_species: Annotated[int, Spec("xml.output.atomic_species.@ntyp")]
+    """Number of distinct atomic species in the unit cell."""
+
+    lsda: Annotated[bool, Spec("xml.output.band_structure.lsda")]
+    """Whether the calculation is spin-polarised (LSDA)."""
+
+    total_magnetization: Annotated[
+        float, Spec("xml.output.magnetization.total"), Unit("bohr_magneton")
+    ]
+    """Total magnetization (sum of spin-up minus spin-down electrons) in Bohr magnetons per cell.
+
+    Only meaningful for spin-polarised calculations.
+    """
+
+    absolute_magnetization: Annotated[
+        float, Spec("xml.output.magnetization.absolute"), Unit("bohr_magneton")
+    ]
+    """Absolute magnetization (integral of `|m(r)|`) in Bohr magnetons per cell.
+
+    Only meaningful for spin-polarised calculations.
+    """
+
+    alat: Annotated[
+        float,
+        Spec(
+            (
+                "xml.output.atomic_structure.@alat",
+                lambda alat: alat * CONSTANTS.bohr_to_ang,
+            )
+        ),
+        Unit("angstrom"),
+    ]
+    """Lattice parameter `alat` in Å (the QE `celldm(1)` converted from Bohr)."""
+
+    ibrav: Annotated[int, Spec("xml.output.atomic_structure.@bravais_index")]
+    """Bravais lattice index (QE `ibrav` integer); only present when QE writes it."""
+
+    scf_converged: Annotated[
+        bool,
+        Spec("xml.output.convergence_info.scf_conv.convergence_achieved"),
+    ] = False
+    """Whether the SCF cycle converged. Defaults to `False` if the XML lacks the field."""
+
+    job_done: Annotated[
+        bool,
+        Spec(("xml.closed", lambda _: True)),
+    ] = False
+    """Whether the calculation finished cleanly (XML contains a `<closed>` element)."""
+
+    highest_occupied_level: Annotated[
+        float, Spec("stdout.highest_occupied_level"), Unit("eV")
+    ]
+    """Highest occupied Kohn-Sham level in eV.
+
+    Parsed from the stdout line `highest occupied level (ev): ...` (insulators) or the
+    first value of `highest occupied, lowest unoccupied levels (ev): ...`. Only present
+    for runs where QE prints it (typically SCF of insulators).
+    """
+
+    lowest_unoccupied_level: Annotated[
+        float, Spec("stdout.lowest_unoccupied_level"), Unit("eV")
+    ]
+    """Lowest unoccupied Kohn-Sham level in eV.
+
+    Parsed from the stdout line `highest occupied, lowest unoccupied levels (ev): ...`.
+    Only present when QE prints both values (insulators with `nbnd` larger than the
+    number of occupied bands).
+    """
 
 
 class PwOutput(BaseOutput[_PwMapping]):
