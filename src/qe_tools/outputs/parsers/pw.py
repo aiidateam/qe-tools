@@ -44,7 +44,7 @@ class PwXMLParser(BaseOutputFileParser):
             if (
                 element_root.find("general_info").find("creator").get("VERSION")
                 == "7.0"
-            ):  # type: ignore
+            ):
                 schema_filename = "qes_211101.xsd"
         except AttributeError:
             pass

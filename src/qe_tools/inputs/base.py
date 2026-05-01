@@ -762,12 +762,12 @@ def parse_atomic_species(txt, validate_species_names=True):
         ) from exc
     # Make sure the card block lines were extracted. If they were, store the
     # string of lines as blockstr.
-    if match.group("block") is None:  # type: ignore[union-attr]
+    if match.group("block") is None:
         raise ParsingError(
             "The ATOMIC_POSITIONS card block was parse as empty in\n" + txt
         )
 
-    blockstr = match.group("block")  # type: ignore[union-attr]
+    blockstr = match.group("block")
 
     # Define a small helper function to convert strings of fortran-type floats.
     def fortfloat(string):
@@ -1283,7 +1283,7 @@ def _get_parameters_from_cell_bare(*, ibrav: int, cell: CellT) -> ParametersT:
         parameters[cos_bc] = np.dot(v2, v3) / (parameters[cell_b] * parameters[cell_c])
     else:
         raise ValueError(f"The given 'ibrav' value '{ibrav}' is not understood.")
-    return parameters
+    return {k: float(v) for k, v in parameters.items()}
 
 
 def _check_parameters(
@@ -1305,7 +1305,7 @@ def _check_parameters(
         using_celldm=False,
         qe_version=qe_version,
     )
-    if not np.allclose(cell_reconstructed, cell, rtol=0, atol=tolerance):
+    if not np.allclose(cell_reconstructed, np.asarray(cell), rtol=0, atol=tolerance):
         raise ValueError(
             f"The cell {cell_reconstructed} constructed with ibrav={ibrav}, parameters={parameters} does not match "
             f"the input cell{cell}."

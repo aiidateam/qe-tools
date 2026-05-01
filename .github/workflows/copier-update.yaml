@@ -1,0 +1,80 @@
+name: Copier Update
+
+on:
+  schedule:
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  copier-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install copier
+        run: pip install copier
+
+      - name: Update from template
+        # --trust is required for non-interactive mode; it allows execution of
+        # any _tasks defined by the upstream template.
+        run: copier update --defaults --force --trust
+
+      - name: Check for changes
+        id: check
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for existing PR
+        if: ${{ steps.check.outputs.changed == 'true' }}
+
+        id: existing-pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          EXISTING=$(gh pr list --state open --json headRefName,number --jq '[.[] | select(.headRefName | startswith("copier-update/"))][0].number')
+          if [ -n "$EXISTING" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "::notice::Update PR #$EXISTING already exists, skipping."
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create PR
+        if: ${{ steps.check.outputs.changed == 'true' && steps.existing-pr.outputs.exists == 'false' }}
+
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="copier-update/${{ github.run_id }}"
+          git config user.name "copier-update[bot]"
+          git config user.email "copier-update[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add .
+          git commit -m "Update from copier template"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "Update from copier template" \
+            --body "Automated update from the upstream copier template.
+
+          This PR was created by the \`copier-update\` workflow.
+          Please review the changes carefully before merging.
+
+          > If there are conflicts or unexpected changes, you can run
+          > \`copier update\` locally to resolve them interactively."
