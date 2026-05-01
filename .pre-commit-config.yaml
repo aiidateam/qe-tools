@@ -1,14 +1,6 @@
-repos:
-  - repo: local
-    hooks:
-      - id: mypy
-        name: Type-check with mypy
-        entry: mypy
-        language: python
-        types: [python]
-        require_serial: true
-        files: ^src/qe_tools/outputs/
+default_install_hook_types: [pre-commit, commit-msg]
 
+repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.13.2
     hooks:
@@ -19,3 +11,22 @@ repos:
       - id: ruff-format
         name: Format with Ruff
         types_or: [ python, pyi ]
+
+  - repo: local
+    hooks:
+      - id: mypy
+        name: Type-check with mypy
+        entry: mypy
+        language: system
+        types: [ python ]
+        require_serial: true
+        files: ^src/
+
+  - repo: local
+    hooks:
+      - id: check-commit-msg
+        name: Check commit message format
+        entry: python dev/check_commit_msg.py
+        language: system
+        stages: [commit-msg]
+

@@ -58,7 +58,8 @@ tests = [
   "pytest",
   "pytest_cases",
   "timeout_decorator",
-  "pytest-regressions"
+  "pytest-regressions",
+  "pytest-cov"
 ]
 pre-commit = [
   "pre-commit",
@@ -75,6 +76,10 @@ path = "src/qe_tools/__about__.py"
 
 [tool.hatch.envs.default]
 installer = 'uv'
+scripts.bump = [
+  "hatch version {args}",
+  "python dev/update_changelog.py",
+]
 
 [tool.hatch.envs.docs]
 features = ["docs"]
@@ -91,14 +96,28 @@ scripts.run = "pre-commit run {args}"
 features = ["tests", "ase", "pymatgen"]
 randomize = false
 parallel = false
-run = "pytest {args}"
 
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
 
+[tool.mypy]
+python_version = "3.10"
+files = ["src"]
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unreachable = true
+
 [[tool.mypy.overrides]]
-module = "glom"
+module = ["glom", "ase", "ase.*", "pymatgen", "pymatgen.*", "aiida", "aiida.*"]
 ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["qe_tools"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 50
 
 [tool.ruff]
 lint.ignore = [
@@ -112,3 +131,4 @@ lint.ignore = [
 ]
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["INP001", "S101", "PT009", "B026", "PT027", "T201"]
+"dev/**/*.py" = ["INP001", "T201"]

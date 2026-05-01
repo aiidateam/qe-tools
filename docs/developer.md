@@ -32,7 +32,7 @@ and install the package locally in **editable** mode (`-e`):
 
     🔧 **Pre-commit**
 
-    To make sure your changes adhere to our formatting/linting preferences, install the pre-commit hooks:
+    To make sure your changes adhere to our formatting/linting preferences and commit-message convention, install the pre-commit hooks:
 
         pre-commit install
 
@@ -72,7 +72,7 @@ and install the package locally in **editable** mode (`-e`):
 
     🔧 **Pre-commit**
 
-    To make sure your changes adhere to our formatting/linting preferences, install the pre-commit hooks:
+    To make sure your changes adhere to our formatting/linting preferences and commit-message convention, install the pre-commit hooks:
 
         uvx pre-commit install
 
@@ -118,7 +118,7 @@ and install the package locally in **editable** mode (`-e`):
 
     🔧 **Pre-commit**
 
-    To make sure your changes adhere to our formatting/linting preferences, install the pre-commit hooks:
+    To make sure your changes adhere to our formatting/linting preferences and commit-message convention, install the pre-commit hooks:
 
         hatch run pre-commit:install
 
@@ -179,3 +179,45 @@ And the following rules for the files in the `tests` directory:
 | --------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `INP001`  | [implicit-namespace-package](https://docs.astral.sh/ruff/rules/implicit-namespace-package/)                               | When tests are not part of the package, there is no need for `__init__.py` files.                                                   |
 | `S101`    | [assert](https://docs.astral.sh/ruff/rules/assert/)                                                                       | Asserts should not be used in production environments, but are fine for tests.                                                      |
+
+And the following rules for the files in the `dev` directory:
+
+| Code      | Rule                                                                                                                      | Rationale / Note                                                                                                                    |
+| --------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `INP001`  | [implicit-namespace-package](https://docs.astral.sh/ruff/rules/implicit-namespace-package/)                               | Dev scripts are not part of the package, so there is no need for `__init__.py` files.                                               |
+| `T201`    | [print](https://docs.astral.sh/ruff/rules/print/)                                                                         | Dev scripts use `print()` for user-facing output, which is fine outside of library code.                                            |
+
+## Release
+
+
+!!! important
+    Before the **first** release works, the repository has to be registered as a PyPI [Trusted Publisher](https://docs.pypi.org/trusted-publishers/) and a `pypi` GitHub environment has to exist.
+    See the [`python-copier` first-publication guide](https://mbercx.github.io/python-copier/publishing/) for that one-time setup — you only do it once per project.
+
+Releases of `qe-tools` are cut by pushing a `vX.Y.Z` tag to GitHub.
+The `cd` workflow under `.github/workflows/cd.yaml` then builds an sdist and wheel with Hatch and publishes them to PyPI.
+
+1. Bump the version and generate the changelog draft:
+
+        hatch run bump <new-version>
+
+    This runs `hatch version` to update `src/qe-tools/__about__.py`, then runs `dev/update_changelog.py` to prepend a new section to `CHANGELOG.md` with commits sorted by type.
+    Review the generated changelog, make any edits, and commit the bump on `main` (typically via a PR).
+
+2. Tag the bump commit and push the tag:
+
+        git tag -a v<new-version> -m '🚀 Release v<new-version>'
+        git push origin v<new-version>
+
+3. The `cd.yaml` workflow picks up the tag, builds the distributions, and publishes them to PyPI.
+
+The git tag and the version in `__about__.py` must agree.
+PyPI only sees the version baked into the built distribution, so a mismatch will silently publish under the wrong version (or be rejected as a duplicate of an existing release), and re-tagging after the fact is awkward.
+
+## Commit messages
+
+Each commit subject must start with a leading emoji indicating the type of change.
+This is enforced locally by a `commit-msg` pre-commit hook (`dev/check_commit_msg.py`) and in CI by a `commit-msgs` job that checks every commit in a pull request.
+The changelog script (`dev/update_changelog.py`) uses the same emojis to automatically sort commits into the right sections, so the sorting happens at commit time, when the changes are still fresh in memory.
+
+For the full specification and emoji table, see the [commit message conventions](https://mbercx.github.io/python-copier/dev-standards/#specifying-the-type-of-change).
