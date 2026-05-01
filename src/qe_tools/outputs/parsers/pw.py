@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from importlib.resources import files
 from xml.etree import ElementTree
 
@@ -52,7 +53,29 @@ class PwXMLParser(BaseOutputFileParser):
         return XMLSchema(str(files(schemas) / schema_filename)).to_dict(element_root)
 
 
+_HOMO_LUMO_RE = re.compile(
+    r"highest occupied,\s*lowest unoccupied levels?\s*\(ev\):\s*"
+    r"([\-\d.E+]+)\s+([\-\d.E+]+)"
+)
+_HOMO_RE = re.compile(r"highest occupied level\s*\(ev\):\s*([\-\d.E+]+)")
+
+
 class PwStdoutParser(BaseStdoutParser):
     """
     Class for parsing the standard output of pw.x.
     """
+
+    @staticmethod
+    def parse(content: str) -> dict:
+        parsed_data = BaseStdoutParser.parse(content)
+
+        match = _HOMO_LUMO_RE.search(content)
+        if match:
+            parsed_data["highest_occupied_level"] = float(match.group(1))
+            parsed_data["lowest_unoccupied_level"] = float(match.group(2))
+        else:
+            match = _HOMO_RE.search(content)
+            if match:
+                parsed_data["highest_occupied_level"] = float(match.group(1))
+
+        return parsed_data

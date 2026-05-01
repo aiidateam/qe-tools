@@ -1,4 +1,14 @@
 base_outputs:
+  absolute_magnetization: 0.0
+  alat: 4.958655009229507
+  eigenvalues:
+    first: -84.85888
+    last: 8.85336
+    shape:
+    - 13
+    - 1
+    - 16
+    sum: -2856.13028
   fermi_energy: 9.092168712286712
   forces:
   - - 0.0
@@ -13,6 +23,8 @@ base_outputs:
   - - 0.0
     - 9.008856055736822e-25
     - -3.12669022280311e-25
+  highest_occupied_level: 9.0922
+  job_done: true
   k_points_cartesian:
   - - 0.0
     - 0.0
@@ -67,8 +79,20 @@ base_outputs:
   - 0.1875
   - 0.1875
   - 0.03125
+  lsda: false
+  number_of_atoms: 4
   number_of_bands: 16
+  number_of_electrons: 32.0
   number_of_k_points: 13
+  number_of_species: 3
+  occupations_kpoint:
+    first: 1.0
+    last: 1.0
+    shape:
+    - 13
+    - 1
+    - 16
+    sum: 208.0
   parameters:
     ecutrho: 3265.366014072
     ecutwfc: 408.170751759
@@ -94,6 +118,7 @@ base_outputs:
     - 36
     - 36
     xc_functional: PBE
+  scf_converged: true
   stress:
   - - -62.88281405555692
     - -2.551866364254089e-14
@@ -141,6 +166,7 @@ base_outputs:
 raw_outputs:
   stdout:
     code_version: '7.2'
+    highest_occupied_level: 9.0922
     wall_time_seconds: 100.44
   xml:
     '@Units': Hartree atomic units

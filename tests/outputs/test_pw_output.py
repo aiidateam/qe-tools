@@ -15,7 +15,7 @@ from qe_tools.outputs.pw import PwOutput
         "250521",
     ],
 )
-def test_default_xml(data_regression, xml_format):
+def test_default_xml(data_regression, fingerprint_heavy, xml_format):
     """Test the default XML output of pw.x."""
 
     name = f"default_xml_{xml_format}"
@@ -26,7 +26,7 @@ def test_default_xml(data_regression, xml_format):
 
     data_regression.check(
         {
-            "base_outputs": pw_out.get_output_dict(),
+            "base_outputs": fingerprint_heavy(pw_out.get_output_dict()),
             "raw_outputs": pw_out.raw_outputs,
         }
     )
@@ -38,7 +38,7 @@ def test_default_xml(data_regression, xml_format):
         "collinear",
     ],
 )
-def test_success_base(data_regression, fixture_directory):
+def test_success_base(data_regression, fingerprint_heavy, fixture_directory):
     """Test the base outputs of successful pw.x calculations."""
 
     pw_directory = Path(__file__).parent / "fixtures" / "pw" / fixture_directory
@@ -47,7 +47,7 @@ def test_success_base(data_regression, fixture_directory):
 
     data_regression.check(
         {
-            "base_outputs": pw_out.get_output_dict(),
+            "base_outputs": fingerprint_heavy(pw_out.get_output_dict()),
         }
     )
 
@@ -58,7 +58,7 @@ def test_success_base(data_regression, fixture_directory):
         "failed_no_xml",
     ],
 )
-def test_failed(data_regression, fixture_directory):
+def test_failed(data_regression, to_jsonable, fixture_directory):
     """Test failed calculations of pw.x."""
 
     pw_directory = Path(__file__).parent / "fixtures" / "pw" / fixture_directory
@@ -67,8 +67,22 @@ def test_failed(data_regression, fixture_directory):
 
     data_regression.check(
         {
-            "base_outputs": pw_out.get_output_dict(),
+            "base_outputs": to_jsonable(pw_out.get_output_dict()),
             "raw_outputs": pw_out.raw_outputs,
+        }
+    )
+
+
+def test_insulator_homo(robust_data_regression_check):
+    """Test stdout-derived `highest_occupied_level` from an insulator SCF."""
+
+    pw_directory = Path(__file__).parent / "fixtures" / "pw" / "insulator_homo"
+
+    pw_out = PwOutput.from_dir(pw_directory)
+
+    robust_data_regression_check(
+        {
+            "highest_occupied_level": pw_out.get_output("highest_occupied_level"),
         }
     )
 
