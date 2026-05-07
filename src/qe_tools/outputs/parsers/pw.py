@@ -58,6 +58,7 @@ _HOMO_LUMO_RE = re.compile(
     r"([\-\d.E+]+)\s+([\-\d.E+]+)"
 )
 _HOMO_RE = re.compile(r"highest occupied level\s*\(ev\):\s*([\-\d.E+]+)")
+_TOTAL_ENERGY_RE = re.compile(r"!\s+total energy\s*=\s*([\-\d.E+]+)\s*Ry")
 
 
 class PwStdoutParser(BaseStdoutParser):
@@ -77,5 +78,11 @@ class PwStdoutParser(BaseStdoutParser):
             match = _HOMO_RE.search(content)
             if match:
                 parsed_data["highest_occupied_level"] = float(match.group(1))
+
+        # Final SCF total energy in Ry. For relax/md runs QE prints one `!` line
+        # per ionic step; the final converged value is the last one.
+        energy_matches = _TOTAL_ENERGY_RE.findall(content)
+        if energy_matches:
+            parsed_data["total_energy"] = float(energy_matches[-1])
 
         return parsed_data

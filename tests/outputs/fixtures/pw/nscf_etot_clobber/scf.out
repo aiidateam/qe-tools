@@ -1,0 +1,12 @@
+     Program PWSCF v.7.5 starts on  7May2026 at 16:23:36
+
+--- Removed: SCF cycle, eigenvalues, k-points; only keep header + final energies + JOB DONE. ---
+
+     highest occupied level (ev):     5.3452
+
+!    total energy              =     -75.53725762 Ry
+     total all-electron energy =      -551.438359 Ry
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=
