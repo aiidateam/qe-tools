@@ -73,6 +73,32 @@ def test_failed(data_regression, to_jsonable, fixture_directory):
     )
 
 
+def test_total_energy_nscf_clobber():
+    """Test that `total_energy` falls back to stdout when an nscf XML clobbered the scf one.
+
+    QE writes `<etot>0.0</etot>` for `nscf` and `bands` runs (see PW/src/non_scf.f90).
+    In the common `scf → nscf` workflow at a shared `prefix`, the nscf run overwrites
+    the scf XML on disk, so the only reliable source of the SCF total energy is the
+    `!  total energy = ...` line in the scf stdout.
+    """
+    from qe_tools import CONSTANTS
+
+    pw_directory = Path(__file__).parent / "fixtures" / "pw" / "nscf_etot_clobber"
+
+    pw_out = PwOutput.from_dir(pw_directory)
+
+    # Sanity check: the fixture really is an nscf XML with the bogus etot.
+    assert (
+        pw_out.raw_outputs["xml"]["input"]["control_variables"]["calculation"] == "nscf"
+    )
+    assert pw_out.raw_outputs["xml"]["output"]["total_energy"]["etot"] == 0.0
+
+    # Despite that, `total_energy` should resolve via the stdout fallback.
+    assert pw_out.get_output("total_energy") == pytest.approx(
+        -75.53725762 * CONSTANTS.ry_to_ev
+    )
+
+
 def test_insulator_homo(robust_data_regression_check):
     """Test stdout-derived `highest_occupied_level` from an insulator SCF."""
 

@@ -109,5 +109,4 @@ base_outputs:
     - F
     - Li
     - F
-  total_energy: 0.0
   total_magnetization: 0.0

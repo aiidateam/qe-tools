@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Annotated, TextIO
 
 import numpy as np
-from glom import Coalesce, Spec
+from glom import Check, Coalesce, Spec
 
 from dough import Unit
 from dough.converters import BaseConverter
@@ -324,9 +324,19 @@ class _PwMapping:
     total_energy: Annotated[
         float,
         Spec(
-            (
-                "xml.output.total_energy.etot",
-                lambda energy: energy * CONSTANTS.hartree_to_ev,
+            Coalesce(
+                (
+                    # For `nscf` and `bands` QE never assigns `etot` and writes
+                    # `<etot>0.0</etot>` (see PW/src/non_scf.f90 and
+                    # PW/src/pw_restart_new.f90); fall through to stdout below.
+                    Check(
+                        "xml.input.control_variables.calculation",
+                        one_of=("scf", "relax", "vc-relax", "md", "vc-md"),
+                    ),
+                    "xml.output.total_energy.etot",
+                    lambda energy: energy * CONSTANTS.hartree_to_ev,
+                ),
+                ("stdout.total_energy", lambda energy: energy * CONSTANTS.ry_to_ev),
             )
         ),
         Unit("eV"),

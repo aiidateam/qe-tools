@@ -167,6 +167,7 @@ raw_outputs:
   stdout:
     code_version: '7.2'
     highest_occupied_level: 9.0922
+    total_energy: -396.09758618
     wall_time_seconds: 100.44
   xml:
     '@Units': Hartree atomic units

@@ -151,6 +151,7 @@ base_outputs:
 raw_outputs:
   stdout:
     code_version: 7.3.1
+    total_energy: -22.66279398
     wall_time_seconds: 2.51
   xml:
     '@Units': Hartree atomic units
