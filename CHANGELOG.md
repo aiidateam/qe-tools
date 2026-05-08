@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.0.0a2
+
+### ✨ New features
+
+* `BandsOutput`: parse `.dat.gnu` for cumulative k-path distances [[feb1437](https://github.com/aiidateam/qe-tools/commit/feb143754cc0cc1bce8f002673a8f852b30aef02)]
+
 ## v3.0.0 - alpha 1
 
 > [!WARNING]
