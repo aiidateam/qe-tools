@@ -30,6 +30,11 @@ is_high_symmetry:
 - false
 - true
 - true
+k_path_distances:
+- 0.0
+- 0.5
+- 1.366
+- 1.866
 k_points:
 - - 1.0
   - 0.5
