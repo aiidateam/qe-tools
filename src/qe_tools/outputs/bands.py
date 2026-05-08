@@ -5,13 +5,14 @@ from pathlib import Path
 from typing import Annotated, TextIO
 
 import numpy as np
-from glom import Spec
+from glom import Coalesce, Spec
 
 from dough import Unit
 from dough.outputs import BaseOutput, output_mapping
 
 from .parsers.bands import (
     BandsDatParser,
+    BandsGnuParser,
     BandsRapParser,
     BandsStdoutParser,
 )
@@ -21,10 +22,10 @@ from .parsers.bands import (
 class _BandsMapping:
     """Typed outputs of a bands.x calculation."""
 
-    number_of_kpoints: Annotated[int, Spec("dat.nks")]
+    number_of_kpoints: Annotated[int, Spec(Coalesce("dat.nks", "gnu.nks"))]
     """Number of k-points along the band-structure path."""
 
-    number_of_bands: Annotated[int, Spec("dat.nbnd")]
+    number_of_bands: Annotated[int, Spec(Coalesce("dat.nbnd", "gnu.nbnd"))]
     """Number of bands written by bands.x."""
 
     k_points: Annotated[np.ndarray, Spec("dat.k_points")]
@@ -35,7 +36,11 @@ class _BandsMapping:
     coordinates for `crystal_b`). bands.x does not transform them.
     """
 
-    eigenvalues: Annotated[np.ndarray, Spec("dat.eigenvalues"), Unit("eV")]
+    eigenvalues: Annotated[
+        np.ndarray,
+        Spec(Coalesce("dat.eigenvalues", "gnu.eigenvalues")),
+        Unit("eV"),
+    ]
     """Kohn-Sham eigenvalues along the band path, in eV.
 
     Numpy array of shape `(n_kpoints, n_bands)`:
@@ -45,6 +50,14 @@ class _BandsMapping:
 
     For spin-polarised calculations, bands.x writes one filband per spin channel; this
     array therefore covers a single spin channel.
+    """
+
+    k_path_distances: Annotated[np.ndarray, Spec("gnu.k_path_distances")]
+    """Cumulative k-path distance per k-point, in `2π/alat`.
+
+    Numpy array of shape `(n_kpoints,)`. Suitable as the x-axis for a band-structure
+    plot. Parsed from the `*.dat.gnu` file written by bands.x; QE inserts zero-length
+    jumps for path discontinuities, which are preserved here.
     """
 
     high_symmetry_points: Annotated[np.ndarray, Spec("stdout.high_symmetry_points")]
@@ -85,17 +98,18 @@ class BandsOutput(BaseOutput[_BandsMapping]):
 
     @classmethod
     def from_dir(cls, directory: str | Path):
-        """Locate filband (`*.dat`, `*.dat.rap`) and bands.x stdout in `directory`."""
+        """Locate filband (`*.dat`, `*.dat.gnu`, `*.dat.rap`) and bands.x stdout in `directory`."""
         directory = Path(directory)
 
         if not directory.is_dir():
             raise ValueError(f"Path `{directory}` is not a valid directory.")
 
         rap_file = next(directory.glob("*.dat.rap"), None)
+        gnu_file = next(directory.glob("*.dat.gnu"), None)
 
         dat_file = None
         for candidate in directory.glob("*.dat"):
-            if candidate.name.endswith(".dat.rap"):
+            if candidate.name.endswith((".dat.rap", ".dat.gnu")):
                 continue
             with candidate.open("r") as handle:
                 if "&plot" in handle.readline():
@@ -112,13 +126,16 @@ class BandsOutput(BaseOutput[_BandsMapping]):
                 stdout_file = file
                 break
 
-        return cls.from_files(dat=dat_file, rap=rap_file, stdout=stdout_file)
+        return cls.from_files(
+            dat=dat_file, gnu=gnu_file, rap=rap_file, stdout=stdout_file
+        )
 
     @classmethod
     def from_files(
         cls,
         *,
         dat: None | str | Path | TextIO = None,
+        gnu: None | str | Path | TextIO = None,
         rap: None | str | Path | TextIO = None,
         stdout: None | str | Path | TextIO = None,
     ):
@@ -127,6 +144,8 @@ class BandsOutput(BaseOutput[_BandsMapping]):
 
         if dat is not None:
             raw_outputs["dat"] = BandsDatParser.parse_from_file(dat)
+        if gnu is not None:
+            raw_outputs["gnu"] = BandsGnuParser.parse_from_file(gnu)
         if rap is not None:
             raw_outputs["rap"] = BandsRapParser.parse_from_file(rap)
         if stdout is not None:

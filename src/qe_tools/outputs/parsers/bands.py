@@ -97,6 +97,46 @@ class BandsRapParser(BaseOutputFileParser):
         }
 
 
+class BandsGnuParser(BaseOutputFileParser):
+    """Parse the gnuplot-friendly `.dat.gnu` output of bands.x.
+
+    The `.gnu` file lists `(k_path_distance, eigenvalue)` pairs grouped per band,
+    with bands separated by blank lines. The first column is the cumulative k-path
+    coordinate (in `2π/alat`); QE inserts zero-length jumps for path discontinuities.
+    """
+
+    @staticmethod
+    def parse(content: str) -> dict:
+        blocks = [b for b in (block.strip() for block in content.split("\n\n")) if b]
+        if not blocks:
+            raise ValueError("filband.gnu file is empty.")
+
+        per_band = []
+        for block in blocks:
+            data = np.fromstring(block, sep=" ")
+            if data.size % 2 != 0:
+                raise ValueError(
+                    f"filband.gnu band block has {data.size} numbers; expected an even count."
+                )
+            per_band.append(data.reshape(-1, 2))
+
+        nks = per_band[0].shape[0]
+        if any(block.shape[0] != nks for block in per_band):
+            raise ValueError(
+                "filband.gnu band blocks have inconsistent k-point counts."
+            )
+
+        k_path_distances = per_band[0][:, 0]
+        eigenvalues = np.column_stack([block[:, 1] for block in per_band])
+
+        return {
+            "nbnd": len(per_band),
+            "nks": nks,
+            "k_path_distances": k_path_distances,
+            "eigenvalues": eigenvalues,
+        }
+
+
 class BandsStdoutParser(BaseOutputFileParser):
     """Parse the stdout of bands.x for high-symmetry point markers."""
 
