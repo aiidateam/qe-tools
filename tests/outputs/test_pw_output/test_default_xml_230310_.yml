@@ -163,11 +163,14 @@ base_outputs:
     - O
     - Li
   total_energy: -5389.181650709915
+  volume: 32.172248919612365
+  wall_time: 100.44
 raw_outputs:
   stdout:
     code_version: '7.2'
     highest_occupied_level: 9.0922
     total_energy: -396.09758618
+    volume_bohr3: 217.1091
     wall_time_seconds: 100.44
   xml:
     '@Units': Hartree atomic units

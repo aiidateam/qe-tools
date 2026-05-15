@@ -110,3 +110,5 @@ base_outputs:
     - Li
     - F
   total_magnetization: 0.0
+  volume: 65.45083006209762
+  wall_time: 6.28

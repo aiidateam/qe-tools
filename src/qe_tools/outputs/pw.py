@@ -423,6 +423,16 @@ class _PwMapping:
     ibrav: Annotated[int, Spec("xml.output.atomic_structure.@bravais_index")]
     """Bravais lattice index (QE `ibrav` integer); only present when QE writes it."""
 
+    volume: Annotated[
+        float,
+        Spec(("stdout.volume_bohr3", lambda v: v * CONSTANTS.bohr_to_ang**3)),
+        Unit("angstrom**3"),
+    ]
+    """Unit-cell volume in Å³. For vc-relax runs, the final cell volume."""
+
+    wall_time: Annotated[float, Spec("stdout.wall_time_seconds"), Unit("second")]
+    """Total wall-clock time of the calculation in seconds."""
+
     scf_converged: Annotated[
         bool,
         Spec("xml.output.convergence_info.scf_conv.convergence_achieved"),

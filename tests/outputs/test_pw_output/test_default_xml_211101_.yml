@@ -96,10 +96,13 @@ base_outputs:
     - Si
     - Si
   total_energy: -301.1308454569434
+  volume: 40.888295712459346
+  wall_time: 1.96
 raw_outputs:
   stdout:
     code_version: '7.0'
     total_energy: -22.13271119
+    volume_bohr3: 275.9279
     wall_time_seconds: 1.96
   xml:
     '@Units': Hartree atomic units

@@ -9,6 +9,11 @@ from dough.outputs import BaseOutputFileParser
 from qe_tools.utils import convert_qe_time_to_sec
 
 
+_VOLUME_RE = re.compile(
+    r"unit-cell volume\s*=\s*([\-\d.E+]+)\s*(?:\(a\.u\.\)|a\.u\.)\^3"
+)
+
+
 class BaseStdoutParser(BaseOutputFileParser):
     """Abstract class for the parsing of stdout files of Quantum ESPRESSO."""
 
@@ -39,5 +44,12 @@ class BaseStdoutParser(BaseOutputFileParser):
                 parsed_data["wall_time_seconds"] = convert_qe_time_to_sec(
                     wall_match.groupdict()["wall_time"]
                 )
+
+        # Initial line: `unit-cell volume          =     275.9279 (a.u.)^3`.
+        # vc-relax also prints `new unit-cell volume = ... a.u.^3 (...)` per step;
+        # take the last match so the final cell volume wins.
+        volume_matches = _VOLUME_RE.findall(content)
+        if volume_matches:
+            parsed_data["volume_bohr3"] = float(volume_matches[-1])
 
         return parsed_data
