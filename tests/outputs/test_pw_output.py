@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from qe_tools.outputs.pw import PwOutput
@@ -96,6 +97,44 @@ def test_total_energy_nscf_clobber():
     # Despite that, `total_energy` should resolve via the stdout fallback.
     assert pw_out.get_output("total_energy") == pytest.approx(
         -75.53725762 * CONSTANTS.ry_to_ev
+    )
+
+
+def test_k_points_stdout_xml_agree():
+    """Stdout-derived k-points agree with the XML values within stdout's printed precision.
+
+    QE prints k-points in `cart. coord. in units 2pi/alat` to 7 digits and `alat` to
+    5 digits, so cartesian coordinates in 1/Å can only match the XML at ~1e-3.
+    """
+    pw_directory = Path(__file__).parent / "fixtures" / "pw" / "default_xml_211101"
+
+    pw_out = PwOutput.from_dir(pw_directory)
+
+    assert pw_out.get_output("k_points_weights") == pytest.approx(
+        pw_out.raw_outputs["stdout"]["k_points_weights"]
+    )
+    np.testing.assert_allclose(
+        pw_out.get_output("k_points_cartesian"),
+        pw_out.raw_outputs["stdout"]["k_points_cartesian"],
+        atol=1e-3,
+    )
+
+
+def test_k_points_stdout_fallback_without_xml():
+    """`PwOutput.from_files(stdout=...)` exposes k-point outputs via the stdout fallback."""
+    stdout_file = (
+        Path(__file__).parent / "fixtures" / "pw" / "default_xml_211101" / "pw.out"
+    )
+
+    pw_out = PwOutput.from_files(stdout=stdout_file)
+
+    assert "xml" not in pw_out.raw_outputs
+    assert pw_out.get_output("number_of_k_points") == 2
+    assert len(pw_out.get_output("k_points_weights")) == pw_out.get_output(
+        "number_of_k_points"
+    )
+    assert len(pw_out.get_output("k_points_cartesian")) == pw_out.get_output(
+        "number_of_k_points"
     )
 
 

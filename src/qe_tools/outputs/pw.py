@@ -272,15 +272,26 @@ class _PwMapping:
     Only available when ``tot_magnetization`` is set in ``SYSTEM``.
     """
 
-    number_of_k_points: Annotated[int, Spec("xml.output.band_structure.nks")]
+    number_of_k_points: Annotated[
+        int,
+        Spec(
+            Coalesce(
+                "xml.output.band_structure.nks",
+                "stdout.number_of_k_points",
+            )
+        ),
+    ]
     """Number of k-points at which the Kohn-Sham states were computed."""
 
     k_points_weights: Annotated[
         list,
         Spec(
-            (
-                "xml.output.band_structure.ks_energies",
-                [lambda ks: ks["k_point"]["@weight"]],
+            Coalesce(
+                (
+                    "xml.output.band_structure.ks_energies",
+                    [lambda ks: ks["k_point"]["@weight"]],
+                ),
+                "stdout.k_points_weights",
             )
         ),
     ]
@@ -292,18 +303,24 @@ class _PwMapping:
     k_points_cartesian: Annotated[
         list,
         Spec(
-            (
-                "xml.output",
-                lambda output: [
-                    [
-                        kp
-                        * 2
-                        * math.pi
-                        / (output["atomic_structure"]["@alat"] * CONSTANTS.bohr_to_ang)
-                        for kp in ks["k_point"]["$"]
-                    ]
-                    for ks in output["band_structure"]["ks_energies"]
-                ],
+            Coalesce(
+                (
+                    "xml.output",
+                    lambda output: [
+                        [
+                            kp
+                            * 2
+                            * math.pi
+                            / (
+                                output["atomic_structure"]["@alat"]
+                                * CONSTANTS.bohr_to_ang
+                            )
+                            for kp in ks["k_point"]["$"]
+                        ]
+                        for ks in output["band_structure"]["ks_energies"]
+                    ],
+                ),
+                "stdout.k_points_cartesian",
             )
         ),
         Unit("1/angstrom"),

@@ -86,7 +86,12 @@
 
 --- SYMMETRIES REMOVED ---
 
---- K-POINTS REMOVED ---
+     number of k points=     4  Marzari-Vanderbilt smearing, width (Ry)=  0.0100
+                       cart. coord. in units 2pi/alat
+        k(    1) = (   0.0000000   0.0000000   0.0000000), wk =   0.2500000
+        k(    2) = (   0.0000000   0.0000000  -0.6123724), wk =   0.2500000
+        k(    3) = (   0.0000000  -0.5773503   0.2041241), wk =   0.7500000
+        k(    4) = (   0.0000000  -0.5773503  -0.4082483), wk =   0.7500000
 
 --- MEMORY INFO REMOVED ---
 

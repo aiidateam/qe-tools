@@ -117,6 +117,25 @@ base_outputs:
 raw_outputs:
   stdout:
     code_version: '7.1'
+    k_points_cartesian:
+    - - 0.0
+      - 0.0
+      - 0.0
+    - - 0.0
+      - 0.0
+      - -0.9950055926815952
+    - - 0.0
+      - -0.9381003739495717
+      - 0.33166847673261757
+    - - 0.0
+      - -0.9381003739495717
+      - -0.6633371159489775
+    k_points_weights:
+    - 0.25
+    - 0.25
+    - 0.75
+    - 0.75
+    number_of_k_points: 4
     total_energy: -22.65373597
     volume_bohr3: 275.9279
     wall_time_seconds: 2.02
