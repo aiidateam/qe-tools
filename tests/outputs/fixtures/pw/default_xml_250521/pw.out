@@ -95,6 +95,11 @@
      F                 7.00    18.99840     F ( 1.00)
      Li                3.00     6.94100     Li( 1.00)
 
+     number of k points=     2  Marzari-Vanderbilt smearing, width (Ry)=  0.0100
+                       cart. coord. in units 2pi/alat
+        k(    1) = (   0.0000000   0.0000000   0.0000000), wk =   1.0000000
+        k(    2) = (  -0.5000000   0.0000000   0.0000000), wk =   1.0000000
+
      Dense  grid:    50733 G-vectors     FFT dimensions: (  45,  45,  45)
 
      Smooth grid:    17941 G-vectors     FFT dimensions: (  36,  36,  36)
