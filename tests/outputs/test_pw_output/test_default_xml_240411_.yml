@@ -153,6 +153,13 @@ base_outputs:
 raw_outputs:
   stdout:
     code_version: 7.3.1
+    forces:
+    - - 0.0
+      - 0.0
+      - -2.3e-07
+    - - -0.0
+      - -0.0
+      - 2.3e-07
     k_points_cartesian:
     - - 0.0
       - 0.0
