@@ -1,15 +1,9 @@
 # Changelog
 
-## v3.0.0a2
-
-### ✨ New features
-
-* `BandsOutput`: parse `.dat.gnu` for cumulative k-path distances [[feb1437](https://github.com/aiidateam/qe-tools/commit/feb143754cc0cc1bce8f002673a8f852b30aef02)]
-
-## v3.0.0 - alpha 1
+## v3.0.0 - alpha
 
 > [!WARNING]
-> This is the first alpha release of the new `qe-tools` package.
+> This is the alpha release (now at `3a`) of the new `qe-tools` package.
 > The API is getting more stable, but will _very_ likely still have breaking changes.
 > Not all commits are shown below, only updates since re-scaffolding the package.
 > Due to the large revamp and almost-empty previous `qe-tools`, no migration guide or summary of the changes will be provided: the documentation will serve that purpose.
@@ -32,6 +26,11 @@
 
 ### ✨ New features
 
+* `PwOutput`: Parse `ecutwfc` and `ecutrho` from stdout as fallback [[f5edffc](https://github.com/aiidateam/qe-tools/commit/f5edffce456d599195d6b40f5c0e118e6a1a8ca1)]
+* `PwOutput`: Parse `forces` from stdout as fallback [[269ac9d](https://github.com/aiidateam/qe-tools/commit/269ac9d15f2263e1f19eb62238472da8dddd6e45)]
+* `PwOutput`: Parse k-points from stdout as fallback [[22237a1](https://github.com/aiidateam/qe-tools/commit/22237a1aa19a069d48008e4613af4011bcf961c1)]
+* `PwOutput`: add `wall_time` and `volume` outputs [[c61b81f](https://github.com/aiidateam/qe-tools/commit/c61b81f0517b52f12d074a1b2f75a477a6dc3665)]
+* `BandsOutput`: parse `.dat.gnu` for cumulative k-path distances [[feb1437](https://github.com/aiidateam/qe-tools/commit/feb143754cc0cc1bce8f002673a8f852b30aef02)]
 * `PwOutput`: gate `total_energy` on the calculation type [[2097eff](https://github.com/aiidateam/qe-tools/commit/2097eff215332ccec92755ea0a3af9af5d2f19c0)]
 * `ProjwfcOutput`: add output class for projwfc.x [[4e4885f](https://github.com/aiidateam/qe-tools/commit/4e4885f1022153983fcc4ead2d541319945c93de)]
 * `BandsOutput`: add output class for bands.x [[02f6d96](https://github.com/aiidateam/qe-tools/commit/02f6d960e4c68f81f1d90f4587aaf88c5b9a2728)]
