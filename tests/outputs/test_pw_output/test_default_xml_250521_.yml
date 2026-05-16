@@ -152,6 +152,8 @@ base_outputs:
 raw_outputs:
   stdout:
     code_version: '7.5'
+    ecutrho_ry: 360.0
+    ecutwfc_ry: 45.0
     forces:
     - - -0.06858972
       - 0.01765138

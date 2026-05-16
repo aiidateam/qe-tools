@@ -129,6 +129,39 @@ def test_forces_stdout_fallback_without_xml():
     assert len(pw_out.get_output("forces")) == 2
 
 
+def test_cutoffs_stdout_xml_agree():
+    """XML and stdout `ecutwfc` / `ecutrho` agree within stdout's printed precision.
+
+    QE prints both cutoffs to 4 decimal digits (`30.0000 Ry`); XML stores them in
+    Hartree. Multiplying the XML values by 2 (1 Ha = 2 Ry) puts both on the Ry scale.
+    """
+    pw_directory = Path(__file__).parent / "fixtures" / "pw" / "default_xml_220603"
+
+    pw_out = PwOutput.from_dir(pw_directory)
+    xml = pw_out.raw_outputs["xml"]["input"]["basis"]
+    stdout = pw_out.raw_outputs["stdout"]
+
+    assert 2 * xml["ecutwfc"] == pytest.approx(stdout["ecutwfc_ry"], abs=1e-4)
+    assert 2 * xml["ecutrho"] == pytest.approx(stdout["ecutrho_ry"], abs=1e-4)
+
+
+def test_cutoffs_stdout_fallback_without_xml():
+    """`PwOutput.from_files(stdout=...)` exposes the cutoffs via the stdout fallback."""
+    from qe_tools import CONSTANTS
+
+    stdout_file = (
+        Path(__file__).parent / "fixtures" / "pw" / "default_xml_220603" / "pw.out"
+    )
+
+    pw_out = PwOutput.from_files(stdout=stdout_file)
+
+    assert "xml" not in pw_out.raw_outputs
+    assert pw_out.outputs.parameters.ecutwfc == pytest.approx(30.0 * CONSTANTS.ry_to_ev)
+    assert pw_out.outputs.parameters.ecutrho == pytest.approx(
+        240.0 * CONSTANTS.ry_to_ev
+    )
+
+
 def test_k_points_stdout_xml_agree():
     """Stdout-derived k-points agree with the XML values within stdout's printed precision.
 

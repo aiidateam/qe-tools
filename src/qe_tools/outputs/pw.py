@@ -50,9 +50,12 @@ class _PwParametersMapping:
     ecutwfc: Annotated[
         float,
         Spec(
-            (
-                "xml.input.basis.ecutwfc",
-                lambda ecut: ecut * CONSTANTS.hartree_to_ev,
+            Coalesce(
+                (
+                    "xml.input.basis.ecutwfc",
+                    lambda ecut: ecut * CONSTANTS.hartree_to_ev,
+                ),
+                ("stdout.ecutwfc_ry", lambda ecut: ecut * CONSTANTS.ry_to_ev),
             )
         ),
         Unit("eV"),
@@ -62,9 +65,12 @@ class _PwParametersMapping:
     ecutrho: Annotated[
         float,
         Spec(
-            (
-                "xml.input.basis.ecutrho",
-                lambda ecut: ecut * CONSTANTS.hartree_to_ev,
+            Coalesce(
+                (
+                    "xml.input.basis.ecutrho",
+                    lambda ecut: ecut * CONSTANTS.hartree_to_ev,
+                ),
+                ("stdout.ecutrho_ry", lambda ecut: ecut * CONSTANTS.ry_to_ev),
             )
         ),
         Unit("eV"),
