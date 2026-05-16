@@ -75,6 +75,22 @@ _KPOINT_ROW_RE = re.compile(
     r"\s*wk\s*=\s*([\-\d.E+]+)"
 )
 
+# Captures the `Forces acting on atoms (cartesian axes, Ry/au):` header plus the
+# following contiguous block of `atom N type M   force =  Fx  Fy  Fz` rows. QE
+# follows this block with `The non-local contrib. to forces`, `The ionic
+# contribution to forces`, and `The local contribution to forces` blocks that
+# reuse the row format -- anchoring on the `Forces acting on atoms` header (and
+# stopping at the first non-row line) ensures only the total forces are captured.
+_FORCES_BLOCK_RE = re.compile(
+    r"Forces acting on atoms\s*\(cartesian axes,\s*Ry/au\):\s*\n\s*\n"
+    r"(?P<rows>(?:\s*atom\s+\d+\s+type\s+\d+\s+force\s*=\s*"
+    r"[\-\d.E+]+\s+[\-\d.E+]+\s+[\-\d.E+]+\s*\n)+)"
+)
+_FORCES_ROW_RE = re.compile(
+    r"atom\s+\d+\s+type\s+\d+\s+force\s*=\s*"
+    r"([\-\d.E+]+)\s+([\-\d.E+]+)\s+([\-\d.E+]+)"
+)
+
 
 class PwStdoutParser(BaseStdoutParser):
     """
@@ -99,6 +115,14 @@ class PwStdoutParser(BaseStdoutParser):
         energy_matches = _TOTAL_ENERGY_RE.findall(content)
         if energy_matches:
             parsed_data["total_energy"] = float(energy_matches[-1])
+
+        # Forces: take the last block, since relax/md runs print one per ionic step.
+        force_blocks = list(_FORCES_BLOCK_RE.finditer(content))
+        if force_blocks:
+            parsed_data["forces"] = [
+                [float(v) for v in row.groups()]
+                for row in _FORCES_ROW_RE.finditer(force_blocks[-1].group("rows"))
+            ]
 
         # k-points: take the last block, since vc-relax reprints after relaxation.
         # The stdout values are in 2pi/alat; convert to 1/Å using `alat` (also from

@@ -100,6 +100,35 @@ def test_total_energy_nscf_clobber():
     )
 
 
+def test_forces_stdout_xml_agree():
+    """XML and stdout `forces` agree within stdout's printed precision.
+
+    QE prints forces in `cartesian axes, Ry/au` to 8 decimal digits (~1e-8 Ry/bohr).
+    `xml.output.forces` is in Hartree/bohr; multiplying the stdout values by 2
+    (1 Ha = 2 Ry) puts both on the same scale.
+    """
+    pw_directory = Path(__file__).parent / "fixtures" / "pw" / "default_xml_220603"
+
+    pw_out = PwOutput.from_dir(pw_directory)
+    xml_forces = pw_out.raw_outputs["xml"]["output"]["forces"]["$"]
+    stdout_forces = np.array(pw_out.raw_outputs["stdout"]["forces"]).flatten()
+
+    np.testing.assert_allclose(2 * np.asarray(xml_forces), stdout_forces, atol=1e-8)
+
+
+def test_forces_stdout_fallback_without_xml():
+    """`PwOutput.from_files(stdout=...)` exposes `forces` via the stdout fallback."""
+    stdout_file = (
+        Path(__file__).parent / "fixtures" / "pw" / "default_xml_220603" / "pw.out"
+    )
+
+    pw_out = PwOutput.from_files(stdout=stdout_file)
+
+    assert "xml" not in pw_out.raw_outputs
+    assert pw_out.get_output("forces") is not None
+    assert len(pw_out.get_output("forces")) == 2
+
+
 def test_k_points_stdout_xml_agree():
     """Stdout-derived k-points agree with the XML values within stdout's printed precision.
 
