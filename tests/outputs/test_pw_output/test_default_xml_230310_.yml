@@ -168,6 +168,8 @@ base_outputs:
 raw_outputs:
   stdout:
     code_version: '7.2'
+    ecutrho_ry: 240.0
+    ecutwfc_ry: 30.0
     forces:
     - - 0.0
       - 0.0

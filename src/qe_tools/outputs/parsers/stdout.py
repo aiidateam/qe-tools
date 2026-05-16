@@ -12,6 +12,8 @@ from qe_tools.utils import convert_qe_time_to_sec
 _VOLUME_RE = re.compile(
     r"unit-cell volume\s*=\s*([\-\d.E+]+)\s*(?:\(a\.u\.\)|a\.u\.)\^3"
 )
+_ECUTWFC_RE = re.compile(r"kinetic-energy cutoff\s*=\s*([\-\d.E+]+)\s*Ry")
+_ECUTRHO_RE = re.compile(r"charge density cutoff\s*=\s*([\-\d.E+]+)\s*Ry")
 
 
 class BaseStdoutParser(BaseOutputFileParser):
@@ -51,5 +53,13 @@ class BaseStdoutParser(BaseOutputFileParser):
         volume_matches = _VOLUME_RE.findall(content)
         if volume_matches:
             parsed_data["volume_bohr3"] = float(volume_matches[-1])
+
+        ecutwfc_match = _ECUTWFC_RE.search(content)
+        if ecutwfc_match:
+            parsed_data["ecutwfc_ry"] = float(ecutwfc_match.group(1))
+
+        ecutrho_match = _ECUTRHO_RE.search(content)
+        if ecutrho_match:
+            parsed_data["ecutrho_ry"] = float(ecutrho_match.group(1))
 
         return parsed_data
