@@ -37,7 +37,7 @@ pw_out.get_output('fermi_energy')
 
 ### Converting to other units
 
-By default, `qe-tools` returns energies in eV. You can obtain a [`pint`](https://pint.readthedocs.io/en/stable/) quantity with unit attached using the `to` input:
+By default, `qe-tools` returns energies in eV. You can obtain a [`pint`](https://pint.readthedocs.io/en/stable/) quantity with unit attached using the `to` input (requires the `pint` extra: `pip install qe-tools[pint]`):
 
 ```python
 fermi_energy = pw_out.get_output('fermi_energy', to='pint')
