@@ -10,6 +10,8 @@ class PymatgenConverter(BaseConverter):
     def get_conversion_mapping(cls) -> dict[str, typing.Any]:
         import numpy as np
 
+        from qe_tools import CONSTANTS
+
         try:
             from pymatgen.core.structure import Structure
         except ImportError:
@@ -24,8 +26,14 @@ class PymatgenConverter(BaseConverter):
                 Structure,
                 {
                     "species": "symbols",
-                    "lattice": ("cell", lambda cell: np.array(cell)),
-                    "coords": ("positions", lambda positions: np.array(positions)),
+                    "lattice": (
+                        "cell",
+                        lambda cell: np.array(cell) * CONSTANTS.bohr_to_ang,
+                    ),
+                    "coords": (
+                        "positions",
+                        lambda positions: np.array(positions) * CONSTANTS.bohr_to_ang,
+                    ),
                 },
             ),
         }

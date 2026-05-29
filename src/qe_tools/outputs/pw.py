@@ -51,31 +51,25 @@ class _PwParametersMapping:
         float,
         Spec(
             Coalesce(
-                (
-                    "xml.input.basis.ecutwfc",
-                    lambda ecut: ecut * CONSTANTS.hartree_to_ev,
-                ),
-                ("stdout.ecutwfc_ry", lambda ecut: ecut * CONSTANTS.ry_to_ev),
+                ("xml.input.basis.ecutwfc", lambda ecut: ecut * 2.0),
+                "stdout.ecutwfc_ry",
             )
         ),
-        Unit("eV"),
+        Unit("Ry"),
     ]
-    """Kinetic-energy cutoff for wavefunctions in eV."""
+    """Kinetic-energy cutoff for wavefunctions in Ry."""
 
     ecutrho: Annotated[
         float,
         Spec(
             Coalesce(
-                (
-                    "xml.input.basis.ecutrho",
-                    lambda ecut: ecut * CONSTANTS.hartree_to_ev,
-                ),
-                ("stdout.ecutrho_ry", lambda ecut: ecut * CONSTANTS.ry_to_ev),
+                ("xml.input.basis.ecutrho", lambda ecut: ecut * 2.0),
+                "stdout.ecutrho_ry",
             )
         ),
-        Unit("eV"),
+        Unit("Ry"),
     ]
-    """Kinetic-energy cutoff for the charge density and potential in eV."""
+    """Kinetic-energy cutoff for the charge density and potential in Ry."""
 
     fft_grid: Annotated[
         list,
@@ -132,12 +126,12 @@ class _PwParametersMapping:
         Spec(
             (
                 "xml.input.bands.smearing.@degauss",
-                lambda d: d * CONSTANTS.hartree_to_ev,
+                lambda d: d * 2.0,
             )
         ),
-        Unit("eV"),
+        Unit("Ry"),
     ]
-    """Smearing width in eV."""
+    """Smearing width in Ry."""
 
     occupations: Annotated[str, Spec("xml.input.bands.occupations")]
     """Occupations scheme (e.g. `smearing`, `tetrahedra`, `fixed`)."""
@@ -177,11 +171,7 @@ class _PwMapping:
                 ),
                 "cell": (
                     "xml.output.atomic_structure.cell",
-                    lambda cell: [
-                        [coord * CONSTANTS.bohr_to_ang for coord in cell["a1"]],
-                        [coord * CONSTANTS.bohr_to_ang for coord in cell["a2"]],
-                        [coord * CONSTANTS.bohr_to_ang for coord in cell["a3"]],
-                    ],
+                    lambda cell: [list(cell["a1"]), list(cell["a2"]), list(cell["a3"])],
                 ),
                 "symbols": (
                     "xml.output.atomic_structure.atomic_positions.atom",
@@ -189,16 +179,12 @@ class _PwMapping:
                 ),
                 "positions": (
                     "xml.output.atomic_structure.atomic_positions.atom",
-                    [
-                        lambda atom: [
-                            CONSTANTS.bohr_to_ang * position for position in atom["$"]
-                        ]
-                    ],
+                    [lambda atom: list(atom["$"])],
                 ),
             }
         ),
     ]
-    """Crystal structure: cell vectors (Å), element symbols, and Cartesian positions (Å)."""
+    """Crystal structure: cell vectors (bohr), element symbols, and Cartesian positions (bohr)."""
 
     forces: Annotated[
         list,
@@ -208,7 +194,7 @@ class _PwMapping:
                     "xml.output.forces",
                     lambda forces: [
                         [
-                            value * CONSTANTS.hartree_to_ev / CONSTANTS.bohr_to_ang
+                            value * 2.0
                             for value in forces["$"][
                                 atom_index * 3 : (atom_index + 1) * 3
                             ]
@@ -216,21 +202,12 @@ class _PwMapping:
                         for atom_index in range(forces["@dims"][1])
                     ],
                 ),
-                (
-                    "stdout.forces",
-                    lambda forces: [
-                        [
-                            value * CONSTANTS.ry_to_ev / CONSTANTS.bohr_to_ang
-                            for value in row
-                        ]
-                        for row in forces
-                    ],
-                ),
+                ("stdout.forces", lambda forces: [list(row) for row in forces]),
             )
         ),
-        Unit("eV/angstrom"),
+        Unit("Ry/bohr"),
     ]
-    """Forces on atoms in eV/Å, shape [n_atoms][3]."""
+    """Forces on atoms in Ry/bohr, shape [n_atoms][3]."""
 
     stress: Annotated[
         list,
@@ -239,40 +216,40 @@ class _PwMapping:
                 "xml.output.stress",
                 lambda stress: [
                     [
-                        value * CONSTANTS.au_gpa
+                        value * CONSTANTS.au_gpa * 10.0
                         for value in stress["$"][row_number * 3 : (row_number + 1) * 3]
                     ]
                     for row_number in range(3)
                 ],
             )
         ),
-        Unit("GPa"),
+        Unit("kbar"),
     ]
-    """Stress tensor in GPa, shape [3][3]."""
+    """Stress tensor in kbar, shape [3][3]."""
 
     fermi_energy: Annotated[
         float,
         Spec(
             (
                 "xml.output.band_structure.fermi_energy",
-                lambda energy: energy * CONSTANTS.hartree_to_ev,
+                lambda energy: energy * 2.0,
             )
         ),
-        Unit("eV"),
+        Unit("Ry"),
     ]
-    """Fermi energy in eV."""
+    """Fermi energy in Ry."""
 
     fermi_energy_up: Annotated[
         float,
         Spec(
             (
                 "xml.output.band_structure.two_fermi_energies",
-                lambda energies: energies[0] * CONSTANTS.hartree_to_ev,
+                lambda energies: energies[0] * 2.0,
             )
         ),
-        Unit("eV"),
+        Unit("Ry"),
     ]
-    """Fermi energy of spin-up channel in eV.
+    """Fermi energy of spin-up channel in Ry.
 
     Only available when ``tot_magnetization`` is set in ``SYSTEM``.
     """
@@ -282,12 +259,12 @@ class _PwMapping:
         Spec(
             (
                 "xml.output.band_structure.two_fermi_energies",
-                lambda energies: energies[1] * CONSTANTS.hartree_to_ev,
+                lambda energies: energies[1] * 2.0,
             )
         ),
-        Unit("eV"),
+        Unit("Ry"),
     ]
-    """Fermi energy of spin-down channel in eV.
+    """Fermi energy of spin-down channel in Ry.
 
     Only available when ``tot_magnetization`` is set in ``SYSTEM``.
     """
@@ -328,13 +305,7 @@ class _PwMapping:
                     "xml.output",
                     lambda output: [
                         [
-                            kp
-                            * 2
-                            * math.pi
-                            / (
-                                output["atomic_structure"]["@alat"]
-                                * CONSTANTS.bohr_to_ang
-                            )
+                            kp * 2 * math.pi / output["atomic_structure"]["@alat"]
                             for kp in ks["k_point"]["$"]
                         ]
                         for ks in output["band_structure"]["ks_energies"]
@@ -343,9 +314,9 @@ class _PwMapping:
                 "stdout.k_points_cartesian",
             )
         ),
-        Unit("1/angstrom"),
+        Unit("1/bohr"),
     ]
-    """Cartesian coordinates of the k-points in 1/Å, shape `[n_kpoints][3]`."""
+    """Cartesian coordinates of the k-points in 1/bohr, shape `[n_kpoints][3]`."""
 
     number_of_bands: Annotated[
         int,
@@ -371,27 +342,26 @@ class _PwMapping:
                         one_of=("scf", "relax", "vc-relax", "md", "vc-md"),
                     ),
                     "xml.output.total_energy.etot",
-                    lambda energy: energy * CONSTANTS.hartree_to_ev,
+                    lambda energy: energy * 2.0,
                 ),
-                ("stdout.total_energy", lambda energy: energy * CONSTANTS.ry_to_ev),
+                "stdout.total_energy",
             )
         ),
-        Unit("eV"),
+        Unit("Ry"),
     ]
-    """Total energy in eV."""
+    """Total energy in Ry."""
 
     eigenvalues: Annotated[
         np.ndarray,
         Spec(
             (
                 "xml.output.band_structure",
-                lambda bs: _stack_per_kpoint(bs, "eigenvalues")
-                * CONSTANTS.hartree_to_ev,
+                lambda bs: _stack_per_kpoint(bs, "eigenvalues") * 2.0,
             )
         ),
-        Unit("eV"),
+        Unit("Ry"),
     ]
-    """Kohn-Sham eigenvalues in eV.
+    """Kohn-Sham eigenvalues in Ry.
 
     Numpy array of shape `(n_kpoints, n_spin, n_bands)`:
 
@@ -447,25 +417,20 @@ class _PwMapping:
 
     alat: Annotated[
         float,
-        Spec(
-            (
-                "xml.output.atomic_structure.@alat",
-                lambda alat: alat * CONSTANTS.bohr_to_ang,
-            )
-        ),
-        Unit("angstrom"),
+        Spec("xml.output.atomic_structure.@alat"),
+        Unit("bohr"),
     ]
-    """Lattice parameter `alat` in Å (the QE `celldm(1)` converted from Bohr)."""
+    """Lattice parameter `alat` in bohr (the QE `celldm(1)`)."""
 
     ibrav: Annotated[int, Spec("xml.output.atomic_structure.@bravais_index")]
     """Bravais lattice index (QE `ibrav` integer); only present when QE writes it."""
 
     volume: Annotated[
         float,
-        Spec(("stdout.volume_bohr3", lambda v: v * CONSTANTS.bohr_to_ang**3)),
-        Unit("angstrom**3"),
+        Spec("stdout.volume_bohr3"),
+        Unit("bohr**3"),
     ]
-    """Unit-cell volume in Å³. For vc-relax runs, the final cell volume."""
+    """Unit-cell volume in bohr³. For vc-relax runs, the final cell volume."""
 
     wall_time: Annotated[float, Spec("stdout.wall_time_seconds"), Unit("second")]
     """Total wall-clock time of the calculation in seconds."""

@@ -10,6 +10,8 @@ class ASEConverter(BaseConverter):
     def get_conversion_mapping(cls) -> dict[str, typing.Any]:
         import numpy as np
 
+        from qe_tools import CONSTANTS
+
         try:
             from ase import Atoms
         except ImportError:
@@ -24,8 +26,14 @@ class ASEConverter(BaseConverter):
                 Atoms,
                 {
                     "symbols": "symbols",
-                    "cell": ("cell", lambda cell: np.array(cell)),
-                    "positions": ("positions", lambda positions: np.array(positions)),
+                    "cell": (
+                        "cell",
+                        lambda cell: np.array(cell) * CONSTANTS.bohr_to_ang,
+                    ),
+                    "positions": (
+                        "positions",
+                        lambda positions: np.array(positions) * CONSTANTS.bohr_to_ang,
+                    ),
                 },
             ),
         }
