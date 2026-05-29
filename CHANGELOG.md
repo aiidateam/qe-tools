@@ -1,5 +1,16 @@
 # Changelog
 
+## v3.0.0a4
+
+### 💥 Breaking changes
+
+* Units: switch to QE-native units for outputs [[31640ae](https://github.com/aiidateam/qe-tools/commit/31640ae1532d986d7175aa3849fc157918e7eec8)]
+
+### 📚 Documentation
+
+* `pint`: add pint extra to default installation + notes [[ef23e7c](https://github.com/aiidateam/qe-tools/commit/ef23e7c472b103d7a8f955fb1ebc994fd958c5da)]
+* Getting started: update content for latest release [[51d056e](https://github.com/aiidateam/qe-tools/commit/51d056e225fa2831089a4e32b7a4a29fec7764eb)]
+
 ## v3.0.0 - alpha
 
 > [!WARNING]
