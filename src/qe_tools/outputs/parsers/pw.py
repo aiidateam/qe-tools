@@ -125,17 +125,15 @@ class PwStdoutParser(BaseStdoutParser):
             ]
 
         # k-points: take the last block, since vc-relax reprints after relaxation.
-        # The stdout values are in 2pi/alat; convert to 1/Å using `alat` (also from
+        # The stdout values are in 2pi/alat; convert to 1/bohr using `alat` (also from
         # stdout, in bohr) so downstream Specs match the XML-derived units.
         kpoint_blocks = list(_KPOINTS_BLOCK_RE.finditer(content))
         alat_match = _ALAT_RE.search(content)
         if kpoint_blocks and alat_match:
             import math
 
-            from qe_tools import CONSTANTS
-
-            alat_ang = float(alat_match.group(1)) * CONSTANTS.bohr_to_ang
-            scale = 2 * math.pi / alat_ang
+            alat_bohr = float(alat_match.group(1))
+            scale = 2 * math.pi / alat_bohr
             block = kpoint_blocks[-1]
             cartesian = []
             weights = []

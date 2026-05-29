@@ -37,7 +37,7 @@ pw_out.get_output('fermi_energy')
 
 ### Converting to other units
 
-By default, `qe-tools` returns energies in eV. You can obtain a [`pint`](https://pint.readthedocs.io/en/stable/) quantity with unit attached using the `to` input (requires the `pint` extra: `pip install qe-tools[pint]`):
+By default, `pw.x` outputs are reported in QE-native units (Ry, bohr, kbar, ...). You can obtain a [`pint`](https://pint.readthedocs.io/en/stable/) quantity with unit attached using the `to` input (requires the `pint` extra: `pip install qe-tools[pint]`):
 
 ```python
 fermi_energy = pw_out.get_output('fermi_energy', to='pint')
@@ -47,10 +47,10 @@ fermi_energy
 and can then convert the value to any unit you prefer:
 
 ```python
-fermi_energy.to('Ry')
+fermi_energy.to('eV')
 ```
 
-See the [units section](units.md) for more information on the list of units we return quantities in by default.
+See the [units section](units.md) for the default units of each output class.
 
 ### Tab completion
 

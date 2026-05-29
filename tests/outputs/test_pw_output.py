@@ -82,8 +82,6 @@ def test_total_energy_nscf_clobber():
     the scf XML on disk, so the only reliable source of the SCF total energy is the
     `!  total energy = ...` line in the scf stdout.
     """
-    from qe_tools import CONSTANTS
-
     pw_directory = Path(__file__).parent / "fixtures" / "pw" / "nscf_etot_clobber"
 
     pw_out = PwOutput.from_dir(pw_directory)
@@ -95,9 +93,7 @@ def test_total_energy_nscf_clobber():
     assert pw_out.raw_outputs["xml"]["output"]["total_energy"]["etot"] == 0.0
 
     # Despite that, `total_energy` should resolve via the stdout fallback.
-    assert pw_out.get_output("total_energy") == pytest.approx(
-        -75.53725762 * CONSTANTS.ry_to_ev
-    )
+    assert pw_out.get_output("total_energy") == pytest.approx(-75.53725762)
 
 
 def test_forces_stdout_xml_agree():
@@ -147,8 +143,6 @@ def test_cutoffs_stdout_xml_agree():
 
 def test_cutoffs_stdout_fallback_without_xml():
     """`PwOutput.from_files(stdout=...)` exposes the cutoffs via the stdout fallback."""
-    from qe_tools import CONSTANTS
-
     stdout_file = (
         Path(__file__).parent / "fixtures" / "pw" / "default_xml_220603" / "pw.out"
     )
@@ -156,10 +150,8 @@ def test_cutoffs_stdout_fallback_without_xml():
     pw_out = PwOutput.from_files(stdout=stdout_file)
 
     assert "xml" not in pw_out.raw_outputs
-    assert pw_out.outputs.parameters.ecutwfc == pytest.approx(30.0 * CONSTANTS.ry_to_ev)
-    assert pw_out.outputs.parameters.ecutrho == pytest.approx(
-        240.0 * CONSTANTS.ry_to_ev
-    )
+    assert pw_out.outputs.parameters.ecutwfc == pytest.approx(30.0)
+    assert pw_out.outputs.parameters.ecutrho == pytest.approx(240.0)
 
 
 def test_k_points_stdout_xml_agree():

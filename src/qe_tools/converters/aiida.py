@@ -12,6 +12,8 @@ class AiiDAConverter(BaseConverter):
     def get_conversion_mapping(cls) -> dict[str, typing.Any]:
         import numpy as np
 
+        from qe_tools import CONSTANTS
+
         try:
             from aiida import orm
         except ImportError:
@@ -45,8 +47,14 @@ class AiiDAConverter(BaseConverter):
                 convert_structure_data,
                 {
                     "symbols": "atomic_species",
-                    "cell": ("cell", lambda cell: np.array(cell)),
-                    "positions": ("positions", lambda positions: np.array(positions)),
+                    "cell": (
+                        "cell",
+                        lambda cell: np.array(cell) * CONSTANTS.bohr_to_ang,
+                    ),
+                    "positions": (
+                        "positions",
+                        lambda positions: np.array(positions) * CONSTANTS.bohr_to_ang,
+                    ),
                 },
             ),
             "full_dos": (
