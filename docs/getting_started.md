@@ -16,39 +16,77 @@ jupyter:
 !!! warning
 
     `qe-tools` is being redesigned significantly for the next major release (v3.0).
-    The usage below is expected to break as we improve the API.
+    The API below can break as we improve it. Here be dragons! 🐉
 
 ## Parsing outputs
 
-Say you have just run a `pw.x` calculation in the `qe_dir` directory.
+Say you have just run a `pw.x` calculation in the `qe_dir/` directory.
 You can parse the outputs from this directory using:
 
 ```python
 from qe_tools.outputs import PwOutput
 
-pw_out = PwOutput.from_dir('qe_dir')
+pw_out = PwOutput.from_dir('qe_dir/')
 ```
 
-You can then obtain e.g. the Fermi energy from:
+You can then obtain e.g. the Fermi energy using:
 
 ```python
 pw_out.get_output('fermi_energy')
 ```
 
-Another property you might be interested in is the structure:
+### Converting to other units
+
+By default, `qe-tools` returns energies in eV. You can obtain a [`pint`](https://pint.readthedocs.io/en/stable/) quantity with unit attached using the `to` input:
+
+```python
+fermi_energy = pw_out.get_output('fermi_energy', to='pint')
+fermi_energy
+```
+
+and can then convert the value to any unit you prefer:
+
+```python
+fermi_energy.to('Ry')
+```
+
+See the [units section](units.md) for more information on the list of units we return quantities in by default.
+
+### Tab completion
+
+Alternatively, you can also find the **available** outputs in the `outputs` namespace:
+
+```python
+pw_out.outputs.fermi_energy
+```
+
+Since these are attributes, you can obtain them via tab completion, and if you're working in an IDE with static analysis you'll see the type of the output and a docstring. Give it a try!
+
+
+!!! warning
+
+    The `outputs` namespace is designed for interactive access.
+    If an output is not available, accessing it raises `AttributeError`.
+    Tab completion in an IPython kernel (e.g. in Jupyter) only shows available outputs — but static analysis tools like Pylance will show all declared outputs regardless.
+
+### Converting to other libraries
+
+Another output you're likely interested in is the structure:
 
 ```python
 pw_out.get_output('structure')
 ```
 
-But likely, you'll want the structure in the flavor of your favorite Python package.
-You can also do this using the `to` input:
+But you might want the structure in the flavor of your favorite Python package.
+You can also do this using the `to` argument:
 
 ```python
 pw_out.get_output('structure', to='ase')
 ```
 
-You can list all available outputs:
+### Getting all outputs
+
+To obtain a list of all available outputs:
 
 ```python
 pw_out.list_outputs()
@@ -63,43 +101,32 @@ pw_out.list_outputs()
     pw_out.list_outputs(only_available=False)
     ```
 
-Alternatively, you can also find the **available** outputs in the `outputs` namespace:
+
 
 ```python
-pw_out.outputs.fermi_energy
+pw_out.get_output_dict()
 ```
 
-!!! warning
-
-    The `outputs` namespace is designed for interactive access.
-    If an output is not available, accessing it raises `AttributeError`.
-    Tab completion (e.g. in Jupyter) only shows available outputs — but static type checkers like Pylance will show all declared outputs regardless.
-
-
-Finally, you can obtain a dictionary of all available outputs in your preferred library:
-
-```python
-pw_out.get_output_dict(to='ase')
-```
+<!-- #region -->
 
 
 ### Parsing a single output file
 
 If you want to parse the contents of a single output file of the `pw.x` calculation, you can use the `from_files` method:
+<!-- #endregion -->
 
 ```python
 from qe_tools.outputs import PwOutput
 
-pw_out = PwOutput.from_files(xml='qe_dir/pwscf.xml')
+pw_out = PwOutput.from_files(stdout='qe_dir/pw.out')
 ```
 
 !!! warning "Important"
 
     For the `pw.x` calculation, we retrieve most of the final outputs from the XML file.
-    Parsing _only_ from the `stdout` file will lead to very limited results.
+    Parsing _only_ from the `stdout` file will lead to limited results.
 
-
-### Parsing other outputs
+### Other codes
 
 We don't only provide output parsing for `pw.x`!
 Below you can find and example where we plot the DOS output of a `dos.x` calculation:
@@ -116,3 +143,7 @@ import matplotlib.pyplot as plt
 plt.plot(dos_out.outputs.energy, dos_out.outputs.dos)
 ```
 
+!!! info "That's it for now!"
+
+    `qe-tools` is a work in progress, and we welcome feedback!
+    Feel free to [open an issue if you have comments or feature requests](https://github.com/aiidateam/qe-tools/issues/new).
