@@ -2,9 +2,9 @@
 
 ## 💾 Installation
 
-To install the latest pre-release:
+To install the latest pre-release with `pint` units support:
 
-    pip install --pre qe-tools
+    pip install --pre qe-tools[pint]
 
 !!! warning
 

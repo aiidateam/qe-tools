@@ -18,7 +18,12 @@ Below you can find the units we chose for each quantity:
 
 ## Converting to different units
 
-To convert outputs to different units, we rely on the [`pint` package](https://pint.readthedocs.io/en/stable/):
+To convert outputs to different units, we rely on the [`pint` package](https://pint.readthedocs.io/en/stable/).
+It is an optional dependency; install it via the `pint` extra:
+
+    pip install qe-tools[pint]
+
+You can then request a `pint` quantity from any unit-annotated output:
 
 ```python
 fermi_energy = pw_out.get_output('fermi_energy', to='pint')
